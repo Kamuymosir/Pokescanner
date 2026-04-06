@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PokeScanner Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif;max-width:480px;margin:0 auto;padding-bottom:60px;min-height:100vh}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bar{0%{top:5%;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:95%;opacity:0}}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+#header{padding:14px 16px;background:#080810;border-bottom:1px solid #111;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px}
+.icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1e3a5f,#3b0764);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.title{font-size:15px;font-weight:900}
+.sub{font-size:9px;color:#333;letter-spacing:1px}
+.pro-badge{margin-left:auto;font-size:9px;background:#1a1a2e;border:1px solid #3b0764;color:#a78bfa;padding:3px 7px;border-radius:4px;font-weight:700;letter-spacing:1px}
+
+#main{padding:16px}
+
+#apikey-wrap{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+#apikey-wrap label{font-size:11px;color:#3d4a5c;flex-shrink:0;white-space:nowrap}
+#apikey{flex:1;padding:8px 10px;background:#0c0c14;border:1px solid #1a1a2e;border-radius:8px;color:#94a3b8;font-size:11px;font-family:monospace;outline:none;min-width:0}
+
+#dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:12px;border:1.5px dashed #1e2535;background:#08080f;aspect-ratio:4/3;cursor:pointer;transition:border-color .2s}
+#dropzone:hover{border-color:#3b0764}
+.dz-emoji{font-size:40px}
+.dz-txt{font-size:13px;color:#2d3748;font-weight:700}
+.dz-sub{font-size:10px;color:#1e2535}
+
+#preview-wrap{position:relative;border-radius:12px;overflow:hidden;background:#000;display:none}
+#preview-wrap img{width:100%;display:block;max-height:360px;object-fit:contain}
+#scan-bar{position:absolute;left:5%;width:90%;height:2px;background:linear-gradient(90deg,transparent,#7c3aed,#38bdf8,#7c3aed,transparent);display:none;box-shadow:0 0 8px #7c3aed}
+#overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#spinner{width:36px;height:36px;border:3px solid #1a1a3a;border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite}
+#phase-txt{font-size:11px;color:#94a3b8;animation:pulse 1.5s infinite}
+
+#btn-area{margin-top:10px}
+.primary-label{display:block;padding:13px;border-radius:10px;border:1px solid #1a1a2e;background:#0c0c14;color:#60a5fa;font-size:14px;font-weight:700;text-align:center;cursor:pointer}
+#btn-grid{display:none;grid-template-columns:1fr 1fr;gap:8px}
+#btn-reset{padding:12px;border-radius:10px;border:1px solid #1e1e30;background:#0c0c14;color:#555;font-size:13px;font-weight:700;cursor:pointer}
+#btn-scan{padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#1e40af,#7c3aed);color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+#btn-scan:disabled{background:#111;color:#333;cursor:not-allowed}
+
+#status-bar{margin-top:8px;padding:8px 12px;background:#0a0a18;border:1px solid #1a1a30;border-radius:8px;font-size:10px;color:#334;font-family:monospace;display:none;line-height:1.6}
+#err{margin-top:8px;padding:10px 12px;background:#180808;border:1px solid #380808;border-radius:8px;font-size:11px;color:#f87171;line-height:1.6;word-break:break-all;font-family:monospace;display:none}
+
+#results{margin-top:18px;animation:up .3s ease;display:none}
+
+/* Alert for ultra-rare */
+#rare-alert{display:none;margin-bottom:12px;padding:12px 14px;background:#1a0a00;border:1px solid #92400e;border-radius:10px}
+.rare-alert-title{font-size:11px;color:#fbbf24;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.rare-alert-body{font-size:12px;color:#78350f;line-height:1.6}
+.rare-alert-body b{color:#f59e0b}
+
+#total-box{background:#080f18;border:1px solid #0f1e30;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.total-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.total-label{font-size:9px;color:#2a3d52;letter-spacing:1px}
+.total-count{font-size:9px;color:#2a3d52}
+.total-value{font-size:28px;font-weight:900;color:#fbbf24;font-family:monospace;line-height:1}
+.total-range{font-size:11px;color:#2a3d52;margin-top:2px}
+.total-summary{margin-top:10px;padding-top:10px;border-top:1px solid #0f1520;font-size:12px;color:#4a5568;line-height:1.7}
+
+/* Market prices section */
+#market-section{margin-bottom:10px;display:none}
+.market-title{font-size:10px;color:#2a3d52;letter-spacing:1px;margin-bottom:6px}
+.market-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#080f18;border:1px solid #0f1e30;border-radius:8px;margin-bottom:4px}
+.market-name{font-size:11px;color:#64748b}
+.market-price{font-size:13px;font-weight:700;color:#fbbf24;font-family:monospace}
+.market-date{font-size:9px;color:#1e2a3a}
+
+#cards-list{}
+.card{background:#0c0c14;border:1px solid #1a1a2e;border-radius:12px;padding:13px 15px;margin-bottom:8px;animation:up .35s ease both}
+.card-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card-left{flex:1;min-width:0}
+.card-tags{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap}
+.tag{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700}
+.tag-vintage{background:#422006;color:#fde68a}
+.tag-psa{background:#052e16;color:#6ee7b7}
+.tag-ultra{background:#3b0764;color:#e9d5ff}
+.tag-warn{background:#1a0505;color:#f87171;border:1px solid #3a0808}
+.card-name{font-size:16px;font-weight:800;color:#e2e8f0;margin-bottom:2px}
+.card-meta{font-size:11px;color:#3d4a5c;margin-bottom:8px}
+.rarity-badge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 10px}
+.rarity-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rarity-score{font-size:10px;opacity:.6}
+.card-right{text-align:right;flex-shrink:0}
+.card-avg{font-size:20px;font-weight:900;font-family:monospace}
+.card-range{font-size:10px;color:#374151;margin-top:1px}
+.card-cond{font-size:10px;color:#374151;margin-top:2px}
+.psa-section{margin-top:10px;padding-top:10px;border-top:1px solid #1a1a2e}
+.psa-title{font-size:9px;color:#334155;letter-spacing:1px;margin-bottom:5px}
+.psa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.psa-cell{background:#080810;border-radius:6px;padding:5px 4px;text-align:center}
+.psa-grade{font-size:9px;color:#4a5568}
+.psa-price{font-size:10px;font-weight:700;font-family:monospace}
+.card-notes{margin-top:8px;font-size:11px;color:#4a5568;line-height:1.6}
+.circulation{margin-top:6px;font-size:10px;color:#374151;display:flex;align-items:center;gap:4px}
+.circulation b{color:#fbbf24}
+
+#btn-rescan{width:100%;margin-top:8px;padding:11px;border-radius:10px;border:1px solid #1a1a2e;background:transparent;color:#374151;font-size:13px;cursor:pointer}
+</style>
+
+</head>
+<body>
+
+<div id="header">
+  <div class="icon">⚡</div>
+  <div>
+    <div class="title">PokeScanner</div>
+    <div class="sub">RARITY · VALUE · ANALYSIS</div>
+  </div>
+  <div class="pro-badge">PRO</div>
+</div>
+
+<div id="main">
+  <div id="apikey-wrap">
+    <label>API Key</label>
+    <input id="apikey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+  </div>
+
+  <div id="dropzone" onclick="document.getElementById('fi1').click()">
+    <div class="dz-emoji">🃏</div>
+    <div class="dz-txt">タップして画像を選択</div>
+    <div class="dz-sub">写真ライブラリ / ファイル</div>
+  </div>
+  <input id="fi1" type="file" accept="image/*" style="display:none">
+
+  <div id="preview-wrap">
+    <img id="preview-img" src="" alt="card">
+    <div id="scan-bar" style="animation:bar 1.5s ease-in-out infinite"></div>
+    <div id="overlay">
+      <div id="spinner"></div>
+      <div id="phase-txt">カード識別中...</div>
+    </div>
+  </div>
+
+  <div id="btn-area" style="margin-top:10px">
+    <label class="primary-label" onclick="document.getElementById('fi2').click()">🖼️ カードを読み込む</label>
+    <input id="fi2" type="file" accept="image/*" style="display:none">
+    <div id="btn-grid">
+      <button id="btn-reset">やり直す</button>
+      <button id="btn-scan">⚡ 判定する</button>
+    </div>
+  </div>
+
+  <div id="status-bar"></div>
+  <div id="err"></div>
+
+  <div id="results">
+    <div id="rare-alert">
+      <div class="rare-alert-title">⚠️ 超希少カード検出</div>
+      <div class="rare-alert-body" id="rare-alert-body"></div>
+    </div>
+    <div id="total-box">
+      <div class="total-row">
+        <div class="total-label">TOTAL ESTIMATED VALUE</div>
+        <div class="total-count" id="card-count"></div>
+      </div>
+      <div class="total-value" id="total-avg"></div>
+      <div class="total-range" id="total-range"></div>
+      <div class="total-summary" id="total-summary"></div>
+    </div>
+    <div id="market-section">
+      <div class="market-title">📊 参考落札価格（Yahoo!オークション）</div>
+      <div id="market-list"></div>
+    </div>
+    <div id="cards-list"></div>
+    <button id="btn-rescan">別のカードをスキャン</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ULTRA RARE CARD DATABASE
+// ============================================================
+const ULTRA_RARE_DB = {
+  "ガルーラ": {
+    set: "ジャングル", era: "旧裏面", circulation: "34枚（PSA登録数）",
+    note: "ジャングル拡張パックの封入ミス的希少カード。PSA10は市場最高峰。",
+    psaPrices: { 10: 5000000, 9: 1500000, 8: 500000, 7: 200000 },
+    rawRange: [30000, 150000],
+    alert: "このカードはPSA登録数約34枚の超希少カード。メルカリ・ヤフオクでPSA鑑定済みは<b>100万〜500万円以上</b>での落札事例あり。生カードでも状態次第で高額。"
+  },
+  "コイキング": {
+    set: "基本セット", era: "旧裏面", circulation: "流通数不明（極少）",
+    note: "旧裏面ホロ。状態の良いものは希少。",
+    psaPrices: { 10: 800000, 9: 300000, 8: 100000, 7: 50000 },
+    rawRange: [10000, 80000], alert: null
+  },
+  "ピカチュウ": {
+    set: "旧裏面各種", era: "旧裏面", circulation: "版によって異なる",
+    note: "旧裏面ピカチュウ各種。特にプロモ・コロコロ版は高額。",
+    psaPrices: { 10: 2000000, 9: 500000, 8: 150000, 7: 50000 },
+    rawRange: [5000, 200000], alert: null
+  },
+  "ピカチュウ_コロコロ": {
+    keywords: ["コロコロ", "プロモ", "ピカチュウ"],
+    psaPrices: { 10: 3000000, 9: 800000, 8: 200000, 7: 80000 },
+    rawRange: [50000, 300000],
+    alert: "コロコロコミックプロモピカチュウ。PSA10は国内最高価格帯カードの一つ。"
+  },
+  "ルギア": {
+    set: "neo genesis", era: "Neo", circulation: "比較的流通",
+    note: "neo genesis ルギア ホロ。人気と希少性が高い。",
+    psaPrices: { 10: 1500000, 9: 400000, 8: 100000, 7: 40000 },
+    rawRange: [20000, 150000], alert: null
+  },
+  "ホウオウ": {
+    set: "neo revelation", era: "Neo",
+    psaPrices: { 10: 800000, 9: 200000, 8: 60000, 7: 20000 },
+    rawRange: [10000, 80000], alert: null
+  },
+  "リザードン_SAR": {
+    keywords: ["リザードン", "SAR", "スペシャルアートレア"],
+    psaPrices: { 10: 100000, 9: 50000, 8: 20000, 7: 10000 },
+    rawRange: [15000, 40000], alert: null
+  },
+};
+
+// ============================================================
+// PSA PRICE REFERENCE
+// ============================================================
+const PSA_TABLE = `
+【PSAグレード別価格参考（2024年最新）】
+- ガルーラ(旧裏ジャングル): PSA10=500万+, PSA9=150万, PSA8=50万, 生=3-15万
+- ピカチュウ(旧裏初版): PSA10=200万, PSA9=50万, PSA8=15万
+- ルギア(neo genesis holo): PSA10=150万, PSA9=40万, PSA8=10万
+- ミュウツー(旧裏基本): PSA10=100万, PSA9=30万, PSA8=8万
+- リザードン(旧裏基本holo): PSA10=300万, PSA9=80万, PSA8=20万
+- ファイヤー(旧裏基本holo): PSA10=80万, PSA9=20万, PSA8=5万
+- サンダー(旧裏基本holo): PSA10=80万, PSA9=20万, PSA8=5万
+- フリーザー(旧裏基本holo): PSA10=60万, PSA9=15万, PSA8=4万
+- コイキング(旧裏基本): PSA10=80万, PSA9=25万, PSA8=8万
+- ギャラドス(旧裏基本holo): PSA10=150万, PSA9=40万, PSA8=10万
+- カビゴン(旧裏基本): PSA10=50万, PSA9=15万, PSA8=4万
+- ゲンガー(旧裏化石holo): PSA10=80万, PSA9=20万, PSA8=6万
+- ラプラス(旧裏化石): PSA10=40万, PSA9=10万, PSA8=3万
+- カイリュー(旧裏化石holo): PSA10=200万, PSA9=50万, PSA8=15万
+- ガルーラ(旧裏ジャングルholo): PSA10=500万超, PSA9=150万, PSA8=50万, 生=3-15万
+- ピクシー(旧裏ジャングルholo): PSA10=30万, PSA9=8万, PSA8=2万
+`;
+
+// ============================================================
+// RARITY CONFIG
+// ============================================================
+const RARITY = {
+  "Common":           { accent:"#64748b", label:"コモン" },
+  "Uncommon":         { accent:"#4ade80", label:"アンコモン" },
+  "Rare":             { accent:"#60a5fa", label:"レア" },
+  "Holo Rare":        { accent:"#a78bfa", label:"ホロレア" },
+  "Ultra Rare":       { accent:"#f87171", label:"ウルトラレア" },
+  "Secret Rare":      { accent:"#fbbf24", label:"シークレット" },
+  "Special Art Rare": { accent:"#f472b6", label:"SAR" },
+  "Hyper Rare":       { accent:"#38bdf8", label:"ハイパーレア" },
+  "Promo":            { accent:"#fb923c", label:"プロモ" },
+};
+
+// ============================================================
+// SYSTEM PROMPT
+// ============================================================
+function buildSystemPrompt() {
+  return `You are an expert Pokemon card authenticator and market appraiser with 25+ years of experience in Japanese vintage Pokemon cards. You have deep knowledge of:
+- All Japanese Pokemon card sets from Base Set (旧裏面) through modern Scarlet & Violet
+- PSA/BGS grading standards and grade-specific market values
+- Ultra-rare and low-circulation cards with special market conditions
+- Current Japanese secondary market (メルカリ、ヤフオク、トレカ市場)
+
+${PSA_TABLE}
+
+【重要な鑑定指示】
+1. カード名・セット・版を正確に特定すること（旧裏面か新裏面か必ず判定）
+2. コンディションはPSA基準で厳密に評価（表面傷、角の状態、センタリング）
+3. 超希少カード（ガルーラ旧裏、コロコロピカチュウ等）は必ずisUltraRare:trueにする
+4. PSAグレード別価格を必ず算出すること
+5. 価格は日本円で現在の市場実勢価格を反映すること（低く見積もらないこと）
+6. 生カード（未鑑定）とPSA鑑定済みの価格を必ず区別すること
+
+Return ONLY raw JSON. No markdown, no backticks. Start with { end with }.
+
+{
+  "cards": [{
+    "name": "カード名（日本語）",
+    "set": "セット名",
+    "setCode": "セットコード or unknown",
+    "cardNumber": "カード番号 e.g. No.115",
+    "rarity": "Common|Uncommon|Rare|Holo Rare|Ultra Rare|Secret Rare|Special Art Rare|Hyper Rare|Promo",
+    "rarityScore": 7,
+    "era": "旧裏面|Neo|ADV|PCG|DPt|BW|XY|SM|SWSH|SV|unknown",
+    "isVintage": true,
+    "isUltraRare": false,
+    "circulation": "流通枚数または希少性の説明（不明な場合はnull）",
+    "condition": {
+      "overall": "Near Mint",
+      "psaEquivalent": 8,
+      "surface": "表面の状態説明",
+      "corners": "角の状態",
+      "centering": "センタリング評価"
+    },
+    "pricing": {
+      "rawMin": 3000,
+      "rawMax": 8000,
+      "rawNote": "生カード相場の説明",
+      "psa10": null,
+      "psa9": null,
+      "psa8": null,
+      "psa7": null,
+      "psaNote": "PSA価格の説明"
+    },
+    "gradeCandidate": true,
+    "gradeCandidateReason": "PSA鑑定を勧める理由",
+    "notes": "その他の重要情報（日本語）",
+    "marketInsight": "市場動向・買い時売り時の分析（日本語）"
+  }],
+  "totalRawMin": 3000,
+  "totalRawMax": 8000,
+  "overallAssessment": "全体的な評価（日本語・詳細）"
+}`;
+}
+
+// ============================================================
+// MATCH ULTRA RARE DB
+// ============================================================
+function matchUltraRare(cardName, set) {
+  const name = (cardName || "").replace(/\s/g,"");
+  const setStr = (set || "").toLowerCase();
+  
+  if (name.includes("ガルーラ") && (setStr.includes("ジャングル") || setStr.includes("jungle"))) {
+    return ULTRA_RARE_DB["ガルーラ"];
+  }
+  if (name.includes("ルギア")) return ULTRA_RARE_DB["ルギア"];
+  if (name.includes("ホウオウ")) return ULTRA_RARE_DB["ホウオウ"];
+  if (name.includes("コイキング")) return ULTRA_RARE_DB["コイキング"];
+  return null;
+}
+
+// ============================================================
+// API CALL
+// ============================================================
+async function callClaude(b64, mime, apiKey, onPhase) {
+  onPhase("Phase 1: カード識別・詳細分析中...");
+  
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 2500,
+      system: buildSystemPrompt(),
+      messages: [{
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: mime, data: b64 } },
+          { type: "text", text: `このポケモンカードを詳細に分析してください。
+
+特に以下を重点的に確認してください：
+1. 旧裏面カードかどうか（カード裏面のデザインで判定）
+2. カードの正確な名前・セット・番号
+3. 表面・角・センタリングの状態（PSA基準）
+4. 超希少カードや特別な流通背景があるか
+5. 現在の日本市場での正確な価格（生カード・PSA鑑定済み両方）
+
+JSON形式のみで返答してください。` }
+        ]
+      }]
+    })
+  });
+
+  const text = await res.text();
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try { msg = JSON.parse(text)?.error?.message || msg; } catch {}
+    throw new Error(msg);
+  }
+
+  const envelope = JSON.parse(text);
+  const raw = (envelope.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+  if (!raw) throw new Error("APIレスポンスが空です");
+
+  const s = raw.indexOf("{"), e = raw.lastIndexOf("}");
+  if (s<0||e<0) throw new Error("JSONが見つかりません: " + raw.slice(0,100));
+
+  let parsed;
+  try { parsed = JSON.parse(raw.slice(s,e+1)); }
+  catch(pe) { throw new Error("JSONパース失敗: " + raw.slice(s,s+200)); }
+
+  if (!Array.isArray(parsed.cards)) throw new Error("cardsフィールドなし");
+
+  onPhase("Phase 2: 超希少カードDBと照合中...");
+  await new Promise(r => setTimeout(r, 400));
+
+  parsed.cards = parsed.cards.map(card => {
+    const match = matchUltraRare(card.name, card.set);
+    if (match) {
+      card._ultraRareMatch = match;
+      card.isUltraRare = true;
+      if (match.circulation) card.circulation = match.circulation;
+      if (match.psaPrices) {
+        card.pricing = card.pricing || {};
+        card.pricing.psa10 = match.psaPrices[10];
+        card.pricing.psa9  = match.psaPrices[9];
+        card.pricing.psa8  = match.psaPrices[8];
+        card.pricing.psa7  = match.psaPrices[7];
+        if (match.rawRange) {
+          card.pricing.rawMin = match.rawRange[0];
+          card.pricing.rawMax = match.rawRange[1];
+        }
+      }
+    }
+    return card;
+  });
+
+  return parsed;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let b64 = null, mime = "image/jpeg";
+
+function setPhase(txt) {
+  document.getElementById("phase-txt").textContent = txt;
+}
+function showStatus(msg) {
+  const el = document.getElementById("status-bar");
+  el.innerHTML = msg; el.style.display = "block";
+}
+function showErr(msg) {
+  const el = document.getElementById("err");
+  el.textContent = msg; el.style.display = "block";
+  document.getElementById("status-bar").style.display = "none";
+}
+function clearMsg() {
+  document.getElementById("status-bar").style.display = "none";
+  document.getElementById("err").style.display = "none";
+}
+
+function handleFile(f) {
+  if (!f) return;
+  clearMsg();
+  document.getElementById("results").style.display = "none";
+
+  let mt = f.type || "";
+  if (!mt || mt === "application/octet-stream") {
+    const ext = f.name.split(".").pop().toLowerCase();
+    mt = {jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",heic:"image/jpeg",heif:"image/jpeg"}[ext]||"image/jpeg";
+  }
+  if (mt.includes("heic")||mt.includes("heif")) mt="image/jpeg";
+  mime = mt;
+
+  const rd = new FileReader();
+  rd.onload = ev => {
+    const dataUrl = ev.target.result;
+    b64 = dataUrl.split(",")[1];
+    document.getElementById("preview-img").src = dataUrl;
+    document.getElementById("dropzone").style.display = "none";
+    document.getElementById("preview-wrap").style.display = "block";
+    document.querySelector(".primary-label").style.display = "none";
+    document.getElementById("btn-grid").style.display = "grid";
+  };
+  rd.readAsDataURL(f);
+}
+
+["fi1","fi2"].forEach(id => {
+  document.getElementById(id).addEventListener("change", e => handleFile(e.target.files[0]));
+});
+
+document.getElementById("btn-reset").addEventListener("click", () => {
+  b64 = null;
+  document.getElementById("preview-wrap").style.display = "none";
+  document.getElementById("dropzone").style.display = "flex";
+  document.querySelector(".primary-label").style.display = "block";
+  document.getElementById("btn-grid").style.display = "none";
+  document.getElementById("results").style.display = "none";
+  clearMsg();
+  ["fi1","fi2"].forEach(id => { document.getElementById(id).value = ""; });
+});
+
+document.getElementById("btn-rescan").addEventListener("click", () => {
+  document.getElementById("btn-reset").click();
+});
+
+document.getElementById("btn-scan").addEventListener("click", async () => {
+  if (!b64) { showErr("画像を選択してください"); return; }
+  const apiKey = document.getElementById("apikey").value.trim();
+  if (!apiKey) { showErr("APIキーを入力してください（sk-ant-...）"); return; }
+
+  const btn = document.getElementById("btn-scan");
+  btn.disabled = true; btn.textContent = "解析中...";
+  document.getElementById("overlay").style.display = "flex";
+  document.getElementById("scan-bar").style.display = "block";
+  document.getElementById("results").style.display = "none";
+  clearMsg();
+
+  try {
+    const data = await callClaude(b64, mime, apiKey, setPhase);
+    renderResults(data);
+    showStatus(`✅ 解析完了 | ${data.cards.length}枚検出 | Phase 1+2完了`);
+  } catch(e) {
+    showErr(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "⚡ 判定する";
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("scan-bar").style.display = "none";
+  }
+});
+
+// ============================================================
+// RENDER
+// ============================================================
+function fmt(n) { return n != null ? "¥" + Math.round(n).toLocaleString() : "-"; }
+
+function renderResults(data) {
+  const cards = data.cards || [];
+
+  const ultraCard = cards.find(c => c.isUltraRare && c._ultraRareMatch?.alert);
+  const rareAlertEl = document.getElementById("rare-alert");
+  if (ultraCard) {
+    document.getElementById("rare-alert-body").innerHTML = ultraCard._ultraRareMatch.alert;
+    rareAlertEl.style.display = "block";
+  } else {
+    rareAlertEl.style.display = "none";
+  }
+
+  const totalMin = data.totalRawMin || 0;
+  const totalMax = data.totalRawMax || 0;
+  const totalAvg = Math.round((totalMin + totalMax) / 2);
+  document.getElementById("total-avg").textContent = fmt(totalAvg);
+  document.getElementById("total-range").textContent = fmt(totalMin) + " 〜 " + fmt(totalMax) + "（生カード）";
+  document.getElementById("card-count").textContent = cards.length + "枚検出";
+  const sumEl = document.getElementById("total-summary");
+  sumEl.textContent = data.overallAssessment || "";
+  sumEl.style.display = data.overallAssessment ? "block" : "none";
+
+  const list = document.getElementById("cards-list");
+  list.innerHTML = "";
+
+  cards.forEach((card, i) => {
+    const c = RARITY[card.rarity] || RARITY["Common"];
+    const p = card.pricing || {};
+    const rawAvg = Math.round(((p.rawMin||0)+(p.rawMax||0))/2);
+    const cond = card.condition || {};
+    const psaEq = cond.psaEquivalent;
+
+    const div = document.createElement("div");
+    div.className = "card";
+    div.style.animationDelay = (i*0.08) + "s";
+
+    const psaRows = [10,9,8,7].map(g => {
+      const price = p["psa"+g];
+      return `<div class="psa-cell">
+        <div class="psa-grade">PSA ${g}</div>
+        <div class="psa-price" style="color:${price ? '#fbbf24' : '#1e2a3a'}">${price ? fmt(price) : "-"}</div>
+      </div>`;
+    }).join("");
+
+    const hasPsa = p.psa10 || p.psa9 || p.psa8 || p.psa7;
+
+    div.innerHTML = `
+      <div class="card-inner">
+        <div class="card-left">
+          <div class="card-tags">
+            ${card.isVintage ? '<span class="tag tag-vintage">旧裏</span>' : ""}
+            ${card.isUltraRare ? '<span class="tag tag-ultra">超希少</span>' : ""}
+            ${card.gradeCandidate ? '<span class="tag tag-psa">PSA推奨</span>' : ""}
+            ${psaEq && psaEq >= 9 ? '<span class="tag tag-psa">PSA'+psaEq+'相当</span>' : ""}
+          </div>
+          <div class="card-name">${card.name}</div>
+          <div class="card-meta">${card.set || ""}${card.cardNumber ? " · " + card.cardNumber : ""} · ${card.era || ""}</div>
+          <span class="rarity-badge" style="background:${c.accent}15;border:1px solid ${c.accent}40">
+            <span class="rarity-dot" style="background:${c.accent}"></span>
+            <span style="color:${c.accent};font-size:12px;font-weight:700">${c.label}</span>
+            <span class="rarity-score" style="color:${c.accent}">${card.rarityScore}/10</span>
+          </span>
+          ${card.circulation ? `<div class="circulation">📦 流通: <b>${card.circulation}</b></div>` : ""}
+        </div>
+        <div class="card-right">
+          <div class="card-avg" style="color:${c.accent}">${fmt(rawAvg)}</div>
+          <div class="card-range">${fmt(p.rawMin)}〜${fmt(p.rawMax)}</div>
+          <div class="card-cond">${cond.overall || ""}${psaEq ? " (PSA"+psaEq+"相当)" : ""}</div>
+        </div>
+      </div>
+      ${hasPsa ? `
+      <div class="psa-section">
+        <div class="psa-title">PSA鑑定済み想定価格</div>
+        <div class="psa-grid">${psaRows}</div>
+      </div>` : ""}
+      ${card.marketInsight ? `<div class="card-notes" style="color:#60a5fa;margin-top:8px">📈 ${card.marketInsight}</div>` : ""}
+      ${card.notes ? `<div class="card-notes">${card.notes}</div>` : ""}
+      ${card.gradeCandidateReason ? `<div class="card-notes" style="color:#6ee7b7">✅ ${card.gradeCandidateReason}</div>` : ""}
+    `;
+    list.appendChild(div);
+  });
+
+  document.getElementById("results").style.display = "block";
+}
+</script>
+
+</body>
+</html>
