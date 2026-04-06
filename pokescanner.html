@@ -1,157 +1,217 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="theme-color" content="#060609">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="PokeScanner Pro – ポケモンカードの画像からレアリティ・コンディション・市場価格をAI鑑定">
 <title>PokeScanner Pro</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif;max-width:480px;margin:0 auto;padding-bottom:60px;min-height:100vh}
+body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh;-webkit-font-smoothing:antialiased}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes bar{0%{top:5%;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:95%;opacity:0}}
-@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(124,58,237,.3)}50%{box-shadow:0 0 20px rgba(124,58,237,.6)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-#header{padding:14px 16px;background:#080810;border-bottom:1px solid #111;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px}
-.icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1e3a5f,#3b0764);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.title{font-size:15px;font-weight:900}
-.sub{font-size:9px;color:#333;letter-spacing:1px}
-.pro-badge{margin-left:auto;font-size:9px;background:#1a1a2e;border:1px solid #3b0764;color:#a78bfa;padding:3px 7px;border-radius:4px;font-weight:700;letter-spacing:1px}
+#header{padding:14px 16px;background:rgba(8,8,16,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px}
+.icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1e3a5f,#3b0764);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 2px 8px rgba(59,7,100,.4)}
+.title{font-size:16px;font-weight:900;letter-spacing:-.3px}
+.sub{font-size:9px;color:#444;letter-spacing:1.5px;margin-top:1px}
+.pro-badge{margin-left:auto;font-size:9px;background:linear-gradient(135deg,#1a1a2e,#0f0f1e);border:1px solid #3b0764;color:#a78bfa;padding:3px 8px;border-radius:5px;font-weight:700;letter-spacing:1.2px}
 
 #main{padding:16px}
 
-#apikey-wrap{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-#apikey-wrap label{font-size:11px;color:#3d4a5c;flex-shrink:0;white-space:nowrap}
-#apikey{flex:1;padding:8px 10px;background:#0c0c14;border:1px solid #1a1a2e;border-radius:8px;color:#94a3b8;font-size:11px;font-family:monospace;outline:none;min-width:0}
+#apikey-wrap{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+#apikey-wrap label{font-size:11px;color:#3d4a5c;flex-shrink:0;white-space:nowrap;font-weight:600}
+#apikey{flex:1;padding:9px 11px;background:#0c0c14;border:1px solid #1a1a2e;border-radius:8px;color:#94a3b8;font-size:11px;font-family:'SF Mono',SFMono-Regular,Menlo,monospace;outline:none;min-width:0;transition:border-color .2s}
+#apikey:focus{border-color:#7c3aed}
+.apikey-saved{font-size:9px;color:#4ade80;flex-shrink:0;opacity:0;transition:opacity .3s}
+.apikey-saved.show{opacity:1}
 
-#dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:12px;border:1.5px dashed #1e2535;background:#08080f;aspect-ratio:4/3;cursor:pointer;transition:border-color .2s}
-#dropzone:hover{border-color:#3b0764}
-.dz-emoji{font-size:40px}
-.dz-txt{font-size:13px;color:#2d3748;font-weight:700}
-.dz-sub{font-size:10px;color:#1e2535}
+#dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:14px;border:2px dashed #1e2535;background:#08080f;aspect-ratio:4/3;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+#dropzone:hover,#dropzone.drag-over{border-color:#7c3aed;background:#0a0a18}
+#dropzone.drag-over::after{content:'ここにドロップ';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,.1);color:#a78bfa;font-size:15px;font-weight:700;border-radius:14px}
+.dz-emoji{font-size:44px}
+.dz-txt{font-size:14px;color:#3d4a5c;font-weight:700}
+.dz-sub{font-size:10px;color:#1e2535;margin-top:-4px}
+.dz-methods{display:flex;gap:6px;margin-top:4px}
+.dz-method{font-size:9px;color:#334155;background:#0c0c18;padding:3px 8px;border-radius:4px;border:1px solid #1a1a2e}
 
-#preview-wrap{position:relative;border-radius:12px;overflow:hidden;background:#000;display:none}
-#preview-wrap img{width:100%;display:block;max-height:360px;object-fit:contain}
-#scan-bar{position:absolute;left:5%;width:90%;height:2px;background:linear-gradient(90deg,transparent,#7c3aed,#38bdf8,#7c3aed,transparent);display:none;box-shadow:0 0 8px #7c3aed}
-#overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px}
-#spinner{width:36px;height:36px;border:3px solid #1a1a3a;border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite}
+#preview-wrap{position:relative;border-radius:14px;overflow:hidden;background:#000;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+#preview-wrap img{width:100%;display:block;max-height:400px;object-fit:contain}
+#scan-bar{position:absolute;left:5%;width:90%;height:2px;background:linear-gradient(90deg,transparent,#7c3aed,#38bdf8,#7c3aed,transparent);display:none;box-shadow:0 0 12px #7c3aed}
+#overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;animation:fadeIn .2s}
+#spinner{width:40px;height:40px;border:3px solid #1a1a3a;border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite}
 #phase-txt{font-size:11px;color:#94a3b8;animation:pulse 1.5s infinite}
+#progress-bar{width:60%;height:3px;background:#1a1a2e;border-radius:2px;overflow:hidden;margin-top:-4px}
+#progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#38bdf8);border-radius:2px;transition:width .5s ease}
 
-#btn-area{margin-top:10px}
-.primary-label{display:block;padding:13px;border-radius:10px;border:1px solid #1a1a2e;background:#0c0c14;color:#60a5fa;font-size:14px;font-weight:700;text-align:center;cursor:pointer}
+#btn-area{margin-top:12px}
+.btn-row{display:flex;gap:8px}
+.primary-label{display:block;flex:1;padding:14px;border-radius:10px;border:1px solid #1a1a2e;background:#0c0c14;color:#60a5fa;font-size:14px;font-weight:700;text-align:center;cursor:pointer;transition:all .2s}
+.primary-label:hover{background:#0f0f1e;border-color:#1e40af}
+.camera-label{display:block;padding:14px 16px;border-radius:10px;border:1px solid #1a1a2e;background:#0c0c14;color:#a78bfa;font-size:14px;font-weight:700;text-align:center;cursor:pointer;transition:all .2s;flex-shrink:0}
+.camera-label:hover{background:#0f0f1e;border-color:#3b0764}
 #btn-grid{display:none;grid-template-columns:1fr 1fr;gap:8px}
-#btn-reset{padding:12px;border-radius:10px;border:1px solid #1e1e30;background:#0c0c14;color:#555;font-size:13px;font-weight:700;cursor:pointer}
-#btn-scan{padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#1e40af,#7c3aed);color:#fff;font-size:13px;font-weight:700;cursor:pointer}
-#btn-scan:disabled{background:#111;color:#333;cursor:not-allowed}
+#btn-reset{padding:13px;border-radius:10px;border:1px solid #1e1e30;background:#0c0c14;color:#666;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+#btn-reset:hover{background:#0f0f1e;color:#94a3b8}
+#btn-scan{padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#1e40af,#7c3aed);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+#btn-scan:hover{box-shadow:0 4px 16px rgba(124,58,237,.4)}
+#btn-scan:disabled{background:#151520;color:#333;cursor:not-allowed;box-shadow:none}
 
-#status-bar{margin-top:8px;padding:8px 12px;background:#0a0a18;border:1px solid #1a1a30;border-radius:8px;font-size:10px;color:#334;font-family:monospace;display:none;line-height:1.6}
-#err{margin-top:8px;padding:10px 12px;background:#180808;border:1px solid #380808;border-radius:8px;font-size:11px;color:#f87171;line-height:1.6;word-break:break-all;font-family:monospace;display:none}
+#status-bar{margin-top:10px;padding:8px 12px;background:#0a0a18;border:1px solid #1a1a30;border-radius:8px;font-size:10px;color:#4ade80;font-family:monospace;display:none;line-height:1.6}
+#err{margin-top:10px;padding:11px 14px;background:#180808;border:1px solid #380808;border-radius:8px;font-size:11px;color:#f87171;line-height:1.6;word-break:break-all;font-family:monospace;display:none}
+.err-hint{font-size:10px;color:#7f1d1d;margin-top:4px}
 
 #results{margin-top:18px;animation:up .3s ease;display:none}
 
-/* Alert for ultra-rare */
-#rare-alert{display:none;margin-bottom:12px;padding:12px 14px;background:#1a0a00;border:1px solid #92400e;border-radius:10px}
-.rare-alert-title{font-size:11px;color:#fbbf24;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.rare-alert-body{font-size:12px;color:#78350f;line-height:1.6}
+#rare-alert{display:none;margin-bottom:14px;padding:14px 16px;background:linear-gradient(135deg,#1a0a00,#1a1000);border:1px solid #92400e;border-radius:12px;animation:glow 2s ease-in-out infinite}
+.rare-alert-title{font-size:12px;color:#fbbf24;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.rare-alert-body{font-size:12px;color:#b45309;line-height:1.7}
 .rare-alert-body b{color:#f59e0b}
 
-#total-box{background:#080f18;border:1px solid #0f1e30;border-radius:12px;padding:14px 16px;margin-bottom:10px}
-.total-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
-.total-label{font-size:9px;color:#2a3d52;letter-spacing:1px}
-.total-count{font-size:9px;color:#2a3d52}
-.total-value{font-size:28px;font-weight:900;color:#fbbf24;font-family:monospace;line-height:1}
-.total-range{font-size:11px;color:#2a3d52;margin-top:2px}
-.total-summary{margin-top:10px;padding-top:10px;border-top:1px solid #0f1520;font-size:12px;color:#4a5568;line-height:1.7}
+#total-box{background:#080f18;border:1px solid #0f1e30;border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.total-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.total-label{font-size:9px;color:#2a3d52;letter-spacing:1.5px;font-weight:600}
+.total-count{font-size:9px;color:#2a3d52;font-weight:600}
+.total-value{font-size:30px;font-weight:900;color:#fbbf24;font-family:'SF Mono',monospace;line-height:1;letter-spacing:-.5px}
+.total-range{font-size:11px;color:#334155;margin-top:4px}
+.total-summary{margin-top:12px;padding-top:12px;border-top:1px solid #0f1520;font-size:12px;color:#4a5568;line-height:1.8}
+.total-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #0f1520}
+.action-btn{flex:1;padding:8px;border-radius:8px;border:1px solid #1a1a2e;background:#0a0a14;color:#64748b;font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+.action-btn:hover{background:#0f0f1e;color:#94a3b8}
+.action-btn.copied{color:#4ade80;border-color:#052e16}
 
-/* Market prices section */
-#market-section{margin-bottom:10px;display:none}
-.market-title{font-size:10px;color:#2a3d52;letter-spacing:1px;margin-bottom:6px}
-.market-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#080f18;border:1px solid #0f1e30;border-radius:8px;margin-bottom:4px}
+#market-section{margin-bottom:12px;display:none}
+.market-title{font-size:10px;color:#2a3d52;letter-spacing:1.2px;margin-bottom:8px;font-weight:600}
+.market-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#080f18;border:1px solid #0f1e30;border-radius:10px;margin-bottom:4px}
 .market-name{font-size:11px;color:#64748b}
 .market-price{font-size:13px;font-weight:700;color:#fbbf24;font-family:monospace}
-.market-date{font-size:9px;color:#1e2a3a}
+.market-source{font-size:9px;color:#1e2a3a}
 
 #cards-list{}
-.card{background:#0c0c14;border:1px solid #1a1a2e;border-radius:12px;padding:13px 15px;margin-bottom:8px;animation:up .35s ease both}
-.card-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card{background:#0c0c14;border:1px solid #1a1a2e;border-radius:14px;padding:15px 17px;margin-bottom:10px;animation:up .35s ease both;transition:border-color .2s}
+.card:hover{border-color:#252540}
+.card-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .card-left{flex:1;min-width:0}
-.card-tags{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap}
-.tag{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700}
+.card-tags{display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap}
+.tag{font-size:9px;padding:3px 8px;border-radius:5px;font-weight:700;letter-spacing:.3px}
 .tag-vintage{background:#422006;color:#fde68a}
 .tag-psa{background:#052e16;color:#6ee7b7}
 .tag-ultra{background:#3b0764;color:#e9d5ff}
 .tag-warn{background:#1a0505;color:#f87171;border:1px solid #3a0808}
-.card-name{font-size:16px;font-weight:800;color:#e2e8f0;margin-bottom:2px}
+.tag-1st{background:#1e1b4b;color:#818cf8}
+.card-name{font-size:17px;font-weight:800;color:#e2e8f0;margin-bottom:3px;letter-spacing:-.2px}
 .card-meta{font-size:11px;color:#3d4a5c;margin-bottom:8px}
-.rarity-badge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 10px}
-.rarity-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rarity-badge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:4px 10px}
+.rarity-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .rarity-score{font-size:10px;opacity:.6}
 .card-right{text-align:right;flex-shrink:0}
-.card-avg{font-size:20px;font-weight:900;font-family:monospace}
-.card-range{font-size:10px;color:#374151;margin-top:1px}
-.card-cond{font-size:10px;color:#374151;margin-top:2px}
+.card-avg{font-size:22px;font-weight:900;font-family:monospace;letter-spacing:-.5px}
+.card-range{font-size:10px;color:#374151;margin-top:2px}
+.card-cond{font-size:10px;color:#374151;margin-top:3px}
+
+.condition-detail{margin-top:10px;padding-top:10px;border-top:1px solid #1a1a2e}
+.condition-title{font-size:9px;color:#334155;letter-spacing:1px;margin-bottom:6px;font-weight:600}
+.condition-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.cond-item{background:#080810;border-radius:6px;padding:6px;text-align:center}
+.cond-label{font-size:8px;color:#3d4a5c;margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+.cond-value{font-size:10px;font-weight:600;color:#94a3b8}
+
 .psa-section{margin-top:10px;padding-top:10px;border-top:1px solid #1a1a2e}
-.psa-title{font-size:9px;color:#334155;letter-spacing:1px;margin-bottom:5px}
+.psa-title{font-size:9px;color:#334155;letter-spacing:1px;margin-bottom:6px;font-weight:600}
 .psa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.psa-cell{background:#080810;border-radius:6px;padding:5px 4px;text-align:center}
-.psa-grade{font-size:9px;color:#4a5568}
+.psa-cell{background:#080810;border-radius:7px;padding:6px 4px;text-align:center;transition:background .2s}
+.psa-cell:hover{background:#0f0f1e}
+.psa-grade{font-size:9px;color:#4a5568;font-weight:600}
 .psa-price{font-size:10px;font-weight:700;font-family:monospace}
-.card-notes{margin-top:8px;font-size:11px;color:#4a5568;line-height:1.6}
-.circulation{margin-top:6px;font-size:10px;color:#374151;display:flex;align-items:center;gap:4px}
+.psa-highlight{background:#0f0f1e;border:1px solid #7c3aed40}
+
+.card-notes{margin-top:8px;font-size:11px;color:#4a5568;line-height:1.7}
+.circulation{margin-top:7px;font-size:10px;color:#374151;display:flex;align-items:center;gap:4px}
 .circulation b{color:#fbbf24}
 
-#btn-rescan{width:100%;margin-top:8px;padding:11px;border-radius:10px;border:1px solid #1a1a2e;background:transparent;color:#374151;font-size:13px;cursor:pointer}
-</style>
+#history-section{margin-top:24px;display:none}
+.history-title{font-size:10px;color:#2a3d52;letter-spacing:1.2px;margin-bottom:8px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.history-clear{font-size:9px;color:#f87171;cursor:pointer;border:none;background:none;padding:2px 6px}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#080f18;border:1px solid #0f1e30;border-radius:10px;margin-bottom:4px;cursor:pointer;transition:all .2s}
+.history-item:hover{background:#0c0c1a;border-color:#1e2535}
+.history-left{display:flex;flex-direction:column;gap:2px}
+.history-name{font-size:12px;color:#94a3b8;font-weight:600}
+.history-date{font-size:9px;color:#2a3d52}
+.history-price{font-size:13px;font-weight:700;color:#fbbf24;font-family:monospace}
 
+#btn-rescan{width:100%;margin-top:10px;padding:13px;border-radius:10px;border:1px solid #1a1a2e;background:transparent;color:#4a5568;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+#btn-rescan:hover{color:#94a3b8;background:#0c0c14}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#e2e8f0;padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;z-index:100;animation:up .3s ease;box-shadow:0 4px 16px rgba(0,0,0,.5);pointer-events:none}
+</style>
 </head>
 <body>
 
 <div id="header">
-  <div class="icon">⚡</div>
+  <div class="icon" role="img" aria-label="PokeScanner">⚡</div>
   <div>
     <div class="title">PokeScanner</div>
     <div class="sub">RARITY · VALUE · ANALYSIS</div>
   </div>
-  <div class="pro-badge">PRO</div>
+  <div class="pro-badge" aria-label="Pro版">PRO</div>
 </div>
 
-<div id="main">
+<div id="main" role="main">
   <div id="apikey-wrap">
-    <label>API Key</label>
-    <input id="apikey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+    <label for="apikey">API Key</label>
+    <input id="apikey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" aria-label="Anthropic APIキー">
+    <span class="apikey-saved" id="apikey-saved" aria-live="polite">保存済</span>
   </div>
 
-  <div id="dropzone" onclick="document.getElementById('fi1').click()">
-    <div class="dz-emoji">🃏</div>
+  <div id="dropzone" role="button" tabindex="0" aria-label="画像を選択またはドロップしてカードをスキャン">
+    <div class="dz-emoji" aria-hidden="true">🃏</div>
     <div class="dz-txt">タップして画像を選択</div>
-    <div class="dz-sub">写真ライブラリ / ファイル</div>
+    <div class="dz-sub">写真ライブラリ / ファイル / ドラッグ&amp;ドロップ</div>
+    <div class="dz-methods">
+      <span class="dz-method">JPG</span>
+      <span class="dz-method">PNG</span>
+      <span class="dz-method">WebP</span>
+      <span class="dz-method">HEIC</span>
+    </div>
   </div>
-  <input id="fi1" type="file" accept="image/*" style="display:none">
+  <input id="fi1" type="file" accept="image/*" style="display:none" aria-hidden="true">
 
   <div id="preview-wrap">
-    <img id="preview-img" src="" alt="card">
+    <img id="preview-img" src="" alt="スキャン対象のカード画像">
     <div id="scan-bar" style="animation:bar 1.5s ease-in-out infinite"></div>
-    <div id="overlay">
-      <div id="spinner"></div>
+    <div id="overlay" role="status" aria-live="polite">
+      <div id="spinner" aria-hidden="true"></div>
       <div id="phase-txt">カード識別中...</div>
+      <div id="progress-bar"><div id="progress-fill"></div></div>
     </div>
   </div>
 
-  <div id="btn-area" style="margin-top:10px">
-    <label class="primary-label" onclick="document.getElementById('fi2').click()">🖼️ カードを読み込む</label>
-    <input id="fi2" type="file" accept="image/*" style="display:none">
+  <div id="btn-area" style="margin-top:12px">
+    <div class="btn-row" id="btn-initial-row">
+      <label class="primary-label" id="label-file" role="button" tabindex="0">🖼️ カードを読み込む</label>
+      <label class="camera-label" id="label-camera" role="button" tabindex="0">📷</label>
+    </div>
+    <input id="fi2" type="file" accept="image/*" style="display:none" aria-hidden="true">
+    <input id="fi-camera" type="file" accept="image/*" capture="environment" style="display:none" aria-hidden="true">
     <div id="btn-grid">
-      <button id="btn-reset">やり直す</button>
+      <button id="btn-reset" aria-label="やり直す">やり直す</button>
       <button id="btn-scan">⚡ 判定する</button>
     </div>
   </div>
 
-  <div id="status-bar"></div>
-  <div id="err"></div>
+  <div id="status-bar" role="status" aria-live="polite"></div>
+  <div id="err" role="alert" aria-live="assertive"></div>
 
   <div id="results">
-    <div id="rare-alert">
+    <div id="rare-alert" role="alert">
       <div class="rare-alert-title">⚠️ 超希少カード検出</div>
       <div class="rare-alert-body" id="rare-alert-body"></div>
     </div>
@@ -163,19 +223,31 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,sans-s
       <div class="total-value" id="total-avg"></div>
       <div class="total-range" id="total-range"></div>
       <div class="total-summary" id="total-summary"></div>
+      <div class="total-actions">
+        <button class="action-btn" id="btn-share" aria-label="結果をコピー">📋 結果をコピー</button>
+        <button class="action-btn" id="btn-save" aria-label="履歴に保存">💾 履歴に保存</button>
+      </div>
     </div>
     <div id="market-section">
-      <div class="market-title">📊 参考落札価格（Yahoo!オークション）</div>
+      <div class="market-title">📊 AI推定参考相場</div>
       <div id="market-list"></div>
     </div>
     <div id="cards-list"></div>
     <button id="btn-rescan">別のカードをスキャン</button>
   </div>
+
+  <div id="history-section">
+    <div class="history-title">
+      <span>📜 スキャン履歴</span>
+      <button class="history-clear" id="btn-history-clear">全削除</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
 </div>
 
 <script>
 // ============================================================
-// ULTRA RARE CARD DATABASE
+// ULTRA RARE CARD DATABASE (expanded)
 // ============================================================
 const ULTRA_RARE_DB = {
   "ガルーラ": {
@@ -198,10 +270,22 @@ const ULTRA_RARE_DB = {
     rawRange: [5000, 200000], alert: null
   },
   "ピカチュウ_コロコロ": {
-    keywords: ["コロコロ", "プロモ", "ピカチュウ"],
+    keywords: ["コロコロ", "プロモ"],
     psaPrices: { 10: 3000000, 9: 800000, 8: 200000, 7: 80000 },
     rawRange: [50000, 300000],
     alert: "コロコロコミックプロモピカチュウ。PSA10は国内最高価格帯カードの一つ。"
+  },
+  "リザードン": {
+    set: "基本セット", era: "旧裏面", circulation: "比較的流通（ホロは希少）",
+    note: "旧裏面リザードン ホロ。ポケカ市場の王道。",
+    psaPrices: { 10: 3000000, 9: 800000, 8: 200000, 7: 80000 },
+    rawRange: [30000, 200000],
+    alert: "旧裏面リザードンはPSA10で<b>300万円超</b>。状態によっては生カードでも10万円以上。"
+  },
+  "リザードン_SAR": {
+    keywords: ["SAR", "スペシャルアートレア", "リザードンex"],
+    psaPrices: { 10: 100000, 9: 50000, 8: 20000, 7: 10000 },
+    rawRange: [15000, 40000], alert: null
   },
   "ルギア": {
     set: "neo genesis", era: "Neo", circulation: "比較的流通",
@@ -214,10 +298,44 @@ const ULTRA_RARE_DB = {
     psaPrices: { 10: 800000, 9: 200000, 8: 60000, 7: 20000 },
     rawRange: [10000, 80000], alert: null
   },
-  "リザードン_SAR": {
-    keywords: ["リザードン", "SAR", "スペシャルアートレア"],
-    psaPrices: { 10: 100000, 9: 50000, 8: 20000, 7: 10000 },
-    rawRange: [15000, 40000], alert: null
+  "ミュウツー": {
+    set: "基本セット", era: "旧裏面", circulation: "比較的流通",
+    note: "旧裏面基本セット ホロ。根強い人気。",
+    psaPrices: { 10: 1000000, 9: 300000, 8: 80000, 7: 30000 },
+    rawRange: [15000, 100000], alert: null
+  },
+  "カイリュー": {
+    set: "化石の秘密", era: "旧裏面", circulation: "比較的流通",
+    note: "旧裏面化石セット ホロ。",
+    psaPrices: { 10: 2000000, 9: 500000, 8: 150000, 7: 50000 },
+    rawRange: [20000, 120000], alert: null
+  },
+  "ゲンガー": {
+    set: "化石の秘密", era: "旧裏面",
+    psaPrices: { 10: 800000, 9: 200000, 8: 60000, 7: 20000 },
+    rawRange: [10000, 60000], alert: null
+  },
+  "ギャラドス": {
+    set: "基本セット", era: "旧裏面",
+    psaPrices: { 10: 1500000, 9: 400000, 8: 100000, 7: 40000 },
+    rawRange: [15000, 100000], alert: null
+  },
+  "ブラッキー": {
+    set: "neo discovery", era: "Neo", circulation: "希少",
+    note: "neo discovery ブラッキー ホロ。海外市場でも高値。",
+    psaPrices: { 10: 2500000, 9: 600000, 8: 150000, 7: 50000 },
+    rawRange: [30000, 200000],
+    alert: "ブラッキー(neo discovery)はPSA10で<b>250万円クラス</b>。人気ポケモンかつ希少性高。"
+  },
+  "エーフィ": {
+    set: "neo discovery", era: "Neo",
+    psaPrices: { 10: 800000, 9: 200000, 8: 60000, 7: 20000 },
+    rawRange: [10000, 80000], alert: null
+  },
+  "ミュウ": {
+    set: "化石の秘密/プロモ", era: "旧裏面",
+    psaPrices: { 10: 500000, 9: 150000, 8: 50000, 7: 20000 },
+    rawRange: [5000, 60000], alert: null
   },
 };
 
@@ -225,12 +343,14 @@ const ULTRA_RARE_DB = {
 // PSA PRICE REFERENCE
 // ============================================================
 const PSA_TABLE = `
-【PSAグレード別価格参考（2024年最新）】
+【PSAグレード別価格参考（2025年最新）】
 - ガルーラ(旧裏ジャングル): PSA10=500万+, PSA9=150万, PSA8=50万, 生=3-15万
 - ピカチュウ(旧裏初版): PSA10=200万, PSA9=50万, PSA8=15万
+- リザードン(旧裏基本holo): PSA10=300万, PSA9=80万, PSA8=20万
 - ルギア(neo genesis holo): PSA10=150万, PSA9=40万, PSA8=10万
 - ミュウツー(旧裏基本): PSA10=100万, PSA9=30万, PSA8=8万
-- リザードン(旧裏基本holo): PSA10=300万, PSA9=80万, PSA8=20万
+- ブラッキー(neo discovery holo): PSA10=250万, PSA9=60万, PSA8=15万
+- カイリュー(旧裏化石holo): PSA10=200万, PSA9=50万, PSA8=15万
 - ファイヤー(旧裏基本holo): PSA10=80万, PSA9=20万, PSA8=5万
 - サンダー(旧裏基本holo): PSA10=80万, PSA9=20万, PSA8=5万
 - フリーザー(旧裏基本holo): PSA10=60万, PSA9=15万, PSA8=4万
@@ -239,9 +359,10 @@ const PSA_TABLE = `
 - カビゴン(旧裏基本): PSA10=50万, PSA9=15万, PSA8=4万
 - ゲンガー(旧裏化石holo): PSA10=80万, PSA9=20万, PSA8=6万
 - ラプラス(旧裏化石): PSA10=40万, PSA9=10万, PSA8=3万
-- カイリュー(旧裏化石holo): PSA10=200万, PSA9=50万, PSA8=15万
 - ガルーラ(旧裏ジャングルholo): PSA10=500万超, PSA9=150万, PSA8=50万, 生=3-15万
 - ピクシー(旧裏ジャングルholo): PSA10=30万, PSA9=8万, PSA8=2万
+- エーフィ(neo discovery holo): PSA10=80万, PSA9=20万, PSA8=6万
+- ミュウ(旧裏化石/プロモ): PSA10=50万, PSA9=15万, PSA8=5万
 `;
 
 // ============================================================
@@ -278,6 +399,8 @@ ${PSA_TABLE}
 4. PSAグレード別価格を必ず算出すること
 5. 価格は日本円で現在の市場実勢価格を反映すること（低く見積もらないこと）
 6. 生カード（未鑑定）とPSA鑑定済みの価格を必ず区別すること
+7. 画像に複数枚のカードが写っている場合、それぞれを個別に鑑定すること
+8. marketReferences配列に参考となる市場データを含めること
 
 Return ONLY raw JSON. No markdown, no backticks. Start with { end with }.
 
@@ -291,6 +414,7 @@ Return ONLY raw JSON. No markdown, no backticks. Start with { end with }.
     "rarityScore": 7,
     "era": "旧裏面|Neo|ADV|PCG|DPt|BW|XY|SM|SWSH|SV|unknown",
     "isVintage": true,
+    "isFirstEdition": false,
     "isUltraRare": false,
     "circulation": "流通枚数または希少性の説明（不明な場合はnull）",
     "condition": {
@@ -298,7 +422,8 @@ Return ONLY raw JSON. No markdown, no backticks. Start with { end with }.
       "psaEquivalent": 8,
       "surface": "表面の状態説明",
       "corners": "角の状態",
-      "centering": "センタリング評価"
+      "centering": "センタリング評価",
+      "edges": "エッジの状態"
     },
     "pricing": {
       "rawMin": 3000,
@@ -315,6 +440,10 @@ Return ONLY raw JSON. No markdown, no backticks. Start with { end with }.
     "notes": "その他の重要情報（日本語）",
     "marketInsight": "市場動向・買い時売り時の分析（日本語）"
   }],
+  "marketReferences": [
+    {"name": "参考取引1の説明", "price": 50000, "source": "メルカリ/ヤフオク等"},
+    {"name": "参考取引2の説明", "price": 80000, "source": "メルカリ/ヤフオク等"}
+  ],
   "totalRawMin": 3000,
   "totalRawMax": 8000,
   "overallAssessment": "全体的な評価（日本語・詳細）"
@@ -322,120 +451,253 @@ Return ONLY raw JSON. No markdown, no backticks. Start with { end with }.
 }
 
 // ============================================================
-// MATCH ULTRA RARE DB
+// MATCH ULTRA RARE DB (improved keyword matching)
 // ============================================================
-function matchUltraRare(cardName, set) {
+function matchUltraRare(cardName, set, notes) {
   const name = (cardName || "").replace(/\s/g,"");
   const setStr = (set || "").toLowerCase();
-  
+  const allText = name + setStr + (notes || "");
+
   if (name.includes("ガルーラ") && (setStr.includes("ジャングル") || setStr.includes("jungle"))) {
     return ULTRA_RARE_DB["ガルーラ"];
   }
-  if (name.includes("ルギア")) return ULTRA_RARE_DB["ルギア"];
-  if (name.includes("ホウオウ")) return ULTRA_RARE_DB["ホウオウ"];
-  if (name.includes("コイキング")) return ULTRA_RARE_DB["コイキング"];
+
+  if (name.includes("ピカチュウ") && (allText.includes("コロコロ") || allText.includes("プロモ"))) {
+    return ULTRA_RARE_DB["ピカチュウ_コロコロ"];
+  }
+
+  if (name.includes("リザードン") && (allText.includes("SAR") || allText.includes("スペシャルアート") || allText.includes("ex"))) {
+    return ULTRA_RARE_DB["リザードン_SAR"];
+  }
+
+  const directMatches = [
+    "リザードン", "ルギア", "ホウオウ", "コイキング", "ミュウツー",
+    "カイリュー", "ゲンガー", "ギャラドス", "ブラッキー", "エーフィ",
+    "ミュウ", "ピカチュウ"
+  ];
+
+  for (const key of directMatches) {
+    if (name.includes(key) && ULTRA_RARE_DB[key]) {
+      return ULTRA_RARE_DB[key];
+    }
+  }
+
   return null;
 }
 
 // ============================================================
-// API CALL
+// IMAGE COMPRESSION
 // ============================================================
-async function callClaude(b64, mime, apiKey, onPhase) {
-  onPhase("Phase 1: カード識別・詳細分析中...");
-  
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 2500,
-      system: buildSystemPrompt(),
-      messages: [{
-        role: "user",
-        content: [
-          { type: "image", source: { type: "base64", media_type: mime, data: b64 } },
-          { type: "text", text: `このポケモンカードを詳細に分析してください。
+function compressImage(dataUrl, maxDim, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL("image/jpeg", quality);
+      resolve({ dataUrl: compressed, b64: compressed.split(",")[1], mime: "image/jpeg" });
+    };
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
 
-特に以下を重点的に確認してください：
-1. 旧裏面カードかどうか（カード裏面のデザインで判定）
-2. カードの正確な名前・セット・番号
-3. 表面・角・センタリングの状態（PSA基準）
+// ============================================================
+// API CALL (with retry)
+// ============================================================
+async function callClaude(b64Data, mimeType, apiKey, onPhase, onProgress) {
+  const MAX_RETRIES = 2;
+  let lastError;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      if (attempt > 0) {
+        onPhase(`リトライ中... (${attempt}/${MAX_RETRIES})`);
+        await new Promise(r => setTimeout(r, 2000 * attempt));
+      }
+
+      onPhase("Phase 1/3: カード識別中...");
+      onProgress(10);
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 3500,
+          system: buildSystemPrompt(),
+          messages: [{
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: mimeType, data: b64Data } },
+              { type: "text", text: `このポケモンカードを詳細に鑑定してください。
+
+重点確認事項：
+1. 旧裏面カードかどうか（裏面デザインで判定）
+2. カードの正確な名前・セット・番号・初版かどうか
+3. 表面・角・エッジ・センタリングの状態（PSA基準で厳密に）
 4. 超希少カードや特別な流通背景があるか
 5. 現在の日本市場での正確な価格（生カード・PSA鑑定済み両方）
+6. 参考となる市場取引データ（marketReferences）
 
 JSON形式のみで返答してください。` }
-        ]
-      }]
-    })
-  });
+            ]
+          }]
+        })
+      });
 
-  const text = await res.text();
-  if (!res.ok) {
-    let msg = `HTTP ${res.status}`;
-    try { msg = JSON.parse(text)?.error?.message || msg; } catch {}
-    throw new Error(msg);
-  }
+      onPhase("Phase 2/3: レスポンス解析中...");
+      onProgress(60);
 
-  const envelope = JSON.parse(text);
-  const raw = (envelope.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
-  if (!raw) throw new Error("APIレスポンスが空です");
+      const text = await res.text();
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try { msg = JSON.parse(text)?.error?.message || msg; } catch {}
 
-  const s = raw.indexOf("{"), e = raw.lastIndexOf("}");
-  if (s<0||e<0) throw new Error("JSONが見つかりません: " + raw.slice(0,100));
-
-  let parsed;
-  try { parsed = JSON.parse(raw.slice(s,e+1)); }
-  catch(pe) { throw new Error("JSONパース失敗: " + raw.slice(s,s+200)); }
-
-  if (!Array.isArray(parsed.cards)) throw new Error("cardsフィールドなし");
-
-  onPhase("Phase 2: 超希少カードDBと照合中...");
-  await new Promise(r => setTimeout(r, 400));
-
-  parsed.cards = parsed.cards.map(card => {
-    const match = matchUltraRare(card.name, card.set);
-    if (match) {
-      card._ultraRareMatch = match;
-      card.isUltraRare = true;
-      if (match.circulation) card.circulation = match.circulation;
-      if (match.psaPrices) {
-        card.pricing = card.pricing || {};
-        card.pricing.psa10 = match.psaPrices[10];
-        card.pricing.psa9  = match.psaPrices[9];
-        card.pricing.psa8  = match.psaPrices[8];
-        card.pricing.psa7  = match.psaPrices[7];
-        if (match.rawRange) {
-          card.pricing.rawMin = match.rawRange[0];
-          card.pricing.rawMax = match.rawRange[1];
+        if (res.status === 429 || res.status >= 500) {
+          lastError = new Error(msg);
+          continue;
         }
-      }
-    }
-    return card;
-  });
 
-  return parsed;
+        if (res.status === 401) throw new Error("APIキーが無効です。正しいキーを入力してください。");
+        if (res.status === 400) throw new Error("リクエストエラー: " + msg);
+        throw new Error(msg);
+      }
+
+      const envelope = JSON.parse(text);
+      const raw = (envelope.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+      if (!raw) throw new Error("APIレスポンスが空です");
+
+      const s = raw.indexOf("{"), e = raw.lastIndexOf("}");
+      if (s < 0 || e < 0) throw new Error("JSONが見つかりません");
+
+      let parsed;
+      try { parsed = JSON.parse(raw.slice(s, e + 1)); }
+      catch (pe) { throw new Error("JSONパース失敗: モデル出力形式の異常"); }
+
+      if (!Array.isArray(parsed.cards)) throw new Error("cardsフィールドが見つかりません");
+
+      onPhase("Phase 3/3: 超希少カードDBと照合中...");
+      onProgress(85);
+      await new Promise(r => setTimeout(r, 300));
+
+      parsed.cards = parsed.cards.map(card => {
+        const match = matchUltraRare(card.name, card.set, card.notes);
+        if (match) {
+          card._ultraRareMatch = match;
+          card.isUltraRare = true;
+          if (match.circulation) card.circulation = match.circulation;
+          if (match.psaPrices) {
+            card.pricing = card.pricing || {};
+            card.pricing.psa10 = match.psaPrices[10];
+            card.pricing.psa9  = match.psaPrices[9];
+            card.pricing.psa8  = match.psaPrices[8];
+            card.pricing.psa7  = match.psaPrices[7];
+            if (match.rawRange) {
+              card.pricing.rawMin = match.rawRange[0];
+              card.pricing.rawMax = match.rawRange[1];
+            }
+          }
+        }
+        return card;
+      });
+
+      onProgress(100);
+      return parsed;
+
+    } catch (e) {
+      lastError = e;
+      if (attempt >= MAX_RETRIES) throw e;
+      if (e.message.includes("APIキー") || e.message.includes("リクエストエラー")) throw e;
+    }
+  }
+  throw lastError;
+}
+
+// ============================================================
+// LOCAL STORAGE HELPERS
+// ============================================================
+const STORAGE_KEY_API = "pokescanner_apikey";
+const STORAGE_KEY_HISTORY = "pokescanner_history";
+
+function saveApiKey(key) {
+  try { localStorage.setItem(STORAGE_KEY_API, key); } catch {}
+}
+function loadApiKey() {
+  try { return localStorage.getItem(STORAGE_KEY_API) || ""; } catch { return ""; }
+}
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || "[]"); } catch { return []; }
+}
+function saveHistory(entry) {
+  try {
+    const h = getHistory();
+    h.unshift(entry);
+    if (h.length > 20) h.length = 20;
+    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(h));
+  } catch {}
+}
+function clearHistory() {
+  try { localStorage.removeItem(STORAGE_KEY_HISTORY); } catch {}
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// ============================================================
+// XSS SAFE TEXT
+// ============================================================
+function esc(str) {
+  if (str == null) return "";
+  const div = document.createElement("div");
+  div.textContent = String(str);
+  return div.innerHTML;
 }
 
 // ============================================================
 // STATE
 // ============================================================
-let b64 = null, mime = "image/jpeg";
+let currentB64 = null;
+let currentMime = "image/jpeg";
+let lastResult = null;
 
 function setPhase(txt) {
   document.getElementById("phase-txt").textContent = txt;
 }
+function setProgress(pct) {
+  document.getElementById("progress-fill").style.width = pct + "%";
+}
 function showStatus(msg) {
   const el = document.getElementById("status-bar");
-  el.innerHTML = msg; el.style.display = "block";
+  el.textContent = msg;
+  el.style.display = "block";
 }
-function showErr(msg) {
+function showErr(msg, hint) {
   const el = document.getElementById("err");
-  el.textContent = msg; el.style.display = "block";
+  el.innerHTML = esc(msg) + (hint ? '<div class="err-hint">' + esc(hint) + '</div>' : '');
+  el.style.display = "block";
   document.getElementById("status-bar").style.display = "none";
 }
 function clearMsg() {
@@ -443,7 +705,10 @@ function clearMsg() {
   document.getElementById("err").style.display = "none";
 }
 
-function handleFile(f) {
+// ============================================================
+// FILE HANDLING
+// ============================================================
+async function handleFile(f) {
   if (!f) return;
   clearMsg();
   document.getElementById("results").style.display = "none";
@@ -451,76 +716,234 @@ function handleFile(f) {
   let mt = f.type || "";
   if (!mt || mt === "application/octet-stream") {
     const ext = f.name.split(".").pop().toLowerCase();
-    mt = {jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",heic:"image/jpeg",heif:"image/jpeg"}[ext]||"image/jpeg";
+    mt = { jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", webp:"image/webp", heic:"image/jpeg", heif:"image/jpeg" }[ext] || "image/jpeg";
   }
-  if (mt.includes("heic")||mt.includes("heif")) mt="image/jpeg";
-  mime = mt;
+  if (mt.includes("heic") || mt.includes("heif")) mt = "image/jpeg";
 
   const rd = new FileReader();
-  rd.onload = ev => {
+  rd.onload = async (ev) => {
     const dataUrl = ev.target.result;
-    b64 = dataUrl.split(",")[1];
-    document.getElementById("preview-img").src = dataUrl;
+
+    const compressed = await compressImage(dataUrl, 1500, 0.85);
+    if (compressed) {
+      currentB64 = compressed.b64;
+      currentMime = compressed.mime;
+      document.getElementById("preview-img").src = compressed.dataUrl;
+    } else {
+      currentB64 = dataUrl.split(",")[1];
+      currentMime = mt;
+      document.getElementById("preview-img").src = dataUrl;
+    }
+
     document.getElementById("dropzone").style.display = "none";
     document.getElementById("preview-wrap").style.display = "block";
-    document.querySelector(".primary-label").style.display = "none";
+    document.getElementById("btn-initial-row").style.display = "none";
     document.getElementById("btn-grid").style.display = "grid";
   };
   rd.readAsDataURL(f);
 }
 
-["fi1","fi2"].forEach(id => {
-  document.getElementById(id).addEventListener("change", e => handleFile(e.target.files[0]));
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+
+// Load saved API key
+const savedKey = loadApiKey();
+if (savedKey) {
+  document.getElementById("apikey").value = savedKey;
+  document.getElementById("apikey-saved").classList.add("show");
+}
+
+// Save API key on change
+document.getElementById("apikey").addEventListener("input", function() {
+  const key = this.value.trim();
+  if (key.length > 10) {
+    saveApiKey(key);
+    document.getElementById("apikey-saved").classList.add("show");
+  } else {
+    document.getElementById("apikey-saved").classList.remove("show");
+  }
 });
 
+// File inputs
+document.getElementById("fi1").addEventListener("change", e => handleFile(e.target.files[0]));
+document.getElementById("fi2").addEventListener("change", e => handleFile(e.target.files[0]));
+document.getElementById("fi-camera").addEventListener("change", e => handleFile(e.target.files[0]));
+
+// Dropzone click
+document.getElementById("dropzone").addEventListener("click", () => {
+  document.getElementById("fi1").click();
+});
+document.getElementById("dropzone").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.getElementById("fi1").click(); }
+});
+
+// File/Camera buttons
+document.getElementById("label-file").addEventListener("click", () => document.getElementById("fi2").click());
+document.getElementById("label-file").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.getElementById("fi2").click(); }
+});
+document.getElementById("label-camera").addEventListener("click", () => document.getElementById("fi-camera").click());
+document.getElementById("label-camera").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.getElementById("fi-camera").click(); }
+});
+
+// Drag & Drop
+const dz = document.getElementById("dropzone");
+["dragenter","dragover"].forEach(ev => {
+  dz.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dz.classList.add("drag-over"); });
+});
+["dragleave","drop"].forEach(ev => {
+  dz.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dz.classList.remove("drag-over"); });
+});
+dz.addEventListener("drop", e => {
+  const files = e.dataTransfer?.files;
+  if (files && files.length > 0 && files[0].type.startsWith("image/")) {
+    handleFile(files[0]);
+  }
+});
+
+// Reset
 document.getElementById("btn-reset").addEventListener("click", () => {
-  b64 = null;
+  currentB64 = null;
   document.getElementById("preview-wrap").style.display = "none";
   document.getElementById("dropzone").style.display = "flex";
-  document.querySelector(".primary-label").style.display = "block";
+  document.getElementById("btn-initial-row").style.display = "flex";
   document.getElementById("btn-grid").style.display = "none";
   document.getElementById("results").style.display = "none";
   clearMsg();
-  ["fi1","fi2"].forEach(id => { document.getElementById(id).value = ""; });
+  ["fi1","fi2","fi-camera"].forEach(id => { document.getElementById(id).value = ""; });
 });
 
 document.getElementById("btn-rescan").addEventListener("click", () => {
   document.getElementById("btn-reset").click();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
+// Scan
 document.getElementById("btn-scan").addEventListener("click", async () => {
-  if (!b64) { showErr("画像を選択してください"); return; }
+  if (!currentB64) { showErr("画像を選択してください"); return; }
   const apiKey = document.getElementById("apikey").value.trim();
-  if (!apiKey) { showErr("APIキーを入力してください（sk-ant-...）"); return; }
+  if (!apiKey) { showErr("APIキーを入力してください", "Anthropic Console → API Keys からキーを取得できます"); return; }
+  if (!apiKey.startsWith("sk-")) { showErr("APIキーの形式が正しくありません", "「sk-ant-」で始まるキーを入力してください"); return; }
 
   const btn = document.getElementById("btn-scan");
   btn.disabled = true; btn.textContent = "解析中...";
   document.getElementById("overlay").style.display = "flex";
   document.getElementById("scan-bar").style.display = "block";
   document.getElementById("results").style.display = "none";
+  setProgress(0);
   clearMsg();
 
   try {
-    const data = await callClaude(b64, mime, apiKey, setPhase);
+    const data = await callClaude(currentB64, currentMime, apiKey, setPhase, setProgress);
+    lastResult = data;
     renderResults(data);
-    showStatus(`✅ 解析完了 | ${data.cards.length}枚検出 | Phase 1+2完了`);
+    showStatus(`解析完了 | ${data.cards.length}枚検出 | Phase 1-3完了`);
   } catch(e) {
-    showErr(e.message);
+    const hint = e.message.includes("429") ? "レート制限中です。しばらく待ってから再試行してください。"
+               : e.message.includes("APIキー") ? "Anthropic Console でキーを確認してください。"
+               : null;
+    showErr(e.message, hint);
   } finally {
     btn.disabled = false; btn.textContent = "⚡ 判定する";
     document.getElementById("overlay").style.display = "none";
     document.getElementById("scan-bar").style.display = "none";
+    setProgress(0);
   }
 });
 
+// Share
+document.getElementById("btn-share").addEventListener("click", () => {
+  if (!lastResult) return;
+  const lines = ["【PokeScanner Pro 鑑定結果】\n"];
+  (lastResult.cards || []).forEach(c => {
+    const p = c.pricing || {};
+    const avg = Math.round(((p.rawMin||0) + (p.rawMax||0)) / 2);
+    lines.push(`■ ${c.name} (${c.set || ''})`);
+    lines.push(`  レアリティ: ${c.rarity} | 状態: ${c.condition?.overall || '-'}`);
+    lines.push(`  生カード相場: ¥${(p.rawMin||0).toLocaleString()}〜¥${(p.rawMax||0).toLocaleString()}`);
+    if (p.psa10) lines.push(`  PSA10: ¥${p.psa10.toLocaleString()} / PSA9: ¥${(p.psa9||0).toLocaleString()}`);
+    lines.push("");
+  });
+  lines.push(`合計推定: ¥${(lastResult.totalRawMin||0).toLocaleString()}〜¥${(lastResult.totalRawMax||0).toLocaleString()}`);
+
+  const text = lines.join("\n");
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast("クリップボードにコピーしました");
+      const btn = document.getElementById("btn-share");
+      btn.classList.add("copied");
+      btn.textContent = "✅ コピー済み";
+      setTimeout(() => { btn.classList.remove("copied"); btn.textContent = "📋 結果をコピー"; }, 2000);
+    });
+  }
+});
+
+// Save to history
+document.getElementById("btn-save").addEventListener("click", () => {
+  if (!lastResult) return;
+  const cards = lastResult.cards || [];
+  const entry = {
+    date: new Date().toISOString(),
+    cardNames: cards.map(c => c.name).join(", "),
+    totalMin: lastResult.totalRawMin || 0,
+    totalMax: lastResult.totalRawMax || 0,
+    count: cards.length
+  };
+  saveHistory(entry);
+  renderHistory();
+  showToast("履歴に保存しました");
+});
+
+// History
+document.getElementById("btn-history-clear").addEventListener("click", () => {
+  clearHistory();
+  renderHistory();
+  showToast("履歴を削除しました");
+});
+
+function renderHistory() {
+  const h = getHistory();
+  const section = document.getElementById("history-section");
+  const list = document.getElementById("history-list");
+
+  if (h.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "block";
+  list.innerHTML = "";
+
+  h.forEach(entry => {
+    const d = new Date(entry.date);
+    const dateStr = `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,"0")}/${d.getDate().toString().padStart(2,"0")} ${d.getHours().toString().padStart(2,"0")}:${d.getMinutes().toString().padStart(2,"0")}`;
+    const avg = Math.round((entry.totalMin + entry.totalMax) / 2);
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.innerHTML = `
+      <div class="history-left">
+        <span class="history-name">${esc(entry.cardNames)}</span>
+        <span class="history-date">${esc(dateStr)} · ${entry.count}枚</span>
+      </div>
+      <span class="history-price">${fmt(avg)}</span>
+    `;
+    list.appendChild(div);
+  });
+}
+
+renderHistory();
+
 // ============================================================
-// RENDER
+// RENDER RESULTS
 // ============================================================
 function fmt(n) { return n != null ? "¥" + Math.round(n).toLocaleString() : "-"; }
 
 function renderResults(data) {
   const cards = data.cards || [];
 
+  // Ultra rare alert
   const ultraCard = cards.find(c => c.isUltraRare && c._ultraRareMatch?.alert);
   const rareAlertEl = document.getElementById("rare-alert");
   if (ultraCard) {
@@ -530,79 +953,123 @@ function renderResults(data) {
     rareAlertEl.style.display = "none";
   }
 
+  // Total
   const totalMin = data.totalRawMin || 0;
   const totalMax = data.totalRawMax || 0;
   const totalAvg = Math.round((totalMin + totalMax) / 2);
   document.getElementById("total-avg").textContent = fmt(totalAvg);
-  document.getElementById("total-range").textContent = fmt(totalMin) + " 〜 " + fmt(totalMax) + "（生カード）";
+  document.getElementById("total-range").textContent = fmt(totalMin) + " 〜 " + fmt(totalMax) + "（生カード推定）";
   document.getElementById("card-count").textContent = cards.length + "枚検出";
   const sumEl = document.getElementById("total-summary");
   sumEl.textContent = data.overallAssessment || "";
   sumEl.style.display = data.overallAssessment ? "block" : "none";
 
+  // Market references
+  const marketSection = document.getElementById("market-section");
+  const marketList = document.getElementById("market-list");
+  const refs = data.marketReferences || [];
+  if (refs.length > 0) {
+    marketSection.style.display = "block";
+    marketList.innerHTML = "";
+    refs.forEach(ref => {
+      const div = document.createElement("div");
+      div.className = "market-item";
+      div.innerHTML = `
+        <div>
+          <div class="market-name">${esc(ref.name)}</div>
+          <div class="market-source">${esc(ref.source || '')}</div>
+        </div>
+        <div class="market-price">${fmt(ref.price)}</div>
+      `;
+      marketList.appendChild(div);
+    });
+  } else {
+    marketSection.style.display = "none";
+  }
+
+  // Cards
   const list = document.getElementById("cards-list");
   list.innerHTML = "";
 
   cards.forEach((card, i) => {
     const c = RARITY[card.rarity] || RARITY["Common"];
     const p = card.pricing || {};
-    const rawAvg = Math.round(((p.rawMin||0)+(p.rawMax||0))/2);
+    const rawAvg = Math.round(((p.rawMin||0) + (p.rawMax||0)) / 2);
     const cond = card.condition || {};
     const psaEq = cond.psaEquivalent;
 
     const div = document.createElement("div");
     div.className = "card";
-    div.style.animationDelay = (i*0.08) + "s";
+    div.style.animationDelay = (i * 0.08) + "s";
 
+    // PSA grid with highlight for estimated grade
     const psaRows = [10,9,8,7].map(g => {
-      const price = p["psa"+g];
-      return `<div class="psa-cell">
-        <div class="psa-grade">PSA ${g}</div>
+      const price = p["psa" + g];
+      const isMatch = psaEq === g;
+      return `<div class="psa-cell${isMatch ? ' psa-highlight' : ''}">
+        <div class="psa-grade">PSA ${g}${isMatch ? ' ★' : ''}</div>
         <div class="psa-price" style="color:${price ? '#fbbf24' : '#1e2a3a'}">${price ? fmt(price) : "-"}</div>
       </div>`;
     }).join("");
 
     const hasPsa = p.psa10 || p.psa9 || p.psa8 || p.psa7;
 
+    // Condition detail grid
+    const hasCondDetail = cond.surface || cond.corners || cond.centering || cond.edges;
+    const condGrid = hasCondDetail ? `
+      <div class="condition-detail">
+        <div class="condition-title">CONDITION DETAIL</div>
+        <div class="condition-grid">
+          ${cond.surface ? `<div class="cond-item"><div class="cond-label">表面</div><div class="cond-value">${esc(cond.surface)}</div></div>` : ''}
+          ${cond.corners ? `<div class="cond-item"><div class="cond-label">角</div><div class="cond-value">${esc(cond.corners)}</div></div>` : ''}
+          ${cond.centering ? `<div class="cond-item"><div class="cond-label">センタリング</div><div class="cond-value">${esc(cond.centering)}</div></div>` : ''}
+          ${cond.edges ? `<div class="cond-item"><div class="cond-label">エッジ</div><div class="cond-value">${esc(cond.edges)}</div></div>` : ''}
+        </div>
+      </div>
+    ` : '';
+
     div.innerHTML = `
       <div class="card-inner">
         <div class="card-left">
           <div class="card-tags">
             ${card.isVintage ? '<span class="tag tag-vintage">旧裏</span>' : ""}
+            ${card.isFirstEdition ? '<span class="tag tag-1st">初版</span>' : ""}
             ${card.isUltraRare ? '<span class="tag tag-ultra">超希少</span>' : ""}
             ${card.gradeCandidate ? '<span class="tag tag-psa">PSA推奨</span>' : ""}
-            ${psaEq && psaEq >= 9 ? '<span class="tag tag-psa">PSA'+psaEq+'相当</span>' : ""}
+            ${psaEq && psaEq >= 9 ? '<span class="tag tag-psa">PSA' + psaEq + '相当</span>' : ""}
           </div>
-          <div class="card-name">${card.name}</div>
-          <div class="card-meta">${card.set || ""}${card.cardNumber ? " · " + card.cardNumber : ""} · ${card.era || ""}</div>
+          <div class="card-name">${esc(card.name)}</div>
+          <div class="card-meta">${esc(card.set || "")}${card.cardNumber ? " · " + esc(card.cardNumber) : ""} · ${esc(card.era || "")}</div>
           <span class="rarity-badge" style="background:${c.accent}15;border:1px solid ${c.accent}40">
             <span class="rarity-dot" style="background:${c.accent}"></span>
-            <span style="color:${c.accent};font-size:12px;font-weight:700">${c.label}</span>
-            <span class="rarity-score" style="color:${c.accent}">${card.rarityScore}/10</span>
+            <span style="color:${c.accent};font-size:12px;font-weight:700">${esc(c.label)}</span>
+            <span class="rarity-score" style="color:${c.accent}">${card.rarityScore != null ? card.rarityScore + '/10' : ''}</span>
           </span>
-          ${card.circulation ? `<div class="circulation">📦 流通: <b>${card.circulation}</b></div>` : ""}
+          ${card.circulation ? `<div class="circulation">📦 流通: <b>${esc(card.circulation)}</b></div>` : ""}
         </div>
         <div class="card-right">
           <div class="card-avg" style="color:${c.accent}">${fmt(rawAvg)}</div>
           <div class="card-range">${fmt(p.rawMin)}〜${fmt(p.rawMax)}</div>
-          <div class="card-cond">${cond.overall || ""}${psaEq ? " (PSA"+psaEq+"相当)" : ""}</div>
+          <div class="card-cond">${esc(cond.overall || "")}${psaEq ? " (PSA" + psaEq + "相当)" : ""}</div>
         </div>
       </div>
+      ${condGrid}
       ${hasPsa ? `
       <div class="psa-section">
         <div class="psa-title">PSA鑑定済み想定価格</div>
         <div class="psa-grid">${psaRows}</div>
       </div>` : ""}
-      ${card.marketInsight ? `<div class="card-notes" style="color:#60a5fa;margin-top:8px">📈 ${card.marketInsight}</div>` : ""}
-      ${card.notes ? `<div class="card-notes">${card.notes}</div>` : ""}
-      ${card.gradeCandidateReason ? `<div class="card-notes" style="color:#6ee7b7">✅ ${card.gradeCandidateReason}</div>` : ""}
+      ${card.marketInsight ? `<div class="card-notes" style="color:#60a5fa;margin-top:8px">📈 ${esc(card.marketInsight)}</div>` : ""}
+      ${card.notes ? `<div class="card-notes">${esc(card.notes)}</div>` : ""}
+      ${card.gradeCandidateReason ? `<div class="card-notes" style="color:#6ee7b7">✅ ${esc(card.gradeCandidateReason)}</div>` : ""}
     `;
     list.appendChild(div);
   });
 
   document.getElementById("results").style.display = "block";
+
+  document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 </script>
-
 </body>
 </html>
