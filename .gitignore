@@ -31,6 +31,16 @@ snapshots/
 *.fullbak*
 *.zip
 
+# Local MT5/Wine environment artifacts
+trading/mt5_env/downloads/
+trading/mt5_env/output/
+trading/mt5_env/logs/
+trading/mt5_env/*.local.ini
+trading/mt5_env/**/*.log
+trading/mt5_env/**/*.html
+trading/mt5_env/**/*.xml
+trading/mt5_env/**/*.json
+
 # Noise
 udo systemctl edit singkana.service
 2

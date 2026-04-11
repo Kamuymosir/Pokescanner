@@ -5,6 +5,12 @@ This directory contains a reference MT5 Expert Advisor inspired by public descri
 ## Files
 
 - `mt5/TraderXRangeBurstEA.mq5`
+- `mt5_env/scripts/setup_mt5.sh`
+- `mt5_env/scripts/sync_ea.sh`
+- `mt5_env/scripts/compile_ea.sh`
+- `mt5_env/scripts/run_mt5.sh`
+- `mt5_env/scripts/run_backtest.sh`
+- `mt5_env/config/tester.ini`
 
 ## What this EA tries to reproduce
 
@@ -69,6 +75,78 @@ The EA includes an optional EMA-based bias filter to emulate the idea of a highe
 3. Run Strategy Tester in "Every tick based on real ticks" mode.
 4. Test on XAUUSD first, then re-tune for your broker.
 5. Start on demo only.
+
+## Linux + Wine practical validation environment
+
+This repository now includes a reproducible MT5 validation toolchain for Linux.
+
+### One-time setup
+
+```bash
+bash trading/mt5_env/scripts/setup_mt5.sh
+```
+
+What it does:
+
+- installs Wine and required compatibility packages
+- creates a dedicated Wine prefix at `~/.mt5-traderx`
+- downloads and installs MT5 into `C:\MT5Portable`
+- performs an initial portable-mode launch so `MQL5/Experts` exists
+
+### Sync the EA into MT5
+
+```bash
+bash trading/mt5_env/scripts/sync_ea.sh
+```
+
+This copies `mt5/TraderXRangeBurstEA.mq5` into the MT5 portable data directory.
+
+### Compile from the command line
+
+```bash
+bash trading/mt5_env/scripts/compile_ea.sh
+```
+
+The script:
+
+- syncs the EA
+- runs `MetaEditor64.exe` under Wine
+- writes compiler output to `trading/mt5_env/logs/compile-*.log`
+- expects the compiled file at `~/.mt5-traderx/drive_c/MT5Portable/MQL5/Experts/TraderXRangeBurstEA.ex5`
+
+### Launch the terminal
+
+```bash
+bash trading/mt5_env/scripts/run_mt5.sh
+```
+
+This starts the terminal in portable mode under `xvfb-run`.
+
+### Launch a backtest from config
+
+```bash
+bash trading/mt5_env/scripts/run_backtest.sh
+```
+
+Before running a backtest, update `trading/mt5_env/config/tester.ini`:
+
+- `Login`, `Password`, `Server` if broker login is required
+- `TestSymbol`, `TestPeriod`, and date range
+- `TestExpertParameters` if you create a `.set` file
+- `TestReport` is generated dynamically by the shell script, so keep the `__REPORT_PATH__` placeholder
+
+Generated files are placed under:
+
+- `trading/mt5_env/logs/`
+- `trading/mt5_env/reports/`
+- `trading/mt5_env/downloads/`
+
+### Notes for practical use
+
+- this is suitable for development, compilation, and backtest validation
+- for real ultra-short-term live trading, a native Windows VPS is still the safer choice
+- Wine logs can contain noisy GUI warnings even when MT5 is otherwise usable
+- first broker login and market data download may still require manual terminal interaction
 
 ## Important limitations
 
