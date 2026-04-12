@@ -31,4 +31,7 @@ export WINEPREFIX
 export WINEARCH=win64
 
 echo "Running Strategy Tester with config: $CONFIG_PATH"
+echo "Resolved tester config:"
+sed -n '1,200p' "$TMP_CONFIG"
+cp "$TMP_CONFIG" "$BASE_DIR/logs/last-run-backtest.ini"
 xvfb-run -a wine "$TERMINAL_EXE" /portable /config:"$(winepath -w "$TMP_CONFIG")"

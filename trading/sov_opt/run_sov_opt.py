@@ -175,6 +175,12 @@ def mt5_prefix() -> Path:
 def mt5_presets_dir() -> Path:
     return mt5_prefix() / "drive_c" / "MT5Portable" / "MQL5" / "Presets"
 
+def mt5_tester_profiles_dir() -> Path:
+    return mt5_prefix() / "drive_c" / "MT5Portable" / "MQL5" / "Profiles" / "Tester"
+
+def mt5_terminal_common_files_dir() -> Path:
+    return mt5_prefix() / "drive_c" / "users" / "ubuntu" / "AppData" / "Roaming" / "MetaQuotes" / "Terminal" / "Common" / "Files"
+
 
 def write_set_file(path: Path, params: dict[str, str], order: list[str]) -> None:
     lines = [
@@ -219,15 +225,21 @@ def write_ini_file(
 
 
 def remove_previous_audit_files(audit_file_name: str) -> None:
-    for path in mt5_prefix().rglob(audit_file_name):
-        try:
-            path.unlink()
-        except OSError:
-            pass
+    for root in (mt5_prefix(), mt5_terminal_common_files_dir()):
+        if not root.exists():
+            continue
+        for path in root.rglob(audit_file_name):
+            try:
+                path.unlink()
+            except OSError:
+                pass
 
 
 def locate_audit_file(audit_file_name: str) -> Path | None:
-    matches = list(mt5_prefix().rglob(audit_file_name))
+    matches = []
+    for root in (mt5_terminal_common_files_dir(), mt5_prefix()):
+        if root.exists():
+            matches.extend(root.rglob(audit_file_name))
     if not matches:
         return None
     matches.sort(key=lambda p: p.stat().st_mtime, reverse=True)
@@ -235,7 +247,7 @@ def locate_audit_file(audit_file_name: str) -> Path | None:
 
 
 def locate_report_files(run_dir: Path, report_base_name: str) -> list[Path]:
-    report_dir = run_dir / "reports"
+    report_dir = mt5_prefix() / "drive_c" / "MT5Portable" / "reports"
     if not report_dir.exists():
         return []
     return sorted(report_dir.glob(f"{report_base_name}*"))
@@ -407,7 +419,7 @@ def main() -> int:
 
         set_file_name = f"{expert_name}_{run_id}.set"
         local_set_path = sets_dir / set_file_name
-        mt5_set_path = mt5_presets_dir() / set_file_name
+        mt5_set_path = mt5_tester_profiles_dir() / set_file_name
         ini_path = configs_dir / f"{expert_name}_{run_id}.ini"
         report_path = run_dir / "reports" / report_base
         report_path.parent.mkdir(parents=True, exist_ok=True)
