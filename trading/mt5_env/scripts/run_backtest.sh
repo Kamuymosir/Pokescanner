@@ -30,6 +30,11 @@ sed "s|__REPORT_PATH__|$REPORT_PATH|g" "$CONFIG_PATH" > "$TMP_CONFIG"
 export WINEPREFIX
 export WINEARCH=win64
 
+# MetaTrader cannot run two copies from the same directory.
+pkill -f '/home/ubuntu/.mt5-traderx/drive_c/MT5Portable/terminal64.exe' 2>/dev/null || true
+pkill -f 'C:\\MT5Portable\\terminal64.exe' 2>/dev/null || true
+sleep 2
+
 echo "Running Strategy Tester with config: $CONFIG_PATH"
 echo "Resolved tester config:"
 sed -n '1,200p' "$TMP_CONFIG"
