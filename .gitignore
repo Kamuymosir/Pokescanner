@@ -40,6 +40,7 @@ trading/mt5_env/**/*.log
 trading/mt5_env/**/*.html
 trading/mt5_env/**/*.xml
 trading/mt5_env/**/*.json
+trading/sov_opt/output/
 
 # Noise
 udo systemctl edit singkana.service

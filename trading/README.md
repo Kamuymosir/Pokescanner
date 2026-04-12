@@ -167,6 +167,23 @@ Generated files are placed under:
 - Add equity curve protection after consecutive losses
 - Build a broker-specific `.set` preset after backtests
 
+## SOVEREIGN optimization automation
+
+For the integrated SOVEREIGN line, this repository now also includes:
+
+- `SOVEREIGN_ASCENDANT_README.md`
+- `SOVEREIGN_ANALYSIS_AND_OPTIMIZATION_PLAN.md`
+- `sov_audit/`
+- `sov_opt/`
+
+The intended flow is:
+
+1. run `SOVEREIGN_Ascendant_v1`
+2. export audit CSV
+3. analyze the audit
+4. run repeated parameter sweeps with `trading/sov_opt/run_sov_opt.py`
+5. keep only stable candidates, not just the most profitable curve
+
 ## SOVEREIGN optimization toolkit
 
 If you want to improve your older `SOVEREIGN` family EAs with a data-driven workflow, use:
