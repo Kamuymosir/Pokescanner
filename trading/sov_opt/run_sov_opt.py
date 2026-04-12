@@ -421,12 +421,16 @@ def main() -> int:
         local_set_path = sets_dir / set_file_name
         mt5_set_path = mt5_tester_profiles_dir() / set_file_name
         ini_path = configs_dir / f"{expert_name}_{run_id}.ini"
-        report_path = run_dir / "reports" / report_base
-        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_relative = f"reports/{report_base}"
+        local_report_dir = run_dir / "reports"
+        local_report_dir.mkdir(parents=True, exist_ok=True)
 
         write_set_file(local_set_path, params, order)
         shutil.copy2(local_set_path, mt5_set_path)
         write_ini_file(ini_path, expert_name, set_file_name, symbol, period, from_date, to_date)
+        ini_text = ini_path.read_text(encoding="utf-8")
+        ini_text = ini_text.replace("__REPORT_PATH__", report_relative)
+        ini_path.write_text(ini_text, encoding="utf-8")
 
         print(f"[{run_id}] prepared candidate -> {run_name}")
 
@@ -439,7 +443,7 @@ def main() -> int:
             remove_previous_audit_files(audit_file_name)
             try:
                 result = run_command(
-                    ["bash", str(MT5_BACKTEST_SCRIPT), str(ini_path), str(report_path)],
+                    ["bash", str(MT5_BACKTEST_SCRIPT), str(ini_path), report_relative],
                     timeout_seconds=timeout_seconds,
                 )
                 (run_dir / "stdout.log").write_text(result.stdout, encoding="utf-8")
