@@ -11,6 +11,10 @@ This directory contains a reference MT5 Expert Advisor inspired by public descri
 - `mt5_env/scripts/run_mt5.sh`
 - `mt5_env/scripts/run_backtest.sh`
 - `mt5_env/config/tester.ini`
+- `SOVEREIGN_ANALYSIS_AND_OPTIMIZATION_PLAN.md`
+- `sov_audit/README.md`
+- `sov_audit/SOV_AUDIT_SCHEMA.md`
+- `sov_audit/analyze_sov_audit.py`
 
 ## What this EA tries to reproduce
 
@@ -162,3 +166,18 @@ Generated files are placed under:
 - Add news blackout windows
 - Add equity curve protection after consecutive losses
 - Build a broker-specific `.set` preset after backtests
+
+## SOVEREIGN optimization toolkit
+
+If you want to improve your older `SOVEREIGN` family EAs with a data-driven workflow, use:
+
+- `trading/SOVEREIGN_ANALYSIS_AND_OPTIMIZATION_PLAN.md`
+- `trading/sov_audit/SOV_AUDIT_SCHEMA.md`
+- `trading/sov_audit/analyze_sov_audit.py`
+
+Recommended sequence:
+
+1. add CSV trade audit to the actual SOVEREIGN `.mq5`
+2. export completed trades with one row per closed trade
+3. run the analyzer and inspect mode/session/symbol/score buckets
+4. optimize exits and risk allocation before adding more entry filters
