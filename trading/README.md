@@ -11,6 +11,11 @@ This directory contains a reference MT5 Expert Advisor inspired by public descri
 - `mt5_env/scripts/run_mt5.sh`
 - `mt5_env/scripts/run_backtest.sh`
 - `mt5_env/config/tester.ini`
+- `windows_mt5/README.md`
+- `windows_mt5/compile_ea.ps1`
+- `windows_mt5/run_backtest.ps1`
+- `windows_mt5/run_opt_batch.ps1`
+- `windows_mt5/ascendant_tester.ini.tpl`
 - `SOVEREIGN_ANALYSIS_AND_OPTIMIZATION_PLAN.md`
 - `sov_audit/README.md`
 - `sov_audit/SOV_AUDIT_SCHEMA.md`
@@ -151,6 +156,22 @@ Generated files are placed under:
 - for real ultra-short-term live trading, a native Windows VPS is still the safer choice
 - Wine logs can contain noisy GUI warnings even when MT5 is otherwise usable
 - first broker login and market data download may still require manual terminal interaction
+
+## Windows native MT5 workflow
+
+For actual repeated backtests and direct optimization, Windows native MT5 is the preferred path.
+
+See:
+
+- `windows_mt5/README.md`
+
+That workflow is designed to reduce the "human exports report, agent patches code, human exports again" loop by making:
+
+- compile
+- single backtest
+- repeated batch backtests
+
+callable directly from PowerShell on a Windows MT5 machine.
 
 ## Important limitations
 
