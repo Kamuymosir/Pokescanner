@@ -1,0 +1,28 @@
+{
+  "expert_name": "SOVEREIGN_Ascendant_v1",
+  "symbol": "XAUUSD",
+  "period": "M15",
+  "from_date": "2024.01.01",
+  "to_date": "2025.03.31",
+  "report_prefix": "ascendant-xauusd-research",
+  "min_trades": 40,
+  "timeout_seconds": 420,
+  "base_parameters": {
+    "InpEnableAuditCSV": true,
+    "InpUseRiskPercent": true,
+    "InpEnableNewsEventFilter": false,
+    "InpSessionGuard": false,
+    "InpSpreadMaxPoints": 120,
+    "InpBaseRiskPercent": 0.20,
+    "InpEnableBandwagon": true,
+    "InpEnableStealth": true
+  },
+  "search_space": {
+    "InpADXThreshold": [19, 20, 22],
+    "InpBandwagonMinBodyRatio": [0.58, 0.60, 0.64],
+    "InpBandwagonMinBreakATR": [0.18, 0.20, 0.24],
+    "InpStealthReleaseFactor": [1.20, 1.25, 1.30],
+    "InpStealthTP_RR": [1.90, 2.10, 2.30],
+    "InpBaseRiskPercent": [0.15, 0.20, 0.25]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "expert_name": "SOVEREIGN_Ascendant_v1",
+  "symbol": "EURUSD",
+  "period": "M15",
+  "from_date": "2024.01.01",
+  "to_date": "2025.03.31",
+  "report_prefix": "ascendant-eurusd-research",
+  "min_trades": 80,
+  "timeout_seconds": 420,
+  "base_parameters": {
+    "InpEnableAuditCSV": true,
+    "InpUseRiskPercent": true,
+    "InpEnableNewsEventFilter": false,
+    "InpSessionGuard": false,
+    "InpSpreadMaxPoints": 22,
+    "InpBaseRiskPercent": 0.25,
+    "InpEnableBandwagon": true,
+    "InpEnableStealth": true
+  },
+  "search_space": {
+    "InpADXThreshold": [17, 18, 20],
+    "InpBandwagonMinBreakATR": [0.10, 0.12, 0.15],
+    "InpBandwagonTP_RR": [1.40, 1.55, 1.70],
+    "InpStealthReleaseFactor": [1.10, 1.15, 1.20],
+    "InpStealthTP_RR": [1.80, 2.00, 2.20],
+    "InpBaseRiskPercent": [0.20, 0.25, 0.30]
+  }
+}

@@ -15,6 +15,10 @@ This directory contains the first automation layer for repeated backtests of `SO
 
 - `ascendant_tester.ini.tpl` - INI template used for each MT5 run
 - `sample_search_space.json` - example parameter search definition
+- `research_search_space_eurusd_m15.json` - research-backed EURUSD M15 search grid
+- `research_search_space_usdjpy_m15.json` - research-backed USDJPY M15 search grid
+- `research_search_space_xauusd_m15.json` - research-backed XAUUSD M15 search grid
+- `SOVEREIGN_RESEARCH_NOTES.md` - paper-to-parameter translation notes
 - `run_sov_opt.py` - orchestration script
 
 ## Search-space format
@@ -54,6 +58,14 @@ python3 trading/sov_opt/run_sov_opt.py \
   --limit 8
 ```
 
+Research-backed example:
+
+```bash
+python3 trading/sov_opt/run_sov_opt.py \
+  trading/sov_opt/research_search_space_eurusd_m15.json \
+  --limit 12
+```
+
 ## Output
 
 Generated files go under:
@@ -86,3 +98,16 @@ This is still not a full walk-forward engine, but it is a much safer base than p
 
 If MT5 has not yet downloaded broker history or completed the first login, some runs may fail or produce no audit CSV.  
 The runner records those failures instead of pretending they succeeded.
+
+## Why the research-backed JSON files matter
+
+The research-backed search spaces are intentionally narrower than brute-force optimization grids.
+
+They reflect:
+
+- trend-following evidence for continuation setups
+- intraday FX seasonality and spread/liquidity differences by symbol
+- noisier execution and risk constraints for gold
+- backtest-overfitting research that argues for smaller, more meaningful search spaces
+
+Use them as the preferred starting point instead of expanding all parameters at once.

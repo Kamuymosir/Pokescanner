@@ -144,6 +144,14 @@ It is intentionally simple and stable:
 Use one symbol-consistent batch at a time.
 Do **not** mix EURUSD, USDJPY, and XAUUSD presets in one batch run unless you also vary `-Symbol` accordingly.
 
+If you want to expand beyond the included starter presets, generate new `.set` files from:
+
+- `trading/sov_opt/research_search_space_eurusd_m15.json`
+- `trading/sov_opt/research_search_space_usdjpy_m15.json`
+- `trading/sov_opt/research_search_space_xauusd_m15.json`
+
+Those search spaces were narrowed using research-backed assumptions rather than brute-force "optimize everything" ranges.
+
 ## How this reduces the painful loop
 
 The old loop was:
