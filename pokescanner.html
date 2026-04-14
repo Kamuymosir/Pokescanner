@@ -195,6 +195,55 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
 .leaflet-tile-pane{filter:brightness(.7) contrast(1.1) saturate(.8)}
 .pin-popup{font-size:12px;line-height:1.6}
 .pin-popup b{color:#7c3aed}
+
+/* Dex / Database tab */
+.dex-search{width:100%;padding:10px 12px;background:#0c0c14;border:1px solid #1a1a2e;border-radius:10px;color:#94a3b8;font-size:13px;outline:none;margin-bottom:10px;transition:border-color .2s}
+.dex-search:focus{border-color:#7c3aed}
+.dex-subtabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.dex-subtabs::-webkit-scrollbar{display:none}
+.dex-subtab{padding:7px 14px;border-radius:8px;border:1px solid #1a1a2e;background:#0c0c14;color:#4a5568;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.dex-subtab.active{border-color:#7c3aed;color:#a78bfa;background:#0f0f1e}
+.dex-panel{display:none;animation:fadeIn .2s}
+.dex-panel.active{display:block}
+
+.era-group{margin-bottom:18px}
+.era-title{font-size:12px;color:#a78bfa;font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1a1a2e;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.era-title .era-badge{font-size:9px;background:#1a1a2e;color:#4a5568;padding:2px 6px;border-radius:4px;margin-left:auto}
+.era-title .arrow{font-size:10px;transition:transform .2s;color:#3d4a5c}
+.era-title.collapsed .arrow{transform:rotate(-90deg)}
+.era-packs{display:grid;grid-template-columns:1fr;gap:4px}
+.era-packs.hidden{display:none}
+.pack-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#0c0c14;border:1px solid #1a1a2e;border-radius:10px;transition:border-color .2s}
+.pack-item:hover{border-color:#252540}
+.pack-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.pack-info{flex:1;min-width:0}
+.pack-name{font-size:12px;font-weight:700;color:#e2e8f0}
+.pack-meta{font-size:9px;color:#3d4a5c;margin-top:1px}
+.pack-date{font-size:9px;color:#2a3d52;flex-shrink:0}
+
+.rarity-table{width:100%;border-collapse:separate;border-spacing:0 4px}
+.rarity-table th{font-size:9px;color:#2a3d52;text-align:left;padding:4px 8px;letter-spacing:.5px;font-weight:600}
+.rarity-table td{padding:8px 10px;background:#0c0c14;font-size:11px;color:#94a3b8}
+.rarity-table tr td:first-child{border-radius:8px 0 0 8px}
+.rarity-table tr td:last-child{border-radius:0 8px 8px 0}
+.rarity-sym{font-size:16px;text-align:center}
+.rarity-name{font-weight:700;color:#e2e8f0}
+.rarity-label{font-size:9px;color:#4a5568}
+.rarity-desc{font-size:10px;color:#4a5568;line-height:1.4}
+.rarity-tier{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;text-align:center}
+
+.dex-card{background:#0c0c14;border:1px solid #1a1a2e;border-radius:12px;padding:14px 16px;margin-bottom:8px;transition:border-color .2s}
+.dex-card:hover{border-color:#252540}
+.dex-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dex-card-name{font-size:16px;font-weight:800;color:#e2e8f0}
+.dex-card-price{font-size:15px;font-weight:900;font-family:monospace;color:#fbbf24}
+.dex-card-set{font-size:10px;color:#3d4a5c;margin-top:2px}
+.dex-card-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.dex-card-note{font-size:10px;color:#4a5568;margin-top:6px;line-height:1.6}
+.dex-card-psa{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.dex-psa-chip{font-size:9px;background:#080810;padding:3px 8px;border-radius:5px;color:#64748b;font-family:monospace}
+.dex-psa-chip b{color:#fbbf24}
+.dex-empty{text-align:center;padding:30px;color:#2a3d52;font-size:12px}
 </style>
 </head>
 <body>
@@ -310,6 +359,19 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
   <div id="map-pins-list"></div>
 </div>
 
+<!-- ==================== TAB: DEX ==================== -->
+<div id="page-dex" class="tab-page">
+  <input class="dex-search" id="dex-search" type="text" placeholder="🔍 シリーズ・カード名を検索..." aria-label="図鑑検索">
+  <div class="dex-subtabs" id="dex-subtabs">
+    <button class="dex-subtab active" data-panel="series">シリーズ一覧</button>
+    <button class="dex-subtab" data-panel="rarity">レアリティ表</button>
+    <button class="dex-subtab" data-panel="highvalue">高額カード図鑑</button>
+  </div>
+  <div id="dex-panel-series" class="dex-panel active"></div>
+  <div id="dex-panel-rarity" class="dex-panel"></div>
+  <div id="dex-panel-highvalue" class="dex-panel"></div>
+</div>
+
 <!-- ==================== BOTTOM NAV ==================== -->
 <nav id="tab-bar" role="tablist">
   <button class="tab-item active" data-tab="scan" role="tab" aria-selected="true" aria-label="スキャン">
@@ -319,6 +381,10 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
   <button class="tab-item" data-tab="glossary" role="tab" aria-selected="false" aria-label="用語集">
     <span class="tab-icon">📖</span>
     <span class="tab-label">用語集</span>
+  </button>
+  <button class="tab-item" data-tab="dex" role="tab" aria-selected="false" aria-label="図鑑">
+    <span class="tab-icon">📚</span>
+    <span class="tab-label">図鑑</span>
   </button>
   <button class="tab-item" data-tab="map" role="tab" aria-selected="false" aria-label="マップ">
     <span class="tab-icon">🗺️</span>
@@ -388,6 +454,121 @@ const GLOSSARY = [
     { term: "バイイン", en: "Buy-in", desc: "ショップがカードを買い取る価格。販売価格より低く設定されている（当然）。" },
     { term: "スプレッド", en: "Spread", desc: "買取価格と販売価格の差。希少カードほどスプレッドが大きい傾向。" },
   ]},
+];
+
+// ============================================================
+// DEX DATA: Series / Packs / Rarity / High-value cards
+// ============================================================
+const SERIES_DATA = [
+  { era: "旧裏面 (1996-2001)", id: "old", icon: "🏛️", packs: [
+    { name: "基本セット（初版/無印）", code: "Base Set", date: "1996/10", cards: 102, icon: "🔥", note: "リザードン・カメックス・フシギバナ収録。ポケカの原点。" },
+    { name: "ポケモンジャングル", code: "Jungle", date: "1997/03", cards: 48, icon: "🌿", note: "ガルーラ（封入ミス版）など希少カードあり。" },
+    { name: "化石の秘密", code: "Fossil", date: "1997/06", cards: 48, icon: "🦴", note: "ゲンガー・カイリュー・ラプラス等の人気ポケモン収録。" },
+    { name: "ロケット団", code: "Team Rocket", date: "1997/11", cards: 65, icon: "🚀", note: "わるいリザードン等のダーク系カード。" },
+    { name: "ジム拡張 第1弾（リーダーズ）", code: "Gym Heroes", date: "1998/04", cards: 96, icon: "🏟️", note: "ジムリーダーのポケモン。カスミのヒトデマン等。" },
+    { name: "ジム拡張 第2弾（チャレンジ）", code: "Gym Challenge", date: "1998/07", cards: 98, icon: "🏟️", note: "ジムリーダー後半。サカキのニドキング等。" },
+  ]},
+  { era: "Neo シリーズ (2000-2001)", id: "neo", icon: "✨", packs: [
+    { name: "neo 第1弾 金、銀、新世界へ...", code: "Neo Genesis", date: "2000/02", cards: 96, icon: "🌟", note: "ルギア・ホウオウ初登場。ジョウト地方ポケモン。" },
+    { name: "neo 第2弾 遺跡をこえて...", code: "Neo Discovery", date: "2000/07", cards: 56, icon: "🏛️", note: "ブラッキー・エーフィのホロが超高額。" },
+    { name: "neo 第3弾 めざめる伝説", code: "Neo Revelation", date: "2000/11", cards: 57, icon: "⚡", note: "光るポケモンシリーズ。光るギャラドス等。" },
+    { name: "neo 第4弾 闇、そして光へ...", code: "Neo Destiny", date: "2001/03", cards: 56, icon: "🌓", note: "光るポケモン完結。光るミュウ等。" },
+  ]},
+  { era: "e シリーズ (2001-2003)", id: "e", icon: "📱", packs: [
+    { name: "基本拡張パック 第1弾", code: "Expedition", date: "2001/12", cards: 128, icon: "📦", note: "eカードリーダー対応。新デザインフレーム。" },
+    { name: "基本拡張パック 第2弾 地図にない町", code: "Aquapolis", date: "2002/03", cards: 92, icon: "🌊", note: "クリスタルタイプ初登場。" },
+    { name: "基本拡張パック 第3弾 海からの風", code: "Skyridge", date: "2002/06", cards: 88, icon: "🌊", note: "クリスタルタイプ継続。" },
+    { name: "拡張パック 第4弾 裂けた大地", code: "Split Earth", date: "2002/09", cards: 88, icon: "🌋" },
+    { name: "拡張パック 第5弾 神秘なる山", code: "Mysterious Mountains", date: "2002/12", cards: 88, icon: "⛰️" },
+  ]},
+  { era: "ADV/PCG (2003-2006)", id: "adv", icon: "🎮", packs: [
+    { name: "ADV 拡張パック 第1弾", code: "ADV", date: "2003/01", cards: 76, icon: "🎮", note: "ホウエン地方。ルビー＆サファイアの世代。" },
+    { name: "ADV 拡張パック 第2弾 砂漠のかげ", code: "ADV2", date: "2003/03", cards: 53, icon: "🏜️" },
+    { name: "PCG 拡張パック 第1弾", code: "PCG1", date: "2004/01", cards: 75, icon: "💎", note: "exポケモンシリーズ本格化。" },
+  ]},
+  { era: "DPt シリーズ (2006-2010)", id: "dpt", icon: "💠", packs: [
+    { name: "DP 拡張パック 第1弾", code: "DP1", date: "2006/11", cards: 106, icon: "💠", note: "シンオウ地方。ダイヤモンド＆パール世代。Lv.X初登場。" },
+    { name: "DPt 拡張パック ギンガの覇道", code: "DPt4", date: "2009/03", cards: 100, icon: "🌌" },
+    { name: "LEGEND 拡張パック ハートゴールドコレクション", code: "L1", date: "2009/10", cards: 70, icon: "💛", note: "LEGEND カード登場。上下2枚で1枚のカード。" },
+  ]},
+  { era: "BW シリーズ (2010-2013)", id: "bw", icon: "⚫", packs: [
+    { name: "BW 拡張パック ブラックコレクション", code: "BW1", date: "2010/09", cards: 56, icon: "⚫", note: "イッシュ地方。EXポケモン再導入。フルアートカード。" },
+    { name: "BW 拡張パック プラズマ団の野望", code: "BW8", date: "2012/09", cards: 70, icon: "🔮" },
+  ]},
+  { era: "XY シリーズ (2013-2016)", id: "xy", icon: "🦋", packs: [
+    { name: "XY 拡張パック コレクションX", code: "XY1", date: "2013/11", cards: 60, icon: "🦋", note: "カロス地方。メガシンカ・BREAK初登場。" },
+    { name: "XY BREAK 拡張パック 青い衝撃", code: "XY8", date: "2015/09", cards: 59, icon: "💙", note: "BREAK進化ポケモン登場。" },
+  ]},
+  { era: "SM シリーズ (2016-2019)", id: "sm", icon: "🌺", packs: [
+    { name: "SM 拡張パック コレクション サン", code: "SM1S", date: "2016/12", cards: 60, icon: "☀️", note: "アローラ地方。GXポケモン・SR全面イラスト。" },
+    { name: "SM 拡張パック コレクション ムーン", code: "SM1M", date: "2016/12", cards: 60, icon: "🌙" },
+    { name: "SM 強化拡張パック ドリームリーグ", code: "SM11b", date: "2019/08", cards: 49, icon: "🌈", note: "CHR（キャラクターレア）大量収録。" },
+    { name: "SM 拡張パック タッグオールスターズ", code: "SM12a", date: "2019/10", cards: 173, icon: "⭐", note: "TAG TEAM総集編。高額SRが多い。" },
+  ]},
+  { era: "SWSH ソード&シールド (2019-2023)", id: "swsh", icon: "⚔️", packs: [
+    { name: "S 拡張パック ソード", code: "S1W", date: "2019/12", cards: 60, icon: "⚔️", note: "ガラル地方。V/VMAX ポケモン登場。" },
+    { name: "S 拡張パック シールド", code: "S1H", date: "2019/12", cards: 60, icon: "🛡️" },
+    { name: "S 強化拡張パック イーブイヒーローズ", code: "S6a", date: "2021/05", cards: 69, icon: "🦊", note: "ブイズSA全種収録。ブラッキーVMAX SAは最高級。" },
+    { name: "S 強化拡張パック VSTARユニバース", code: "S12a", date: "2022/12", cards: 172, icon: "🌟", note: "AR・SAR大量収録のハイクラスパック。" },
+    { name: "S 拡張パック ムゲンゾーン", code: "S3", date: "2020/06", cards: 100, icon: "♾️", note: "ムゲンダイナVMAX収録。" },
+  ]},
+  { era: "SV スカーレット&バイオレット (2023-)", id: "sv", icon: "🟣", packs: [
+    { name: "SV 拡張パック スカーレットex", code: "SV1S", date: "2023/01", cards: 78, icon: "🔴", note: "パルデア地方。exポケモン復活。SAR/SR/UR。" },
+    { name: "SV 拡張パック バイオレットex", code: "SV1V", date: "2023/01", cards: 78, icon: "🟣" },
+    { name: "SV 強化拡張パック レイジングサーフ", code: "SV3a", date: "2023/09", cards: 62, icon: "🌊" },
+    { name: "SV 強化拡張パック シャイニートレジャーex", code: "SV4a", date: "2023/12", cards: 190, icon: "✨", note: "色違いポケモン大量収録。ハイクラスパック。" },
+    { name: "SV 拡張パック ワイルドフォース", code: "SV5K", date: "2024/01", cards: 71, icon: "🦁" },
+    { name: "SV 拡張パック サイバージャッジ", code: "SV5M", date: "2024/01", cards: 71, icon: "🤖" },
+    { name: "SV 強化拡張パック クリムゾンヘイズ", code: "SV5a", date: "2024/03", cards: 66, icon: "🔥" },
+    { name: "SV 拡張パック 変幻の仮面", code: "SV6", date: "2024/04", cards: 101, icon: "🎭" },
+    { name: "SV 強化拡張パック ステラミラクル", code: "SV7", date: "2024/07", cards: 102, icon: "🌠" },
+    { name: "SV 拡張パック スーパーエレクトリックブレイカー", code: "SV8", date: "2024/09", cards: 100, icon: "⚡" },
+    { name: "SV 拡張パック パラダイムトリガー", code: "SV8a", date: "2024/10", cards: 75, icon: "🔮" },
+    { name: "SV 拡張パック テラスタルフェスex", code: "SV8b", date: "2024/12", cards: 190, icon: "💎", note: "ハイクラスパック。テラスタル大量収録。" },
+    { name: "SV 拡張パック バトルマスターズ", code: "SV9", date: "2025/01", cards: 100, icon: "🏆" },
+    { name: "SV 拡張パック ニンジャスピナー", code: "SVninja", date: "2025/03", cards: 71, icon: "🥷", note: "忍者テーマ。ゲッコウガex等収録。" },
+    { name: "SV 拡張パック 超電ブレイカー", code: "SV10", date: "2025/06", cards: 100, icon: "⚡" },
+  ]},
+];
+
+const RARITY_TABLE = [
+  { sym: "◇", name: "C（コモン）", label: "Common", tier: "low", color: "#64748b", desc: "最も一般的。各パックに数枚入っている。" },
+  { sym: "◆", name: "U（アンコモン）", label: "Uncommon", tier: "low", color: "#4ade80", desc: "コモンの次に多い。1パックに1-2枚。" },
+  { sym: "★", name: "R（レア）", label: "Rare", tier: "mid", color: "#60a5fa", desc: "1パックに0-1枚。ホロ加工なし。" },
+  { sym: "★H", name: "RR（ダブルレア）", label: "Double Rare", tier: "mid", color: "#818cf8", desc: "SV以降の新レアリティ。exポケモン等。" },
+  { sym: "✦", name: "R（ホロレア）", label: "Holo Rare", tier: "mid", color: "#a78bfa", desc: "ホログラム加工あり。旧裏面のホロカードはここ。" },
+  { sym: "★★★", name: "RRR（トリプルレア）", label: "Triple Rare", tier: "high", color: "#c084fc", desc: "SM-SWSHのV/VMAX/VSTAR。テクスチャ加工あり。" },
+  { sym: "SR", name: "SR（スーパーレア）", label: "Super Rare", tier: "high", color: "#f472b6", desc: "全面イラスト・特殊加工。1BOXに0-1枚。高額カード多し。" },
+  { sym: "SAR", name: "SAR（スペシャルアートレア）", label: "Special Art Rare", tier: "ultra", color: "#fb923c", desc: "SV以降の全面特殊イラスト。最も人気の高いレアリティの一つ。" },
+  { sym: "UR", name: "UR（ウルトラレア）", label: "Ultra Rare", tier: "ultra", color: "#fbbf24", desc: "金色加工カード。1BOXに0-1枚。コレクター需要が高い。" },
+  { sym: "HR", name: "HR（ハイパーレア）", label: "Hyper Rare", tier: "ultra", color: "#38bdf8", desc: "SM-SWSHの虹色加工カード。シークレット枠。" },
+  { sym: "AR", name: "AR（アートレア）", label: "Art Rare", tier: "high", color: "#34d399", desc: "SV以降。イラスト違いのアートワーク版。比較的入手しやすい。" },
+  { sym: "CHR", name: "CHR（キャラクターレア）", label: "Character Rare", tier: "mid", color: "#f9a8d4", desc: "トレーナーと一緒に描かれたカード。SMドリームリーグで初登場。" },
+  { sym: "CSR", name: "CSR（キャラクタースーパーレア）", label: "Character Super Rare", tier: "high", color: "#e879f9", desc: "SWSHで登場。CHRの上位版で全面イラスト。" },
+  { sym: "ACE", name: "ACE SPEC", label: "ACE SPEC", tier: "high", color: "#67e8f9", desc: "SV以降。デッキに1枚のみ入れられる強力なトレーナーズ。" },
+  { sym: "PR", name: "PR（プロモ）", label: "Promo", tier: "varies", color: "#fb923c", desc: "イベント・映画・雑誌等の限定配布。希少性はものによる。" },
+];
+
+const HIGH_VALUE_CARDS = [
+  { name: "リザードン", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 3000000, psa9: 800000, raw: "3〜20万", note: "ポケカ市場の象徴。旧裏面ホロは世界的に最も人気の高いカード。", tags: ["旧裏","ホロ"] },
+  { name: "ガルーラ", set: "ジャングル（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 5000000, psa9: 1500000, raw: "3〜15万", note: "PSA登録数34枚の超希少カード。封入ミスに起因する幻のカード。", tags: ["旧裏","超希少","ホロ"] },
+  { name: "ピカチュウ（コロコロプロモ）", set: "コロコロコミック付録", era: "旧裏面", rarity: "Promo", psa10: 3000000, psa9: 800000, raw: "5〜30万", note: "コロコロ付録限定。PSA10は国内最高価格帯。", tags: ["旧裏","プロモ","超希少"] },
+  { name: "ブラッキー", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 2500000, psa9: 600000, raw: "3〜20万", note: "海外市場でも人気No.1クラス。イーブイ系統の王者。", tags: ["Neo","ホロ"] },
+  { name: "ルギア", set: "neo genesis", era: "Neo", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "2〜15万", note: "neo genesisの看板。伝説ポケモンの代表格。", tags: ["Neo","ホロ"] },
+  { name: "カイリュー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 2000000, psa9: 500000, raw: "2〜12万", note: "化石セットの最高額ホロ。初代ドラゴンタイプの人気。", tags: ["旧裏","ホロ"] },
+  { name: "ミュウツー", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1000000, psa9: 300000, raw: "1.5〜10万", note: "初代最強ポケモン。映画人気も後押し。", tags: ["旧裏","ホロ"] },
+  { name: "ギャラドス", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "1.5〜10万", note: "コイキングからの進化が人気の理由。旧裏面ホロは高額。", tags: ["旧裏","ホロ"] },
+  { name: "ゲンガー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜6万", note: "ゴースト系の人気ポケモン。幅広い世代にファンが多い。", tags: ["旧裏","ホロ"] },
+  { name: "エーフィ", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜8万", note: "ブラッキーと対になるイーブイ進化系。", tags: ["Neo","ホロ"] },
+  { name: "ミュウ", set: "化石の秘密/プロモ（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 500000, psa9: 150000, raw: "0.5〜6万", note: "幻のポケモン。プロモ版は特に希少。", tags: ["旧裏","ホロ"] },
+  { name: "ブラッキーVMAX SA", set: "イーブイヒーローズ", era: "SWSH", rarity: "Special Art Rare", psa10: 300000, psa9: 150000, raw: "5〜12万", note: "SWSH最高額級SA。月夜のブラッキーの美麗イラスト。", tags: ["SWSH","SA"] },
+  { name: "リザードンex SAR", set: "黒炎の支配者", era: "SV", rarity: "Special Art Rare", psa10: 100000, psa9: 50000, raw: "1.5〜4万", note: "SV世代の代表的高額SAR。リザードン人気は不滅。", tags: ["SV","SAR"] },
+  { name: "ナンジャモ SR", set: "クレイバースト", era: "SV", rarity: "Super Rare", psa10: 80000, psa9: 40000, raw: "1.5〜3万", note: "人気キャラクターSR。初動から高騰を続ける。", tags: ["SV","SR"] },
+  { name: "リーリエ SR", set: "コレクションムーン", era: "SM", rarity: "Super Rare", psa10: 400000, psa9: 200000, raw: "5〜15万", note: "SM世代の最高額サポートSR。キャラ人気が価格を牽引。", tags: ["SM","SR"] },
+  { name: "マリィ SR", set: "シールド", era: "SWSH", rarity: "Super Rare", psa10: 200000, psa9: 80000, raw: "3〜8万", note: "SWSH人気キャラ。シールド初期のSR。", tags: ["SWSH","SR"] },
+  { name: "アセロラの予感 SR", set: "VMAXクライマックス", era: "SWSH", rarity: "Super Rare", psa10: 150000, psa9: 60000, raw: "2〜6万", note: "CSR・SRともに高額。横向きポーズが人気。", tags: ["SWSH","SR"] },
+  { name: "光るギャラドス", set: "neo 第3弾 めざめる伝説", era: "Neo", rarity: "Secret Rare", psa10: 1000000, psa9: 300000, raw: "3〜15万", note: "光るポケモンシリーズの代表。neo期のシークレット。", tags: ["Neo","光る","シークレット"] },
+  { name: "ピカチュウ（ポケモンイラストレーター）", set: "コロコロ懸賞", era: "旧裏面", rarity: "Promo", psa10: null, psa9: null, raw: "数千万〜数億円", note: "世界に数枚。史上最高額のポケモンカード。入手はほぼ不可能。", tags: ["旧裏","プロモ","超希少","殿堂"] },
 ];
 
 // ============================================================
@@ -514,6 +695,137 @@ document.getElementById("gloss-search").addEventListener("input", function() {
 });
 
 renderGlossary();
+
+// ============================================================
+// DEX RENDERING
+// ============================================================
+function renderDexSeries(filter) {
+  const container = document.getElementById("dex-panel-series");
+  container.innerHTML = "";
+  const q = (filter || "").toLowerCase();
+
+  SERIES_DATA.forEach(era => {
+    const filtered = era.packs.filter(p =>
+      !q || p.name.toLowerCase().includes(q) || (p.code||"").toLowerCase().includes(q) || (p.note||"").toLowerCase().includes(q)
+    );
+    if (filtered.length === 0) return;
+
+    const group = document.createElement("div");
+    group.className = "era-group";
+    group.innerHTML = `<div class="era-title">${era.icon} ${esc(era.era)} <span class="era-badge">${filtered.length}パック</span><span class="arrow">▼</span></div>`;
+    const packsDiv = document.createElement("div");
+    packsDiv.className = "era-packs";
+
+    filtered.forEach(p => {
+      const d = document.createElement("div");
+      d.className = "pack-item";
+      d.innerHTML = `
+        <div class="pack-icon">${p.icon || "📦"}</div>
+        <div class="pack-info">
+          <div class="pack-name">${esc(p.name)}</div>
+          <div class="pack-meta">${esc(p.code)} · ${p.cards||"?"}枚${p.note ? " · " + esc(p.note) : ""}</div>
+        </div>
+        <div class="pack-date">${esc(p.date)}</div>
+      `;
+      packsDiv.appendChild(d);
+    });
+
+    group.appendChild(packsDiv);
+    container.appendChild(group);
+
+    group.querySelector(".era-title").addEventListener("click", function() {
+      this.classList.toggle("collapsed");
+      packsDiv.classList.toggle("hidden");
+    });
+  });
+
+  if (container.children.length === 0) {
+    container.innerHTML = '<div class="dex-empty">該当するシリーズが見つかりません</div>';
+  }
+}
+
+function renderDexRarity() {
+  const container = document.getElementById("dex-panel-rarity");
+  const tierColors = { low: "#64748b", mid: "#60a5fa", high: "#a78bfa", ultra: "#fbbf24", varies: "#fb923c" };
+  const tierLabels = { low: "低", mid: "中", high: "高", ultra: "最高", varies: "不定" };
+
+  let html = '<table class="rarity-table"><thead><tr><th></th><th>レアリティ</th><th>封入率</th><th>価格帯</th></tr></thead><tbody>';
+  RARITY_TABLE.forEach(r => {
+    const tc = tierColors[r.tier] || "#64748b";
+    html += `<tr>
+      <td class="rarity-sym" style="color:${r.color}">${esc(r.sym)}</td>
+      <td><span class="rarity-name" style="color:${r.color}">${esc(r.name)}</span><br><span class="rarity-label">${esc(r.label)}</span></td>
+      <td><span class="rarity-tier" style="background:${tc}20;color:${tc}">${tierLabels[r.tier]||""}</span></td>
+      <td class="rarity-desc">${esc(r.desc)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function renderDexHighValue(filter) {
+  const container = document.getElementById("dex-panel-highvalue");
+  container.innerHTML = "";
+  const q = (filter || "").toLowerCase();
+
+  const filtered = HIGH_VALUE_CARDS.filter(c =>
+    !q || c.name.toLowerCase().includes(q) || (c.set||"").toLowerCase().includes(q) || (c.era||"").toLowerCase().includes(q)
+       || (c.tags||[]).some(t => t.toLowerCase().includes(q))
+  );
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="dex-empty">該当するカードが見つかりません</div>';
+    return;
+  }
+
+  filtered.forEach(card => {
+    const d = document.createElement("div");
+    d.className = "dex-card";
+    const psa10Str = card.psa10 ? "¥" + card.psa10.toLocaleString() : "価格算定不能";
+    d.innerHTML = `
+      <div class="dex-card-header">
+        <div>
+          <div class="dex-card-name">${esc(card.name)}</div>
+          <div class="dex-card-set">${esc(card.set)} · ${esc(card.era)}</div>
+        </div>
+        <div class="dex-card-price">${card.psa10 ? "PSA10 " : ""}${esc(psa10Str)}</div>
+      </div>
+      <div class="dex-card-tags">
+        ${(card.tags||[]).map(t => `<span class="tag tag-${t==='超希少'||t==='殿堂'?'ultra':t==='旧裏'?'vintage':t==='プロモ'?'warn':'psa'}">${esc(t)}</span>`).join("")}
+      </div>
+      ${card.note ? `<div class="dex-card-note">${esc(card.note)}</div>` : ""}
+      <div class="dex-card-psa">
+        ${card.psa10 ? `<span class="dex-psa-chip">PSA10 <b>¥${card.psa10.toLocaleString()}</b></span>` : ""}
+        ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
+        <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
+      </div>
+    `;
+    container.appendChild(d);
+  });
+}
+
+// Dex subtabs
+document.querySelectorAll(".dex-subtab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".dex-subtab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".dex-panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("dex-panel-" + tab.dataset.panel).classList.add("active");
+  });
+});
+
+// Dex search
+document.getElementById("dex-search").addEventListener("input", function() {
+  const q = this.value;
+  const activePanel = document.querySelector(".dex-subtab.active")?.dataset.panel;
+  if (activePanel === "series") renderDexSeries(q);
+  else if (activePanel === "highvalue") renderDexHighValue(q);
+});
+
+// Initial render
+renderDexSeries();
+renderDexRarity();
+renderDexHighValue();
 
 // ============================================================
 // MAP
