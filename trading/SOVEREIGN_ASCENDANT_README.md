@@ -33,6 +33,7 @@ The design principle is:
 - mode-specific SL / RR / BE / trailing
 - daily DD guard
 - consecutive loss guard
+- explicit multi-timeframe directional window confirmation
 
 ### From Lv80
 
@@ -92,6 +93,21 @@ This schema is aligned with:
 - `trading/sov_audit/SOV_AUDIT_SCHEMA.md`
 
 So the Python analyzer can be used directly.
+
+### 5. Directional window filter
+
+Ascendant now includes an optional multi-timeframe directional window filter.
+
+It is designed to capture the useful part of discretionary "upper and lower timeframe agree" thinking without turning the EA into a subjective chart-reading machine.
+
+The implementation uses:
+
+- HTF score-based regime for the upper frame
+- a lower / confirmation timeframe MACD regime window
+- consecutive bar confirmation before entries are allowed
+
+This is not a no-stop or certainty claim.
+It is a permission filter intended to keep entries inside stronger directional windows.
 
 ## Strategy structure
 

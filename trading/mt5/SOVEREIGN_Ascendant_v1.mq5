@@ -102,6 +102,15 @@ input double InpADXThreshold              = 18.0;
 input int    InpMinTrendScore             = 4;
 input int    InpMinScoreMargin            = 1;
 
+input group "[Directional Window Filter]"
+input bool   InpEnableDirectionalWindowFilter = true;
+input bool   InpAutoDirectionalWindowTF   = true;
+input ENUM_TIMEFRAMES InpManualDirectionalWindowTF = PERIOD_M5;
+input int    InpDirectionalWindowConfirmBars = 2;
+input int    InpWindowMacdFast            = 12;
+input int    InpWindowMacdSlow            = 26;
+input int    InpWindowMacdSignal          = 9;
+
 input group "[Execution Filters]"
 input int    InpSpreadMaxPoints           = 60;
 input bool   InpSessionGuard              = false;
@@ -196,6 +205,7 @@ PositionState g_states[];
 
 ENUM_TIMEFRAMES g_ltf = PERIOD_CURRENT;
 ENUM_TIMEFRAMES g_htf = PERIOD_H1;
+ENUM_TIMEFRAMES g_window_tf = PERIOD_CURRENT;
 
 datetime g_last_bar_time   = 0;
 datetime g_last_trade_time = 0;
@@ -207,11 +217,13 @@ int h_ema_fast_htf = INVALID_HANDLE;
 int h_ema_slow_htf = INVALID_HANDLE;
 int h_adx_htf      = INVALID_HANDLE;
 int h_bands_ltf    = INVALID_HANDLE;
+int h_macd_window  = INVALID_HANDLE;
 
 string g_last_panel          = "";
 int    g_last_trend_score    = 0;
 int    g_last_trend_dir      = 0;
 int    g_last_trend_margin   = 0;
+int    g_last_window_dir     = 0;
 int    g_consecutive_losses  = 0;
 int    g_day_key             = 0;
 double g_day_start_equity    = 0.0;
@@ -267,6 +279,33 @@ ENUM_TIMEFRAMES AutoHigherTF(const ENUM_TIMEFRAMES ltf)
       case PERIOD_H8:  return PERIOD_D1;
       case PERIOD_H12: return PERIOD_D1;
       default:         return PERIOD_H1;
+     }
+  }
+
+ENUM_TIMEFRAMES AutoDirectionalWindowTF(const ENUM_TIMEFRAMES ltf)
+  {
+   switch(ltf)
+     {
+      case PERIOD_M1:  return PERIOD_M1;
+      case PERIOD_M2:  return PERIOD_M1;
+      case PERIOD_M3:  return PERIOD_M1;
+      case PERIOD_M4:  return PERIOD_M1;
+      case PERIOD_M5:  return PERIOD_M1;
+      case PERIOD_M6:  return PERIOD_M2;
+      case PERIOD_M10: return PERIOD_M3;
+      case PERIOD_M12: return PERIOD_M4;
+      case PERIOD_M15: return PERIOD_M5;
+      case PERIOD_M20: return PERIOD_M5;
+      case PERIOD_M30: return PERIOD_M10;
+      case PERIOD_H1:  return PERIOD_M15;
+      case PERIOD_H2:  return PERIOD_M30;
+      case PERIOD_H3:  return PERIOD_M30;
+      case PERIOD_H4:  return PERIOD_H1;
+      case PERIOD_H6:  return PERIOD_H1;
+      case PERIOD_H8:  return PERIOD_H2;
+      case PERIOD_H12: return PERIOD_H3;
+      case PERIOD_D1:  return PERIOD_H4;
+      default:         return PERIOD_M5;
      }
   }
 
@@ -568,6 +607,7 @@ void UpdateTimeframes()
   {
    g_ltf = (ENUM_TIMEFRAMES)_Period;
    g_htf = InpAutoHTF ? AutoHigherTF(g_ltf) : InpManualHTF;
+   g_window_tf = InpAutoDirectionalWindowTF ? AutoDirectionalWindowTF(g_ltf) : InpManualDirectionalWindowTF;
   }
 
 bool RebuildHandles()
@@ -578,6 +618,7 @@ bool RebuildHandles()
    if(h_ema_slow_htf != INVALID_HANDLE) IndicatorRelease(h_ema_slow_htf);
    if(h_adx_htf      != INVALID_HANDLE) IndicatorRelease(h_adx_htf);
    if(h_bands_ltf    != INVALID_HANDLE) IndicatorRelease(h_bands_ltf);
+   if(h_macd_window  != INVALID_HANDLE) IndicatorRelease(h_macd_window);
 
    h_atr_ltf      = iATR(_Symbol, g_ltf, InpATRPeriod);
    h_ema_fast_ltf = iMA(_Symbol, g_ltf, InpEMAFast, 0, MODE_EMA, PRICE_CLOSE);
@@ -585,9 +626,11 @@ bool RebuildHandles()
    h_ema_slow_htf = iMA(_Symbol, g_htf, InpEMASlow, 0, MODE_EMA, PRICE_CLOSE);
    h_adx_htf      = iADX(_Symbol, g_htf, InpADXPeriod);
    h_bands_ltf    = iBands(_Symbol, g_ltf, InpBBPeriod, 0, InpBBDev, PRICE_CLOSE);
+   h_macd_window  = iMACD(_Symbol, g_window_tf, InpWindowMacdFast, InpWindowMacdSlow, InpWindowMacdSignal, PRICE_CLOSE);
 
    if(h_atr_ltf == INVALID_HANDLE || h_ema_fast_ltf == INVALID_HANDLE || h_ema_fast_htf == INVALID_HANDLE ||
-      h_ema_slow_htf == INVALID_HANDLE || h_adx_htf == INVALID_HANDLE || h_bands_ltf == INVALID_HANDLE)
+      h_ema_slow_htf == INVALID_HANDLE || h_adx_htf == INVALID_HANDLE || h_bands_ltf == INVALID_HANDLE ||
+      h_macd_window == INVALID_HANDLE)
      {
       Print("[SOV ASCENDANT] ERROR: failed to create indicator handles.");
       return false;
@@ -866,6 +909,43 @@ bool EvalHTFState(const int shift, int &dir, int &score, int &margin, string &wh
    why = StringFormat("Weak HTF bull=%d bear=%d", bull, bear);
    dir = TREND_FLAT;
    score = MathMax(bull, bear);
+   return true;
+  }
+
+bool EvalDirectionalWindowState(const int shift, int &dir, string &why)
+  {
+   dir = TREND_FLAT;
+   why = "";
+
+   if(!InpEnableDirectionalWindowFilter)
+      return true;
+
+   double macd_main = 0.0;
+   double macd_signal = 0.0;
+   if(!ReadBufferValue(h_macd_window, 0, shift, macd_main))
+     {
+      why = "No window MACD main";
+      return false;
+     }
+   if(!ReadBufferValue(h_macd_window, 1, shift, macd_signal))
+     {
+      why = "No window MACD signal";
+      return false;
+     }
+
+   double histogram = macd_main - macd_signal;
+   if(macd_main > macd_signal && histogram > 0.0)
+     {
+      dir = TREND_BULL;
+      return true;
+     }
+   if(macd_main < macd_signal && histogram < 0.0)
+     {
+      dir = TREND_BEAR;
+      return true;
+     }
+
+   why = "Directional window mixed";
    return true;
   }
 
@@ -1286,6 +1366,50 @@ bool EvalModeAndArmed(SignalInfo &sig)
          sig.entry_reason_text = "HTF not armed";
          return false;
         }
+     }
+
+   if(InpEnableDirectionalWindowFilter)
+     {
+      int window_dir = TREND_FLAT;
+      string window_why = "";
+      if(!EvalDirectionalWindowState(1, window_dir, window_why))
+        {
+         sig.entry_reason_text = window_why;
+         return false;
+        }
+      if(window_dir == TREND_FLAT)
+        {
+         sig.entry_reason_text = window_why;
+         return false;
+        }
+
+      for(int i = 2; i <= InpDirectionalWindowConfirmBars; i++)
+        {
+         int confirm_window_dir = TREND_FLAT;
+         string confirm_window_why = "";
+         if(!EvalDirectionalWindowState(i, confirm_window_dir, confirm_window_why))
+           {
+            sig.entry_reason_text = confirm_window_why;
+            return false;
+           }
+         if(confirm_window_dir != window_dir)
+           {
+            sig.entry_reason_text = "Window not aligned";
+            return false;
+           }
+        }
+
+      if(window_dir != armed_trend)
+        {
+         sig.entry_reason_text = "MTF direction mismatch";
+         return false;
+        }
+
+      g_last_window_dir = window_dir;
+     }
+   else
+     {
+      g_last_window_dir = armed_trend;
      }
 
    g_last_trend_dir = armed_trend;
@@ -1904,9 +2028,10 @@ void DrawPanel(const string extra="")
    string panel =
       "SOVEREIGN Ascendant v1\n" +
       "Symbol: " + _Symbol + "\n" +
-      "LTF/HTF: " + TFToString(g_ltf) + " / " + TFToString(g_htf) + "\n" +
+      "LTF/WTF/HTF: " + TFToString(g_ltf) + " / " + TFToString(g_window_tf) + " / " + TFToString(g_htf) + "\n" +
       "Trend: " + TrendToText(g_last_trend_dir) + " | Score: " + IntegerToString(g_last_trend_score) +
       " | Bucket: " + ScoreBucketLabel(g_last_trend_score) + "\n" +
+      "Window: " + TrendToText(g_last_window_dir) + "\n" +
       "SpreadOK: " + (SpreadOK() ? "YES" : "NO") + "\n" +
       "SessionOK: " + (SessionOK() ? "YES" : "NO") + " | EventOK: " + (CheckUpcomingEvent() ? "NO" : "YES") + "\n" +
       "Guards: " + (guards_ok ? "OK" : guard_reason) + "\n" +
@@ -1952,6 +2077,7 @@ void OnDeinit(const int reason)
    if(h_ema_slow_htf != INVALID_HANDLE) IndicatorRelease(h_ema_slow_htf);
    if(h_adx_htf      != INVALID_HANDLE) IndicatorRelease(h_adx_htf);
    if(h_bands_ltf    != INVALID_HANDLE) IndicatorRelease(h_bands_ltf);
+   if(h_macd_window  != INVALID_HANDLE) IndicatorRelease(h_macd_window);
    Comment("");
    Print("[SOV ASCENDANT] Deinit. reason=", reason);
   }
