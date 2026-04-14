@@ -859,20 +859,7 @@ const RARITY = {
 let mapInstance = null;
 let mapMarkers = [];
 
-// Language toggle
-document.getElementById("lang-toggle").addEventListener("click", (e) => {
-  const btn = e.target.closest(".lang-btn");
-  if (!btn) return;
-  setLang(btn.dataset.lang);
-});
-// Init language
-(function initLang() {
-  document.querySelectorAll(".lang-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.lang === currentLang);
-  });
-  // Defer applyLangUI until after initial renders
-  setTimeout(() => applyLangUI(), 100);
-})();
+// Language toggle (initialized after LANGUAGE TOGGLE section loads, see below)
 
 document.querySelectorAll(".tab-item").forEach(tab => {
   tab.addEventListener("click", () => {
@@ -1418,6 +1405,16 @@ function applyLangUI() {
   // Re-render series to pick up language changes
   renderDexSeries(document.getElementById("dex-search")?.value || "");
 }
+
+// Language toggle event listeners
+document.getElementById("lang-toggle").addEventListener("click", (e) => {
+  const btn = e.target.closest(".lang-btn");
+  if (!btn) return;
+  setLang(btn.dataset.lang);
+});
+document.querySelectorAll(".lang-btn").forEach(b => {
+  b.classList.toggle("active", b.dataset.lang === currentLang);
+});
 
 // ============================================================
 // POKEMONTCG API IMAGE SEARCH
@@ -2555,6 +2552,9 @@ function renderResults(data) {
   document.getElementById("results").style.display = "block";
   document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
 }
+
+// Apply language UI after all initial renders
+setTimeout(() => applyLangUI(), 200);
 </script>
 </body>
 </html>
