@@ -227,13 +227,20 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
 .era-title.collapsed .arrow{transform:rotate(-90deg)}
 .era-packs{display:grid;grid-template-columns:1fr;gap:4px}
 .era-packs.hidden{display:none}
-.pack-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#0c0c14;border:1px solid #1a1a2e;border-radius:10px;transition:border-color .2s}
+.pack-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#0c0c14;border:1px solid #1a1a2e;border-radius:10px;transition:border-color .2s;cursor:pointer}
 .pack-item:hover{border-color:#252540}
 .pack-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.pack-img{width:44px;height:44px;border-radius:6px;object-fit:contain;flex-shrink:0;background:#080810}
 .pack-info{flex:1;min-width:0}
 .pack-name{font-size:12px;font-weight:700;color:#e2e8f0}
 .pack-meta{font-size:9px;color:#3d4a5c;margin-top:1px}
 .pack-date{font-size:9px;color:#2a3d52;flex-shrink:0}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s;cursor:zoom-out;-webkit-tap-highlight-color:transparent}
+.lightbox img{max-width:100%;max-height:85vh;object-fit:contain;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.6);animation:up .25s ease}
+.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(26,26,46,.8);border:none;color:#94a3b8;font-size:20px;width:36px;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.lightbox-caption{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#94a3b8;font-size:11px;background:rgba(6,6,9,.8);padding:6px 14px;border-radius:8px;backdrop-filter:blur(8px);white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis}
 
 .rarity-table{width:100%;border-collapse:separate;border-spacing:0 4px}
 .rarity-table th{font-size:9px;color:#2a3d52;text-align:left;padding:4px 8px;letter-spacing:.5px;font-weight:600}
@@ -861,7 +868,7 @@ document.querySelectorAll(".tab-item").forEach(tab => {
 
     if (target === "map" && !mapInstance) initMap();
     if (target === "map" && mapInstance) mapInstance.invalidateSize();
-    if (target === "dex") loadHighValueImages();
+    if (target === "dex") { loadHighValueImages(); fetchSetImages(); }
   });
 });
 
@@ -917,6 +924,36 @@ renderGlossary();
 // ============================================================
 // DEX RENDERING
 // ============================================================
+let setImageCache = {};
+let setImagesFetched = false;
+
+async function fetchSetImages() {
+  if (setImagesFetched) return;
+  setImagesFetched = true;
+  try {
+    const res = await fetch(`${TCGAPI}/sets?orderBy=-releaseDate&select=id,name,images`);
+    if (!res.ok) return;
+    const data = await res.json();
+    (data.data || []).forEach(s => {
+      setImageCache[s.id] = { logo: s.images?.logo, symbol: s.images?.symbol };
+      setImageCache[s.name?.toLowerCase()] = { logo: s.images?.logo, symbol: s.images?.symbol };
+    });
+    document.querySelectorAll(".pack-item[data-setcode]").forEach(el => {
+      const code = el.dataset.setcode.toLowerCase();
+      const match = setImageCache[code];
+      if (match?.logo) {
+        const iconEl = el.querySelector(".pack-icon");
+        if (iconEl) {
+          iconEl.outerHTML = `<img class="pack-img" src="${match.logo}" alt="" loading="lazy" data-full="${match.logo}" data-caption="${el.dataset.setname || ''}">`;
+        }
+      }
+    });
+    document.querySelectorAll(".pack-img").forEach(img => {
+      img.addEventListener("click", (e) => { e.stopPropagation(); openLightbox(img.dataset.full, img.dataset.caption); });
+    });
+  } catch {}
+}
+
 function renderDexSeries(filter) {
   const container = document.getElementById("dex-panel-series");
   container.innerHTML = "";
@@ -937,14 +974,22 @@ function renderDexSeries(filter) {
     filtered.forEach(p => {
       const d = document.createElement("div");
       d.className = "pack-item";
+      d.dataset.setcode = p.code || "";
+      d.dataset.setname = p.name || "";
+      const cached = setImageCache[(p.code||"").toLowerCase()];
+      const imgHtml = cached?.logo
+        ? `<img class="pack-img" src="${cached.logo}" alt="" loading="lazy" data-full="${cached.logo}" data-caption="${esc(p.name)}">`
+        : `<div class="pack-icon">${p.icon || "📦"}</div>`;
       d.innerHTML = `
-        <div class="pack-icon">${p.icon || "📦"}</div>
+        ${imgHtml}
         <div class="pack-info">
           <div class="pack-name">${esc(p.name)}</div>
           <div class="pack-meta">${esc(p.code)} · ${p.cards||"?"}枚${p.note ? " · " + esc(p.note) : ""}</div>
         </div>
         <div class="pack-date">${esc(p.date)}</div>
       `;
+      const imgEl = d.querySelector(".pack-img");
+      if (imgEl) imgEl.addEventListener("click", (e) => { e.stopPropagation(); openLightbox(imgEl.dataset.full, imgEl.dataset.caption); });
       packsDiv.appendChild(d);
     });
 
@@ -1126,7 +1171,7 @@ function showCardModal(card) {
   if (cmPrices.trendPrice) priceEntries.push({ label: "Trend", value: "€" + cmPrices.trendPrice.toFixed(2), source: "Cardmarket" });
 
   content.innerHTML = `
-    <img class="modal-img" src="${card.images?.large || card.images?.small || ''}" alt="${esc(card.name)}">
+    <img class="modal-img" src="${card.images?.large || card.images?.small || ''}" alt="${esc(card.name)}" style="cursor:zoom-in" onclick="openLightbox('${card.images?.large || card.images?.small || ''}','${esc(card.name)}')" >
     <div class="modal-body">
       <div class="modal-title">${esc(card.name)}</div>
       <div class="modal-sub">${esc(card.set?.name || "")} · #${card.number || ""} · ${esc(card.rarity || "")}</div>
@@ -1193,7 +1238,10 @@ function loadHighValueImages() {
       if (!card?.images?.small) return;
 
       const thumb = el.querySelector(".dex-card-thumb");
-      if (thumb) thumb.innerHTML = `<img src="${card.images.small}" alt="${esc(name)}" loading="lazy">`;
+      if (thumb) {
+        thumb.innerHTML = `<img src="${card.images.small}" alt="${esc(name)}" loading="lazy" style="cursor:zoom-in">`;
+        thumb.querySelector("img").addEventListener("click", () => openLightbox(card.images.large || card.images.small, name));
+      }
     } catch {}
   });
 }
@@ -1876,6 +1924,15 @@ function clearHistory() { try { localStorage.removeItem(STORAGE_KEY_HISTORY); } 
 function showToast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
 function esc(str) { if (str == null) return ""; const d = document.createElement("div"); d.textContent = String(str); return d.innerHTML; }
 function fmt(n) { return n != null ? "¥" + Math.round(n).toLocaleString() : "-"; }
+
+function openLightbox(imgSrc, caption) {
+  if (!imgSrc) return;
+  const lb = document.createElement("div");
+  lb.className = "lightbox";
+  lb.innerHTML = `<button class="lightbox-close" aria-label="閉じる">✕</button><img src="${imgSrc}" alt="${esc(caption || '')}"><div class="lightbox-caption">${esc(caption || '')}</div>`;
+  lb.addEventListener("click", (e) => { if (e.target === lb || e.target.classList.contains("lightbox-close")) lb.remove(); });
+  document.body.appendChild(lb);
+}
 
 // ============================================================
 // STATE & UI HELPERS
