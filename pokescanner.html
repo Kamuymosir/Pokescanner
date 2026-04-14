@@ -281,6 +281,15 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
 .dex-card-thumb img{width:100%;height:100%;object-fit:cover}
 .dex-card-body{flex:1;min-width:0}
 
+/* Wallet API switch */
+.wallet-api-switch{background:#080f18;border:1px solid #0f1e30;border-radius:14px;padding:14px;margin-bottom:10px}
+.api-switch-label{font-size:9px;color:#2a3d52;letter-spacing:1.5px;font-weight:600;margin-bottom:8px}
+.api-switch-btns{display:flex;gap:6px}
+.api-switch-btn{flex:1;padding:8px;border-radius:8px;border:1px solid #1a1a2e;background:#0c0c14;color:#4a5568;font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;display:flex;flex-direction:column;gap:2px;align-items:center}
+.api-switch-btn small{font-size:8px;color:#2a3d52;font-weight:400}
+.api-switch-btn.active{border-color:#7c3aed;color:#a78bfa;background:#0f0f1e}
+.api-switch-btn.active small{color:#4a5568}
+
 /* Wallet / Portfolio */
 .wallet-summary{background:#080f18;border:1px solid #0f1e30;border-radius:14px;padding:18px;margin-bottom:14px}
 .wallet-total-label{font-size:9px;color:#2a3d52;letter-spacing:1.5px;font-weight:600}
@@ -490,6 +499,21 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
 
 <!-- ==================== TAB: WALLET ==================== -->
 <div id="page-wallet" class="tab-page">
+  <div class="wallet-api-switch">
+    <div class="api-switch-label">価格ソース</div>
+    <div class="api-switch-btns">
+      <button class="api-switch-btn active" data-source="pokemontcg">🌍 PokemonTCG<small>海外・キー不要</small></button>
+      <button class="api-switch-btn" data-source="tcglookup">🇯🇵 TCG Lookup<small>日本語対応・要キー</small></button>
+    </div>
+    <div id="tcglookup-key-wrap" style="display:none;margin-top:8px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="tcglookup-key" type="password" placeholder="tlk_live_..." style="flex:1;padding:8px 10px;background:#080810;border:1px solid #1a1a2e;border-radius:8px;color:#94a3b8;font-size:11px;font-family:monospace;outline:none">
+        <span class="apikey-saved" id="tcglookup-key-saved">保存済</span>
+      </div>
+      <div style="font-size:9px;color:#2a3d52;margin-top:4px">無料取得: <a href="https://tcgpricelookup.com/tcg-api" target="_blank" rel="noopener" style="color:#60a5fa">tcgpricelookup.com</a> · 200回/日 · クレカ不要</div>
+    </div>
+  </div>
+
   <div class="wallet-summary" id="wallet-summary">
     <div class="wallet-total-label">PORTFOLIO VALUE</div>
     <div class="wallet-total-value" id="wallet-total">¥0</div>
@@ -1165,8 +1189,39 @@ function loadHighValueImages() {
 // ============================================================
 const STORAGE_KEY_WALLET = "pokescanner_wallet";
 const STORAGE_KEY_PRICE_HISTORY = "pokescanner_price_history";
+const STORAGE_KEY_PRICE_SOURCE = "pokescanner_price_source";
+const STORAGE_KEY_TCGLOOKUP_KEY = "pokescanner_tcglookup_key";
+const TCGLOOKUP_API = "https://api.tcgpricelookup.com/v1";
 let walletChart = null, walletPie = null;
 let addSelectedCard = null;
+let priceSource = "pokemontcg";
+
+function getPriceSource() { try { return localStorage.getItem(STORAGE_KEY_PRICE_SOURCE) || "pokemontcg"; } catch { return "pokemontcg"; } }
+function setPriceSource(s) { try { localStorage.setItem(STORAGE_KEY_PRICE_SOURCE, s); } catch {} priceSource = s; }
+function getTcgLookupKey() { try { return localStorage.getItem(STORAGE_KEY_TCGLOOKUP_KEY) || ""; } catch { return ""; } }
+function setTcgLookupKey(k) { try { localStorage.setItem(STORAGE_KEY_TCGLOOKUP_KEY, k); } catch {} }
+
+// Init source from storage
+priceSource = getPriceSource();
+(function initApiSwitch() {
+  document.querySelectorAll(".api-switch-btn").forEach(btn => {
+    if (btn.dataset.source === priceSource) btn.classList.add("active"); else btn.classList.remove("active");
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".api-switch-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      setPriceSource(btn.dataset.source);
+      document.getElementById("tcglookup-key-wrap").style.display = btn.dataset.source === "tcglookup" ? "block" : "none";
+    });
+  });
+  if (priceSource === "tcglookup") document.getElementById("tcglookup-key-wrap").style.display = "block";
+  const savedTcgKey = getTcgLookupKey();
+  if (savedTcgKey) { document.getElementById("tcglookup-key").value = savedTcgKey; document.getElementById("tcglookup-key-saved").classList.add("show"); }
+  document.getElementById("tcglookup-key").addEventListener("input", function() {
+    const k = this.value.trim();
+    if (k.length > 5) { setTcgLookupKey(k); document.getElementById("tcglookup-key-saved").classList.add("show"); }
+    else document.getElementById("tcglookup-key-saved").classList.remove("show");
+  });
+})();
 
 function getWallet() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY_WALLET) || "[]"); } catch { return []; } }
 function saveWallet(w) { try { localStorage.setItem(STORAGE_KEY_WALLET, JSON.stringify(w)); } catch {} }
@@ -1186,7 +1241,7 @@ function recordDailySnapshot() {
   savePriceHistory(history);
 }
 
-async function fetchCardPrice(cardId) {
+async function fetchCardPricePokemonTCG(cardId) {
   try {
     const res = await fetch(`${TCGAPI}/cards/${cardId}?select=id,tcgplayer,cardmarket`);
     if (!res.ok) return null;
@@ -1199,29 +1254,87 @@ async function fetchCardPrice(cardId) {
     const eurPrice = cm.trendPrice || cm.averageSellPrice || null;
     const jpyFromUsd = usdPrice ? Math.round(usdPrice * 150) : null;
     const jpyFromEur = eurPrice ? Math.round(eurPrice * 165) : null;
-    return jpyFromUsd || jpyFromEur || null;
-  } catch { return null; }
+    return { price: jpyFromUsd || jpyFromEur || null, source: usdPrice ? "TCGPlayer" : "Cardmarket", raw: usdPrice || eurPrice };
+  } catch { return { price: null }; }
+}
+
+async function fetchCardPriceTcgLookup(cardName, setName) {
+  const apiKey = getTcgLookupKey();
+  if (!apiKey) return { price: null, source: "TCG Lookup (キー未設定)" };
+  try {
+    const q = encodeURIComponent(cardName);
+    const res = await fetch(`${TCGLOOKUP_API}/cards/search?q=${q}&game=pokemon-jp&limit=5`, {
+      headers: { "X-API-Key": apiKey }
+    });
+    if (res.status === 401) return { price: null, source: "TCG Lookup (キー無効)" };
+    if (res.status === 429) return { price: null, source: "TCG Lookup (制限超過)" };
+    if (!res.ok) return { price: null };
+    const data = await res.json();
+    const cards = data.data || [];
+    let best = cards[0];
+    if (setName && cards.length > 1) {
+      const match = cards.find(c => (c.set?.name || "").toLowerCase().includes(setName.toLowerCase()));
+      if (match) best = match;
+    }
+    if (!best) return { price: null };
+    const tcg = best.prices?.raw?.near_mint?.tcgplayer;
+    const usdPrice = tcg?.market || tcg?.low || null;
+    const jpyPrice = usdPrice ? Math.round(usdPrice * 150) : null;
+    return { price: jpyPrice, source: "TCG Lookup (JP)", raw: usdPrice, tcgLookupId: best.id };
+  } catch { return { price: null }; }
+}
+
+async function searchCardsTcgLookup(query) {
+  const apiKey = getTcgLookupKey();
+  if (!apiKey) { showToast("TCG Lookup APIキーを設定してください"); return []; }
+  try {
+    const q = encodeURIComponent(query);
+    const res = await fetch(`${TCGLOOKUP_API}/cards/search?q=${q}&game=pokemon-jp&limit=10`, {
+      headers: { "X-API-Key": apiKey }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.data || []).map(c => ({
+      id: c.id,
+      name: c.name,
+      set: { name: c.set?.name || "" },
+      rarity: c.rarity || "",
+      number: c.number || "",
+      images: { small: c.image_url || "" },
+      _source: "tcglookup",
+      _price: c.prices?.raw?.near_mint?.tcgplayer?.market || null
+    }));
+  } catch { return []; }
+}
+
+async function fetchCardPrice(cardId, cardName, setName) {
+  if (priceSource === "tcglookup") {
+    return await fetchCardPriceTcgLookup(cardName || "", setName || "");
+  }
+  return await fetchCardPricePokemonTCG(cardId);
 }
 
 async function refreshWalletPrices() {
   const wallet = getWallet();
   if (wallet.length === 0) return;
-  showToast("価格を更新中...");
+  const srcLabel = priceSource === "tcglookup" ? "TCG Lookup (JP)" : "PokemonTCG";
+  showToast(`${srcLabel}から価格を更新中...`);
   let updated = 0;
   for (const card of wallet) {
-    const price = await fetchCardPrice(card.id);
-    if (price !== null) {
-      card.prevPrice = card.currentPrice || price;
-      card.currentPrice = price;
+    const result = await fetchCardPrice(card.id, card.name, card.set);
+    if (result.price !== null) {
+      card.prevPrice = card.currentPrice || result.price;
+      card.currentPrice = result.price;
       card.lastUpdated = new Date().toISOString();
+      card.priceSource = result.source || srcLabel;
       updated++;
     }
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 300));
   }
   saveWallet(wallet);
   recordDailySnapshot();
   renderWallet();
-  showToast(`${updated}/${wallet.length}枚の価格を更新しました`);
+  showToast(`${updated}/${wallet.length}枚の価格を更新 (${srcLabel})`);
 }
 
 function renderWallet() {
@@ -1302,7 +1415,7 @@ function renderWallet() {
       <div class="wallet-card-row">
         <div class="wallet-card-left">
           <div class="wallet-card-name">${esc(card.name)}</div>
-          <div class="wallet-card-meta">${esc(card.set || "")} · ${card.qty || 1}枚${card.cost ? " · 購入@" + fmt(card.cost) : ""}</div>
+          <div class="wallet-card-meta">${esc(card.set || "")} · ${card.qty || 1}枚${card.cost ? " · 購入@" + fmt(card.cost) : ""}${card.priceSource ? " · " + esc(card.priceSource) : ""}</div>
         </div>
         <div class="wallet-card-right">
           <div class="wallet-card-price">${fmt((card.currentPrice || 0) * (card.qty || 1))}</div>
@@ -1370,20 +1483,25 @@ document.getElementById("add-card-search").addEventListener("input", function() 
   if (q.length < 2) { document.getElementById("add-search-results").innerHTML = ""; return; }
   addSearchTimer = setTimeout(async () => {
     try {
-      const encoded = encodeURIComponent(`name:"${q}*"`);
-      const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=10&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
-      if (!res.ok) return;
-      const data = await res.json();
+      let cards = [];
+      if (priceSource === "tcglookup") {
+        cards = await searchCardsTcgLookup(q);
+      } else {
+        const encoded = encodeURIComponent(`name:"${q}*"`);
+        const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=10&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
+        if (res.ok) { const data = await res.json(); cards = data.data || []; }
+      }
       const results = document.getElementById("add-search-results");
       results.innerHTML = "";
-      (data.data || []).forEach(card => {
+      cards.forEach(card => {
         const item = document.createElement("div");
         item.className = "add-search-item";
+        const imgUrl = card.images?.small || card.image_url || "";
         item.innerHTML = `
-          <img src="${card.images?.small || ''}" alt="" loading="lazy">
+          ${imgUrl ? `<img src="${imgUrl}" alt="" loading="lazy">` : '<div style="width:40px;height:56px;background:#0c0c14;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px">🃏</div>'}
           <div class="add-search-item-info">
             <div class="add-search-item-name">${esc(card.name)}</div>
-            <div class="add-search-item-meta">${esc(card.set?.name || "")} #${card.number || ""} · ${esc(card.rarity || "")}</div>
+            <div class="add-search-item-meta">${esc(card.set?.name || "")} #${card.number || ""} · ${esc(card.rarity || "")}${card._price ? " · $" + card._price.toFixed(2) : ""}</div>
           </div>
         `;
         item.addEventListener("click", () => {
@@ -1404,18 +1522,21 @@ document.getElementById("add-card-submit").addEventListener("click", async () =>
   const qty = Math.max(1, parseInt(document.getElementById("add-card-qty").value) || 1);
   const cost = Math.max(0, parseInt(document.getElementById("add-card-cost").value) || 0);
 
-  const price = await fetchCardPrice(addSelectedCard.id);
+  const setName = addSelectedCard.set?.name || "";
+  const result = await fetchCardPrice(addSelectedCard.id, addSelectedCard.name, setName);
+  const price = result.price;
 
   const entry = {
     id: addSelectedCard.id,
     name: addSelectedCard.name,
-    set: addSelectedCard.set?.name || "",
+    set: setName,
     rarity: addSelectedCard.rarity || "",
-    image: addSelectedCard.images?.small || "",
+    image: addSelectedCard.images?.small || addSelectedCard.image_url || "",
     qty,
     cost,
     currentPrice: price || 0,
     prevPrice: price || 0,
+    priceSource: result.source || priceSource,
     addedAt: new Date().toISOString(),
     lastUpdated: new Date().toISOString()
   };
