@@ -109,6 +109,22 @@ input int    InpSessionStartHour          = 7;
 input int    InpSessionEndHour            = 22;
 input int    InpATRPeriod                 = 14;
 
+input group "[Price Action / Market Environment]"
+input bool   InpEnablePriceActionContext  = true;
+input double InpGlobalMinBodyRatio        = 0.20;
+input int    InpEnvironmentLookbackBars   = 12;
+input int    InpATRRegimeLookback         = 24;
+input double InpBandwagonMinCloseLocation = 0.70;
+input double InpBandwagonMaxExhaustionWickRatio = 0.18;
+input double InpBandwagonMinEfficiencyRatio = 0.28;
+input double InpBandwagonMinAtrRegimeRatio = 0.90;
+input double InpBandwagonMaxAtrRegimeRatio = 1.80;
+input double InpStealthMinCloseLocation   = 0.68;
+input double InpStealthMaxExhaustionWickRatio = 0.22;
+input double InpStealthMaxPreBreakEfficiencyRatio = 0.55;
+input double InpStealthMinAtrRegimeRatio  = 0.80;
+input double InpStealthMaxAtrRegimeRatio  = 1.60;
+
 input group "[Bandwagon Alpha]"
 input bool   InpEnableBandwagon           = true;
 input double InpBandwagonFixedLots        = 0.05;
@@ -432,6 +448,36 @@ double CandleBodyRatio(const MqlRates &rate)
    return MathAbs(rate.close - rate.open) / range;
   }
 
+double CandleCloseLocation(const MqlRates &rate, const int direction)
+  {
+   double range = CandleRange(rate);
+   if(range <= 0.0)
+      return 0.0;
+
+   if(direction > 0)
+      return (rate.close - rate.low) / range;
+
+   if(direction < 0)
+      return (rate.high - rate.close) / range;
+
+   return 0.0;
+  }
+
+double DirectionalExhaustionWickRatio(const MqlRates &rate, const int direction)
+  {
+   double range = CandleRange(rate);
+   if(range <= 0.0)
+      return 0.0;
+
+   if(direction > 0)
+      return (rate.high - MathMax(rate.open, rate.close)) / range;
+
+   if(direction < 0)
+      return (MathMin(rate.open, rate.close) - rate.low) / range;
+
+   return 0.0;
+  }
+
 double AvgRange(MqlRates &rates[], const int start_shift, const int bars)
   {
    if(bars <= 0)
@@ -442,6 +488,50 @@ double AvgRange(MqlRates &rates[], const int start_shift, const int bars)
       sum += CandleRange(rates[i]);
 
    return sum / (double)bars;
+  }
+
+double EfficiencyRatio(MqlRates &rates[], const int start_shift, const int bars)
+  {
+   int total = ArraySize(rates);
+   if(bars < 2 || total <= 0 || start_shift < 0 || (start_shift + bars - 1) >= total)
+      return 0.0;
+
+   double directional_move = MathAbs(rates[start_shift].close - rates[start_shift + bars - 1].close);
+   double traveled = 0.0;
+   for(int i = start_shift; i < start_shift + bars - 1; i++)
+      traveled += MathAbs(rates[i].close - rates[i + 1].close);
+
+   if(traveled <= 0.0)
+      return 0.0;
+
+   return directional_move / traveled;
+  }
+
+double AtrRegimeRatio(const int shift, const int lookback)
+  {
+   if(lookback <= 1)
+      return 1.0;
+
+   double current_atr = CurrentATR(shift);
+   if(current_atr <= 0.0)
+      return 0.0;
+
+   double sum = 0.0;
+   int count = 0;
+   for(int i = shift + 1; i <= shift + lookback; i++)
+     {
+      double value = 0.0;
+      if(ReadBufferValue(h_atr_ltf, 0, i, value) && value > 0.0)
+        {
+         sum += value;
+         count++;
+        }
+     }
+
+   if(count <= 0 || sum <= 0.0)
+      return 0.0;
+
+   return current_atr / (sum / (double)count);
   }
 
 string BuildModeComment(const SignalInfo &sig)
@@ -863,8 +953,25 @@ bool Trigger_Bandwagon(const int trend, const int htf_score, const int htf_margi
       return false;
 
    double body_ratio = CandleBodyRatio(rates[1]);
-   if(body_ratio < InpBandwagonMinBodyRatio)
+   if(body_ratio < MathMax(InpBandwagonMinBodyRatio, InpGlobalMinBodyRatio))
       return false;
+
+   if(InpEnablePriceActionContext)
+     {
+      double close_location = CandleCloseLocation(rates[1], trend);
+      double exhaustion_wick = DirectionalExhaustionWickRatio(rates[1], trend);
+      double efficiency_ratio = EfficiencyRatio(rates, 2, InpEnvironmentLookbackBars);
+      double atr_regime_ratio = AtrRegimeRatio(1, InpATRRegimeLookback);
+
+      if(close_location < InpBandwagonMinCloseLocation)
+         return false;
+      if(exhaustion_wick > InpBandwagonMaxExhaustionWickRatio)
+         return false;
+      if(efficiency_ratio < InpBandwagonMinEfficiencyRatio)
+         return false;
+      if(atr_regime_ratio < InpBandwagonMinAtrRegimeRatio || atr_regime_ratio > InpBandwagonMaxAtrRegimeRatio)
+         return false;
+     }
 
    bool bull_break = rates[1].close > swing_high + breakout_min && rates[1].close > rates[1].open;
    bool bear_break = rates[1].close < swing_low - breakout_min && rates[1].close < rates[1].open;
@@ -1000,6 +1107,27 @@ bool Trigger_Stealth(const int trend, const int htf_score, const int htf_margin,
    double current_range = CandleRange(rates[1]);
    double release_strength = current_range / avg_range;
    double compression_score = (double)compressed_count / (double)InpSqueezeLookback;
+   double release_body_ratio = CandleBodyRatio(rates[1]);
+
+   if(release_body_ratio < InpGlobalMinBodyRatio)
+      return false;
+
+   if(InpEnablePriceActionContext)
+     {
+      double close_location = CandleCloseLocation(rates[1], trend);
+      double exhaustion_wick = DirectionalExhaustionWickRatio(rates[1], trend);
+      double pre_break_efficiency = EfficiencyRatio(rates, 2, InpEnvironmentLookbackBars);
+      double atr_regime_ratio = AtrRegimeRatio(1, InpATRRegimeLookback);
+
+      if(close_location < InpStealthMinCloseLocation)
+         return false;
+      if(exhaustion_wick > InpStealthMaxExhaustionWickRatio)
+         return false;
+      if(pre_break_efficiency > InpStealthMaxPreBreakEfficiencyRatio)
+         return false;
+      if(atr_regime_ratio < InpStealthMinAtrRegimeRatio || atr_regime_ratio > InpStealthMaxAtrRegimeRatio)
+         return false;
+     }
 
    bool release_bull = rates[1].close > box_high && rates[1].close > ema_fast && current_range >= avg_range * InpStealthReleaseFactor;
    bool release_bear = rates[1].close < box_low && rates[1].close < ema_fast && current_range >= avg_range * InpStealthReleaseFactor;
@@ -1024,7 +1152,7 @@ bool Trigger_Stealth(const int trend, const int htf_score, const int htf_margin,
       sig.entry_reason_code = "ST_RELEASE_BOX";
       sig.entry_reason_text = "Stealth squeeze release";
       sig.breakout_distance_atr = (rates[1].close - box_high) / atr;
-      sig.body_ratio_entry = CandleBodyRatio(rates[1]);
+      sig.body_ratio_entry = release_body_ratio;
       sig.compression_score = compression_score;
       sig.release_strength_score = release_strength;
       return true;
@@ -1050,7 +1178,7 @@ bool Trigger_Stealth(const int trend, const int htf_score, const int htf_margin,
       sig.entry_reason_code = "ST_RELEASE_BOX";
       sig.entry_reason_text = "Stealth squeeze release";
       sig.breakout_distance_atr = (box_low - rates[1].close) / atr;
-      sig.body_ratio_entry = CandleBodyRatio(rates[1]);
+      sig.body_ratio_entry = release_body_ratio;
       sig.compression_score = compression_score;
       sig.release_strength_score = release_strength;
       return true;

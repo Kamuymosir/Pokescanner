@@ -108,6 +108,8 @@ They reflect:
 - trend-following evidence for continuation setups
 - intraday FX seasonality and spread/liquidity differences by symbol
 - noisier execution and risk constraints for gold
+- candle geometry filters such as close location, wick exhaustion, and doji rejection
+- market-environment filters such as directional efficiency and ATR regime state
 - backtest-overfitting research that argues for smaller, more meaningful search spaces
 
 Use them as the preferred starting point instead of expanding all parameters at once.

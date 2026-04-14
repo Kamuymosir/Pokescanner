@@ -9,6 +9,28 @@ The goal is to stop random parameter thrashing and keep the search focused on va
 
 ## Core references and what they imply
 
+### 0. Candlestick evidence is mixed, so use geometry not folklore
+
+Representative references:
+
+- papers reviewing candlestick profitability in FX and other markets
+- empirical work showing mixed or context-dependent value for named candlestick patterns
+
+Practical interpretation for Ascendant:
+
+- do **not** convert the EA into a catalog of named patterns such as "engulfing", "harami", or random reversal folklore
+- the safer use of candles is through bar geometry that maps to execution logic:
+  - body ratio
+  - close location
+  - wick rejection / exhaustion
+  - breakout close quality
+
+What this means for search spaces:
+
+- keep named-pattern ideas out of the first optimization loop
+- optimize only a small number of geometry thresholds
+- pair those thresholds with regime filters, because candle shapes alone are weak
+
 ### 1. Time-series momentum / trend-following
 
 Representative references:
@@ -86,6 +108,7 @@ Practical interpretation for Ascendant:
 - `Stealth` should search around compression count, width factor, and release factor
 - do not optimize compression and release over absurdly wide ranges
 - volume and range expansion filters should remain present
+- release-bar close location and wick exhaustion should matter, not just breakout presence
 
 ### 5. Backtest overfitting and selection bias
 
@@ -118,6 +141,8 @@ We are refining:
 - trend threshold
 - breakout quality
 - release quality
+- candle geometry quality
+- regime context quality
 - risk intensity
 - exit shape
 
@@ -154,6 +179,15 @@ Expected high-value levers:
 - `InpStealthReleaseFactor`
 - `InpBandwagonMinBreakATR`
 
+After exits, the next highest-value structural filters are:
+
+- `InpBandwagonMinCloseLocation`
+- `InpBandwagonMaxExhaustionWickRatio`
+- `InpBandwagonMinEfficiencyRatio`
+- `InpStealthMinCloseLocation`
+- `InpStealthMaxExhaustionWickRatio`
+- `InpStealthMaxPreBreakEfficiencyRatio`
+
 ### Rule 5: Use risk scaling conservatively
 
 Research supports selective capital deployment, not martingale-like aggression.
@@ -173,6 +207,12 @@ The repository now includes research-backed search spaces:
 - `research_search_space_xauusd_m15.json`
 
 These are intentionally narrower than "search everything" style grids.
+
+They now also assume:
+
+- price-action quality is measured through candle geometry
+- market environment is measured through directional efficiency and ATR regime state
+- named candlestick folklore is not the primary optimization axis
 
 ## What this research does NOT justify
 
