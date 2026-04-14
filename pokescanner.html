@@ -9,6 +9,7 @@
 <meta name="description" content="PokeScanner Pro – ポケモンカードの画像からレアリティ・コンディション・市場価格をAI鑑定">
 <title>PokeScanner Pro</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px;margin:0 auto;padding-bottom:68px;min-height:100vh;-webkit-font-smoothing:antialiased}
@@ -279,6 +280,70 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
 .dex-card-thumb{width:70px;height:98px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#080810;border:1px solid #1a1a2e}
 .dex-card-thumb img{width:100%;height:100%;object-fit:cover}
 .dex-card-body{flex:1;min-width:0}
+
+/* Wallet / Portfolio */
+.wallet-summary{background:#080f18;border:1px solid #0f1e30;border-radius:14px;padding:18px;margin-bottom:14px}
+.wallet-total-label{font-size:9px;color:#2a3d52;letter-spacing:1.5px;font-weight:600}
+.wallet-total-value{font-size:32px;font-weight:900;color:#fbbf24;font-family:'SF Mono',monospace;line-height:1.1;margin-top:4px}
+.wallet-total-sub{font-size:11px;color:#334155;margin-top:4px}
+.wallet-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:14px}
+.wallet-stat{background:#0a0a14;border-radius:8px;padding:8px;text-align:center}
+.wallet-stat-label{font-size:8px;color:#3d4a5c;letter-spacing:.5px;text-transform:uppercase}
+.wallet-stat-value{font-size:14px;font-weight:700;font-family:monospace;margin-top:2px}
+.wallet-stat-value.up{color:#4ade80}
+.wallet-stat-value.down{color:#f87171}
+.wallet-stat-value.neutral{color:#94a3b8}
+
+.wallet-chart-wrap{background:#080f18;border:1px solid #0f1e30;border-radius:14px;padding:14px;margin-bottom:14px}
+.wallet-chart-title{font-size:10px;color:#2a3d52;letter-spacing:1.2px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.wallet-chart-canvas{width:100%!important;height:200px!important}
+
+.wallet-actions{display:flex;gap:8px;margin-bottom:14px}
+.wallet-add-btn{flex:1;padding:12px;border-radius:10px;border:1px solid #1a1a2e;background:#0c0c14;color:#60a5fa;font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s}
+.wallet-add-btn:hover{background:#0f0f1e;border-color:#1e40af}
+
+.wallet-list-title{font-size:10px;color:#2a3d52;letter-spacing:1.2px;margin-bottom:8px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+
+.wallet-card{background:#0c0c14;border:1px solid #1a1a2e;border-radius:12px;padding:12px 14px;margin-bottom:6px;transition:border-color .2s}
+.wallet-card:hover{border-color:#252540}
+.wallet-card-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wallet-card-left{flex:1;min-width:0}
+.wallet-card-name{font-size:13px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wallet-card-meta{font-size:9px;color:#3d4a5c;margin-top:1px}
+.wallet-card-right{text-align:right;flex-shrink:0}
+.wallet-card-price{font-size:14px;font-weight:800;font-family:monospace;color:#fbbf24}
+.wallet-card-change{font-size:10px;margin-top:1px}
+.wallet-card-change.up{color:#4ade80}
+.wallet-card-change.down{color:#f87171}
+.wallet-card-qty{font-size:9px;color:#3d4a5c;margin-top:1px}
+.wallet-card-actions{display:flex;gap:4px;margin-top:6px}
+.wallet-card-btn{font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid #1a1a2e;background:none;color:#4a5568;cursor:pointer;transition:all .2s}
+.wallet-card-btn:hover{background:#0f0f1e;color:#94a3b8}
+.wallet-card-btn.del{color:#f87171;border-color:#380808}
+.wallet-card-btn.del:hover{background:#180808}
+
+.wallet-pie-wrap{background:#080f18;border:1px solid #0f1e30;border-radius:14px;padding:14px;margin-bottom:14px}
+.wallet-pie-canvas{width:100%!important;height:200px!important}
+
+.wallet-empty{text-align:center;padding:40px 20px;color:#2a3d52;font-size:12px;line-height:1.8}
+
+/* Add card modal */
+.add-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn .15s}
+.add-modal-inner{background:#0c0c14;border:1px solid #1a1a2e;border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:20px 16px env(safe-area-inset-bottom,16px);animation:up .2s ease}
+.add-modal-title{font-size:15px;font-weight:800;color:#e2e8f0;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.add-field{margin-bottom:10px}
+.add-field label{font-size:10px;color:#3d4a5c;display:block;margin-bottom:4px;font-weight:600}
+.add-field input,.add-field select{width:100%;padding:10px 12px;background:#080810;border:1px solid #1a1a2e;border-radius:8px;color:#94a3b8;font-size:13px;outline:none}
+.add-field input:focus,.add-field select:focus{border-color:#7c3aed}
+.add-search-results{max-height:200px;overflow-y:auto;margin-bottom:10px}
+.add-search-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;transition:background .15s}
+.add-search-item:hover{background:#0f0f1e}
+.add-search-item img{width:40px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.add-search-item-info{flex:1;min-width:0}
+.add-search-item-name{font-size:12px;font-weight:700;color:#e2e8f0}
+.add-search-item-meta{font-size:9px;color:#3d4a5c}
+.add-submit{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#1e40af,#7c3aed);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.add-submit:disabled{background:#151520;color:#333;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -423,6 +488,65 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
   </div>
 </div>
 
+<!-- ==================== TAB: WALLET ==================== -->
+<div id="page-wallet" class="tab-page">
+  <div class="wallet-summary" id="wallet-summary">
+    <div class="wallet-total-label">PORTFOLIO VALUE</div>
+    <div class="wallet-total-value" id="wallet-total">¥0</div>
+    <div class="wallet-total-sub" id="wallet-total-sub">0枚のカードを登録</div>
+    <div class="wallet-stats">
+      <div class="wallet-stat"><div class="wallet-stat-label">購入総額</div><div class="wallet-stat-value neutral" id="wallet-cost">¥0</div></div>
+      <div class="wallet-stat"><div class="wallet-stat-label">損益</div><div class="wallet-stat-value neutral" id="wallet-pnl">¥0</div></div>
+      <div class="wallet-stat"><div class="wallet-stat-label">損益率</div><div class="wallet-stat-value neutral" id="wallet-pnl-pct">0%</div></div>
+    </div>
+  </div>
+
+  <div class="wallet-chart-wrap">
+    <div class="wallet-chart-title"><span>📈 資産推移</span><span id="wallet-chart-period" style="font-size:9px;color:#4a5568">直近30日</span></div>
+    <canvas id="wallet-chart" class="wallet-chart-canvas"></canvas>
+  </div>
+
+  <div class="wallet-pie-wrap" id="wallet-pie-section" style="display:none">
+    <div class="wallet-chart-title"><span>🍩 ポートフォリオ構成</span></div>
+    <canvas id="wallet-pie" class="wallet-pie-canvas"></canvas>
+  </div>
+
+  <div class="wallet-actions">
+    <button class="wallet-add-btn" id="wallet-add-btn">➕ カードを追加</button>
+    <button class="wallet-add-btn" id="wallet-refresh-btn" style="color:#4ade80">🔄 価格更新</button>
+  </div>
+
+  <div class="wallet-list-title">
+    <span>💼 所持カード一覧</span>
+    <span id="wallet-card-count" style="font-size:9px;color:#3d4a5c"></span>
+  </div>
+  <div id="wallet-list"></div>
+</div>
+
+<!-- Add card modal -->
+<div id="add-card-modal" class="add-modal" style="display:none">
+  <div class="add-modal-inner">
+    <div class="add-modal-title">カードを追加 <button class="card-modal-close" id="add-modal-close" aria-label="閉じる">✕</button></div>
+    <div class="add-field">
+      <label>カード名で検索（英語推奨）</label>
+      <input id="add-card-search" type="text" placeholder="例: Charizard, Umbreon VMAX...">
+    </div>
+    <div id="add-search-results" class="add-search-results"></div>
+    <div id="add-selected" style="display:none;margin-bottom:10px">
+      <div class="add-search-item" id="add-selected-card" style="background:#0f0f1e;border-radius:8px"></div>
+    </div>
+    <div class="add-field">
+      <label>数量</label>
+      <input id="add-card-qty" type="number" value="1" min="1" max="999">
+    </div>
+    <div class="add-field">
+      <label>購入価格（円）</label>
+      <input id="add-card-cost" type="number" placeholder="0" min="0">
+    </div>
+    <button class="add-submit" id="add-card-submit" disabled>追加する</button>
+  </div>
+</div>
+
 <!-- ==================== BOTTOM NAV ==================== -->
 <nav id="tab-bar" role="tablist">
   <button class="tab-item active" data-tab="scan" role="tab" aria-selected="true" aria-label="スキャン">
@@ -436,6 +560,10 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
   <button class="tab-item" data-tab="dex" role="tab" aria-selected="false" aria-label="図鑑">
     <span class="tab-icon">📚</span>
     <span class="tab-label">図鑑</span>
+  </button>
+  <button class="tab-item" data-tab="wallet" role="tab" aria-selected="false" aria-label="資産">
+    <span class="tab-icon">💰</span>
+    <span class="tab-label">資産</span>
   </button>
   <button class="tab-item" data-tab="map" role="tab" aria-selected="false" aria-label="マップ">
     <span class="tab-icon">🗺️</span>
@@ -1031,6 +1159,286 @@ function loadHighValueImages() {
     } catch {}
   });
 }
+
+// ============================================================
+// WALLET / PORTFOLIO
+// ============================================================
+const STORAGE_KEY_WALLET = "pokescanner_wallet";
+const STORAGE_KEY_PRICE_HISTORY = "pokescanner_price_history";
+let walletChart = null, walletPie = null;
+let addSelectedCard = null;
+
+function getWallet() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY_WALLET) || "[]"); } catch { return []; } }
+function saveWallet(w) { try { localStorage.setItem(STORAGE_KEY_WALLET, JSON.stringify(w)); } catch {} }
+function getPriceHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY_PRICE_HISTORY) || "{}"); } catch { return {}; } }
+function savePriceHistory(h) { try { localStorage.setItem(STORAGE_KEY_PRICE_HISTORY, JSON.stringify(h)); } catch {} }
+
+function recordDailySnapshot() {
+  const wallet = getWallet();
+  if (wallet.length === 0) return;
+  const history = getPriceHistory();
+  const today = new Date().toISOString().slice(0, 10);
+  const totalValue = wallet.reduce((s, c) => s + (c.currentPrice || 0) * (c.qty || 1), 0);
+  if (!history.daily) history.daily = {};
+  history.daily[today] = totalValue;
+  const keys = Object.keys(history.daily).sort();
+  if (keys.length > 90) { keys.slice(0, keys.length - 90).forEach(k => delete history.daily[k]); }
+  savePriceHistory(history);
+}
+
+async function fetchCardPrice(cardId) {
+  try {
+    const res = await fetch(`${TCGAPI}/cards/${cardId}?select=id,tcgplayer,cardmarket`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const card = data.data;
+    const tcg = card?.tcgplayer?.prices || {};
+    const cm = card?.cardmarket?.prices || {};
+    let usdPrice = null;
+    for (const type of Object.values(tcg)) { if (type.market) { usdPrice = type.market; break; } }
+    const eurPrice = cm.trendPrice || cm.averageSellPrice || null;
+    const jpyFromUsd = usdPrice ? Math.round(usdPrice * 150) : null;
+    const jpyFromEur = eurPrice ? Math.round(eurPrice * 165) : null;
+    return jpyFromUsd || jpyFromEur || null;
+  } catch { return null; }
+}
+
+async function refreshWalletPrices() {
+  const wallet = getWallet();
+  if (wallet.length === 0) return;
+  showToast("価格を更新中...");
+  let updated = 0;
+  for (const card of wallet) {
+    const price = await fetchCardPrice(card.id);
+    if (price !== null) {
+      card.prevPrice = card.currentPrice || price;
+      card.currentPrice = price;
+      card.lastUpdated = new Date().toISOString();
+      updated++;
+    }
+    await new Promise(r => setTimeout(r, 200));
+  }
+  saveWallet(wallet);
+  recordDailySnapshot();
+  renderWallet();
+  showToast(`${updated}/${wallet.length}枚の価格を更新しました`);
+}
+
+function renderWallet() {
+  const wallet = getWallet();
+  const history = getPriceHistory();
+  const listEl = document.getElementById("wallet-list");
+
+  const totalValue = wallet.reduce((s, c) => s + (c.currentPrice || 0) * (c.qty || 1), 0);
+  const totalCost = wallet.reduce((s, c) => s + (c.cost || 0) * (c.qty || 1), 0);
+  const totalCards = wallet.reduce((s, c) => s + (c.qty || 1), 0);
+  const pnl = totalValue - totalCost;
+  const pnlPct = totalCost > 0 ? ((pnl / totalCost) * 100).toFixed(1) : "0";
+
+  document.getElementById("wallet-total").textContent = fmt(totalValue);
+  document.getElementById("wallet-total-sub").textContent = `${totalCards}枚のカードを登録`;
+  document.getElementById("wallet-cost").textContent = fmt(totalCost);
+  document.getElementById("wallet-cost").className = "wallet-stat-value neutral";
+
+  const pnlEl = document.getElementById("wallet-pnl");
+  pnlEl.textContent = (pnl >= 0 ? "+" : "") + fmt(pnl);
+  pnlEl.className = "wallet-stat-value " + (pnl > 0 ? "up" : pnl < 0 ? "down" : "neutral");
+
+  const pctEl = document.getElementById("wallet-pnl-pct");
+  pctEl.textContent = (pnl >= 0 ? "+" : "") + pnlPct + "%";
+  pctEl.className = "wallet-stat-value " + (pnl > 0 ? "up" : pnl < 0 ? "down" : "neutral");
+
+  document.getElementById("wallet-card-count").textContent = wallet.length + "種類";
+
+  // Line chart
+  const daily = history.daily || {};
+  const dates = Object.keys(daily).sort().slice(-30);
+  if (dates.length > 0 || wallet.length > 0) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (!daily[today] && totalValue > 0) { dates.push(today); daily[today] = totalValue; }
+
+    const labels = dates.map(d => d.slice(5));
+    const values = dates.map(d => daily[d] || 0);
+
+    if (walletChart) walletChart.destroy();
+    walletChart = new Chart(document.getElementById("wallet-chart"), {
+      type: "line",
+      data: { labels, datasets: [{ data: values, borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,.1)", fill: true, tension: 0.3, pointRadius: values.length > 15 ? 0 : 3, pointBackgroundColor: "#7c3aed", borderWidth: 2 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#2a3d52", font: { size: 9 } }, grid: { color: "#0f1520" } }, y: { ticks: { color: "#2a3d52", font: { size: 9 }, callback: v => "¥" + (v/1000).toFixed(0) + "k" }, grid: { color: "#0f1520" } } } }
+    });
+  }
+
+  // Pie chart
+  const pieSection = document.getElementById("wallet-pie-section");
+  if (wallet.length >= 2) {
+    pieSection.style.display = "block";
+    const pieData = wallet.map(c => ({ name: c.name, value: (c.currentPrice || 0) * (c.qty || 1) })).sort((a, b) => b.value - a.value).slice(0, 8);
+    const colors = ["#7c3aed", "#3b82f6", "#f59e0b", "#ef4444", "#10b981", "#f472b6", "#06b6d4", "#8b5cf6"];
+    if (walletPie) walletPie.destroy();
+    walletPie = new Chart(document.getElementById("wallet-pie"), {
+      type: "doughnut",
+      data: { labels: pieData.map(d => d.name), datasets: [{ data: pieData.map(d => d.value), backgroundColor: colors.slice(0, pieData.length), borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "right", labels: { color: "#94a3b8", font: { size: 10 }, padding: 8, boxWidth: 12 } } }, cutout: "60%" }
+    });
+  } else {
+    pieSection.style.display = "none";
+  }
+
+  // Card list
+  if (wallet.length === 0) {
+    listEl.innerHTML = '<div class="wallet-empty">カードが登録されていません<br>「➕ カードを追加」から所持カードを登録しましょう<br><br>PokemonTCG APIから海外市場価格を自動取得し<br>円換算で資産額を計算します</div>';
+    return;
+  }
+
+  listEl.innerHTML = "";
+  wallet.sort((a, b) => ((b.currentPrice || 0) * (b.qty || 1)) - ((a.currentPrice || 0) * (a.qty || 1))).forEach((card, i) => {
+    const change = card.currentPrice && card.prevPrice ? card.currentPrice - card.prevPrice : 0;
+    const changePct = card.prevPrice ? ((change / card.prevPrice) * 100).toFixed(1) : "0";
+    const costPnl = card.currentPrice && card.cost ? (card.currentPrice - card.cost) * (card.qty || 1) : 0;
+
+    const div = document.createElement("div");
+    div.className = "wallet-card";
+    div.innerHTML = `
+      <div class="wallet-card-row">
+        <div class="wallet-card-left">
+          <div class="wallet-card-name">${esc(card.name)}</div>
+          <div class="wallet-card-meta">${esc(card.set || "")} · ${card.qty || 1}枚${card.cost ? " · 購入@" + fmt(card.cost) : ""}</div>
+        </div>
+        <div class="wallet-card-right">
+          <div class="wallet-card-price">${fmt((card.currentPrice || 0) * (card.qty || 1))}</div>
+          ${change !== 0 ? `<div class="wallet-card-change ${change > 0 ? 'up' : 'down'}">${change > 0 ? '▲' : '▼'} ${Math.abs(changePct)}%</div>` : ""}
+          ${card.cost ? `<div class="wallet-card-qty" style="color:${costPnl >= 0 ? '#4ade80' : '#f87171'}">${costPnl >= 0 ? '+' : ''}${fmt(costPnl)}</div>` : ""}
+        </div>
+      </div>
+      <div class="wallet-card-actions">
+        <button class="wallet-card-btn" data-idx="${i}" data-action="edit">✏️ 編集</button>
+        <button class="wallet-card-btn del" data-idx="${i}" data-action="del">🗑️ 削除</button>
+      </div>
+    `;
+    listEl.appendChild(div);
+  });
+
+  listEl.querySelectorAll(".wallet-card-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.idx);
+      const action = btn.dataset.action;
+      const w = getWallet();
+      if (action === "del") {
+        w.splice(idx, 1);
+        saveWallet(w);
+        renderWallet();
+        showToast("カードを削除しました");
+      } else if (action === "edit") {
+        const card = w[idx];
+        const newQty = prompt("数量:", card.qty || 1);
+        if (newQty === null) return;
+        const newCost = prompt("購入価格（円）:", card.cost || 0);
+        if (newCost === null) return;
+        card.qty = Math.max(1, parseInt(newQty) || 1);
+        card.cost = Math.max(0, parseInt(newCost) || 0);
+        saveWallet(w);
+        renderWallet();
+        showToast("カード情報を更新しました");
+      }
+    });
+  });
+}
+
+// Add card modal
+document.getElementById("wallet-add-btn").addEventListener("click", () => {
+  document.getElementById("add-card-modal").style.display = "flex";
+  addSelectedCard = null;
+  document.getElementById("add-card-search").value = "";
+  document.getElementById("add-search-results").innerHTML = "";
+  document.getElementById("add-selected").style.display = "none";
+  document.getElementById("add-card-submit").disabled = true;
+  document.getElementById("add-card-qty").value = "1";
+  document.getElementById("add-card-cost").value = "";
+});
+
+document.getElementById("add-modal-close").addEventListener("click", () => {
+  document.getElementById("add-card-modal").style.display = "none";
+});
+document.getElementById("add-card-modal").addEventListener("click", (e) => {
+  if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
+});
+
+let addSearchTimer = null;
+document.getElementById("add-card-search").addEventListener("input", function() {
+  clearTimeout(addSearchTimer);
+  const q = this.value.trim();
+  if (q.length < 2) { document.getElementById("add-search-results").innerHTML = ""; return; }
+  addSearchTimer = setTimeout(async () => {
+    try {
+      const encoded = encodeURIComponent(`name:"${q}*"`);
+      const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=10&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const results = document.getElementById("add-search-results");
+      results.innerHTML = "";
+      (data.data || []).forEach(card => {
+        const item = document.createElement("div");
+        item.className = "add-search-item";
+        item.innerHTML = `
+          <img src="${card.images?.small || ''}" alt="" loading="lazy">
+          <div class="add-search-item-info">
+            <div class="add-search-item-name">${esc(card.name)}</div>
+            <div class="add-search-item-meta">${esc(card.set?.name || "")} #${card.number || ""} · ${esc(card.rarity || "")}</div>
+          </div>
+        `;
+        item.addEventListener("click", () => {
+          addSelectedCard = card;
+          document.getElementById("add-selected").style.display = "block";
+          document.getElementById("add-selected-card").innerHTML = item.innerHTML;
+          results.innerHTML = "";
+          document.getElementById("add-card-submit").disabled = false;
+        });
+        results.appendChild(item);
+      });
+    } catch {}
+  }, 400);
+});
+
+document.getElementById("add-card-submit").addEventListener("click", async () => {
+  if (!addSelectedCard) return;
+  const qty = Math.max(1, parseInt(document.getElementById("add-card-qty").value) || 1);
+  const cost = Math.max(0, parseInt(document.getElementById("add-card-cost").value) || 0);
+
+  const price = await fetchCardPrice(addSelectedCard.id);
+
+  const entry = {
+    id: addSelectedCard.id,
+    name: addSelectedCard.name,
+    set: addSelectedCard.set?.name || "",
+    rarity: addSelectedCard.rarity || "",
+    image: addSelectedCard.images?.small || "",
+    qty,
+    cost,
+    currentPrice: price || 0,
+    prevPrice: price || 0,
+    addedAt: new Date().toISOString(),
+    lastUpdated: new Date().toISOString()
+  };
+
+  const wallet = getWallet();
+  const existing = wallet.findIndex(c => c.id === entry.id);
+  if (existing >= 0) {
+    wallet[existing].qty += qty;
+    if (cost > 0) wallet[existing].cost = cost;
+  } else {
+    wallet.push(entry);
+  }
+  saveWallet(wallet);
+  recordDailySnapshot();
+
+  document.getElementById("add-card-modal").style.display = "none";
+  renderWallet();
+  showToast(`${entry.name} を追加しました${price ? " (¥" + price.toLocaleString() + ")" : ""}`);
+});
+
+document.getElementById("wallet-refresh-btn").addEventListener("click", refreshWalletPrices);
+
+renderWallet();
 
 // ============================================================
 // MAP
