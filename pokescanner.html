@@ -343,7 +343,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .add-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;font-weight:500}
 .add-field input,.add-field select{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-size:14px;outline:none}
 .add-field input:focus,.add-field select:focus{border-color:var(--accent)}
-.add-search-results{max-height:200px;overflow-y:auto;margin-bottom:12px}
+.add-search-results{max-height:280px;overflow-y:auto;margin-bottom:12px}
+.add-searching{text-align:center;padding:16px;color:var(--muted);font-size:12px}
 .add-search-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
 .add-search-item:hover{background:var(--surface2)}
 .add-search-item img{width:40px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0}
@@ -1521,15 +1522,21 @@ document.getElementById("add-card-search").addEventListener("input", function() 
   clearTimeout(addSearchTimer);
   const q = this.value.trim();
   if (q.length < 2) { document.getElementById("add-search-results").innerHTML = ""; return; }
+  document.getElementById("add-search-results").innerHTML = '<div class="add-searching">検索中...</div>';
   addSearchTimer = setTimeout(async () => {
     try {
       let cards = [];
       if (priceSource === "tcglookup") {
         cards = await searchCardsTcgLookup(q);
       } else {
-        const encoded = encodeURIComponent(`name:"${q}*"`);
-        const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=10&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
+        const encoded = encodeURIComponent(`name:"${q}"`);
+        const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=12&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
         if (res.ok) { const data = await res.json(); cards = data.data || []; }
+        if (cards.length === 0) {
+          const encoded2 = encodeURIComponent(`name:${q.split(/\s+/).join("*+")}*`);
+          const res2 = await fetch(`${TCGAPI}/cards?q=${encoded2}&pageSize=12&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
+          if (res2.ok) { const data2 = await res2.json(); cards = data2.data || []; }
+        }
       }
       const results = document.getElementById("add-search-results");
       results.innerHTML = "";
