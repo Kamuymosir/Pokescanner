@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>メルカリ・ヤフオク相場サーチ</title>
+  <meta
+    name="description"
+    content="メルカリとヤフオク系の公開検索結果を横断で比較し、中央値・平均・価格レンジを確認できるMVPツールです。"
+  />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: {
+            soft: "0 20px 45px rgba(15, 23, 42, 0.35)",
+          },
+          colors: {
+            market: {
+              50: "#eff6ff",
+              100: "#dbeafe",
+              200: "#bfdbfe",
+              400: "#60a5fa",
+              500: "#3b82f6",
+              600: "#2563eb",
+              700: "#1d4ed8",
+              900: "#0f172a"
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    .summary-card {
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 30%),
+        rgba(15, 23, 42, 0.92);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="absolute top-0 left-0 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl"></div>
+    <div class="absolute right-0 top-24 h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl"></div>
+  </div>
+
+  <header class="border-b border-white/10 bg-slate-950/80 backdrop-blur-sm">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Market Compare MVP</p>
+        <h1 class="mt-1 text-xl font-semibold md:text-2xl">メルカリ・ヤフオク相場サーチ</h1>
+      </div>
+      <a
+        href="/"
+        class="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-slate-200 transition hover:border-blue-300 hover:text-blue-100"
+      >
+        既存トップへ戻る
+      </a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl space-y-8 px-4 py-8">
+    <section class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+      <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-soft">
+        <div class="max-w-3xl space-y-4">
+          <div class="inline-flex items-center rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-[11px] text-blue-100">
+            公開検索ページを横断して相場を比較
+          </div>
+          <h2 class="text-2xl font-semibold md:text-4xl">
+            オークファン/オークフリー風の
+            <span class="text-blue-300">価格検索・比較</span>
+            をすぐ試せるMVP
+          </h2>
+          <p class="text-sm leading-relaxed text-slate-300 md:text-base">
+            キーワードで検索すると、メルカリの売り切れ商品とヤフオク系の終了商品をまとめて取得し、
+            中央値・平均値・おすすめ価格帯（四分位）を一覧で確認できます。
+          </p>
+        </div>
+      </div>
+
+      <aside class="rounded-3xl border border-amber-300/20 bg-amber-500/10 p-6 shadow-soft">
+        <h3 class="text-sm font-semibold text-amber-100">MVPの前提</h3>
+        <ul class="mt-3 list-disc space-y-2 pl-5 text-xs leading-relaxed text-amber-50/90">
+          <li>公開検索ページのHTMLを取得しているため、サイト構造変更で崩れる場合があります。</li>
+          <li>統計は取得できたサンプル件数の範囲で算出しており、全件集計ではありません。</li>
+          <li>ヤフオク系の結果には Yahoo!フリマ が混ざるため、画面上で見分けられるようにしています。</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-soft">
+      <form id="search-form" class="space-y-4">
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
+          <label class="block">
+            <span class="mb-1.5 block text-xs text-slate-300">検索キーワード</span>
+            <input
+              id="query"
+              name="query"
+              type="text"
+              required
+              placeholder="例: ポケモンカード 151 box"
+              class="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none ring-0 transition focus:border-blue-400"
+            />
+          </label>
+
+          <label class="block">
+            <span class="mb-1.5 block text-xs text-slate-300">検索対象</span>
+            <select
+              id="marketplace"
+              name="marketplace"
+              class="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400"
+            >
+              <option value="all">メルカリ + ヤフオク系</option>
+              <option value="mercari">メルカリのみ</option>
+              <option value="yahoo">ヤフオク系すべて</option>
+              <option value="yahoo_auction">Yahoo!オークションのみ</option>
+              <option value="yahoo_flea">Yahoo!フリマのみ</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <label class="block">
+            <span class="mb-1.5 block text-xs text-slate-300">除外キーワード（カンマ区切り）</span>
+            <input
+              id="exclude"
+              name="exclude"
+              type="text"
+              placeholder="例: 空箱, ジャンク, 説明書"
+              class="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400"
+            />
+          </label>
+          <label class="block">
+            <span class="mb-1.5 block text-xs text-slate-300">最小価格</span>
+            <input
+              id="min-price"
+              name="min_price"
+              type="number"
+              min="0"
+              placeholder="0"
+              class="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400"
+            />
+          </label>
+          <label class="block">
+            <span class="mb-1.5 block text-xs text-slate-300">最大価格</span>
+            <input
+              id="max-price"
+              name="max_price"
+              type="number"
+              min="0"
+              placeholder="50000"
+              class="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400"
+            />
+          </label>
+          <label class="block">
+            <span class="mb-1.5 block text-xs text-slate-300">取得件数 / ソース</span>
+            <select
+              id="limit"
+              name="limit"
+              class="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400"
+            >
+              <option value="10">10件</option>
+              <option value="20" selected>20件</option>
+              <option value="30">30件</option>
+              <option value="40">40件</option>
+              <option value="50">50件</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+          >
+            相場を検索する
+          </button>
+          <button
+            type="button"
+            id="share-button"
+            class="inline-flex items-center justify-center rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-blue-300 hover:text-blue-100"
+          >
+            検索URLをコピー
+          </button>
+          <span id="search-status" class="text-sm text-slate-400"></span>
+        </div>
+      </form>
+    </section>
+
+    <section id="summary-section" class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div class="summary-card rounded-3xl border border-white/10 p-5">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">全体</p>
+        <div id="summary-all" class="mt-3 text-sm text-slate-300">検索すると統計が表示されます。</div>
+      </div>
+      <div class="summary-card rounded-3xl border border-white/10 p-5">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">メルカリ</p>
+        <div id="summary-mercari" class="mt-3 text-sm text-slate-300">-</div>
+      </div>
+      <div class="summary-card rounded-3xl border border-white/10 p-5">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Yahoo!オークション</p>
+        <div id="summary-yahoo-auction" class="mt-3 text-sm text-slate-300">-</div>
+      </div>
+      <div class="summary-card rounded-3xl border border-white/10 p-5">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Yahoo!フリマ</p>
+        <div id="summary-yahoo-flea" class="mt-3 text-sm text-slate-300">-</div>
+      </div>
+    </section>
+
+    <section class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-soft">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-semibold">比較メモ</h3>
+            <p class="mt-1 text-xs text-slate-400">中央値ベースで、どちらが安いかをひと目で確認できます。</p>
+          </div>
+        </div>
+        <div id="comparison-panel" class="mt-4 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-300">
+          まだ検索されていません。
+        </div>
+        <div id="warnings-panel" class="mt-4 space-y-2 text-xs text-amber-100"></div>
+      </div>
+
+      <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-soft">
+        <h3 class="text-lg font-semibold">検索結果の使い方</h3>
+        <ol class="mt-4 space-y-3 text-sm leading-relaxed text-slate-300">
+          <li>1. まずは商品名 + 型番/弾名/容量など、識別しやすい語を入れる</li>
+          <li>2. 空箱・ジャンク・説明書などを除外ワードに入れてノイズを落とす</li>
+          <li>3. 中央値とおすすめ価格帯（P25〜P75）を基準に仕入れ/販売価格を考える</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-soft">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-semibold">取得結果</h3>
+          <p id="results-meta" class="mt-1 text-xs text-slate-400">検索後に件数が表示されます。</p>
+        </div>
+      </div>
+
+      <div class="mt-5 overflow-hidden rounded-2xl border border-white/10">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-white/10 text-sm">
+            <thead class="bg-slate-950/80 text-left text-xs uppercase tracking-[0.16em] text-slate-400">
+              <tr>
+                <th class="px-4 py-3">ソース</th>
+                <th class="px-4 py-3">タイトル</th>
+                <th class="px-4 py-3">価格</th>
+                <th class="px-4 py-3">補足</th>
+                <th class="px-4 py-3">リンク</th>
+              </tr>
+            </thead>
+            <tbody id="results-body" class="divide-y divide-white/5 bg-slate-950/50">
+              <tr>
+                <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">
+                  ここに検索結果が表示されます。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("search-form");
+    const statusEl = document.getElementById("search-status");
+    const resultsBody = document.getElementById("results-body");
+    const resultsMeta = document.getElementById("results-meta");
+    const comparisonPanel = document.getElementById("comparison-panel");
+    const warningsPanel = document.getElementById("warnings-panel");
+
+    function yen(value) {
+      if (value === null || value === undefined) return "-";
+      return `¥${Number(value).toLocaleString("ja-JP")}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function setSummaryCard(targetId, label, summary) {
+      const target = document.getElementById(targetId);
+      if (!summary || !summary.count) {
+        target.innerHTML = `<p class="text-sm text-slate-500">${label}のデータはありません。</p>`;
+        return;
+      }
+      target.innerHTML = `
+        <div class="space-y-1 text-sm">
+          <p><span class="text-slate-400">件数:</span> ${summary.count}</p>
+          <p><span class="text-slate-400">中央値:</span> <span class="font-semibold text-white">${yen(summary.median)}</span></p>
+          <p><span class="text-slate-400">平均:</span> ${yen(summary.average)}</p>
+          <p><span class="text-slate-400">範囲:</span> ${yen(summary.min)} - ${yen(summary.max)}</p>
+          <p><span class="text-slate-400">おすすめ帯:</span> ${yen(summary.recommended_low)} - ${yen(summary.recommended_high)}</p>
+        </div>
+      `;
+    }
+
+    function renderComparison(data) {
+      const comparison = data.comparison || {};
+      const mercari = comparison.mercari_summary || {};
+      const yahoo = comparison.yahoo_summary || {};
+
+      if (!mercari.count && !yahoo.count) {
+        comparisonPanel.textContent = "該当データがありません。キーワードや価格条件を見直してください。";
+        return;
+      }
+
+      if (comparison.median_gap === null || comparison.median_gap === undefined) {
+        comparisonPanel.innerHTML = `
+          <p>片側のみデータが取得できています。</p>
+          <p class="mt-2 text-xs text-slate-400">メルカリ中央値: ${yen(mercari.median)} / ヤフオク系中央値: ${yen(yahoo.median)}</p>
+        `;
+        return;
+      }
+
+      const cheaperLabel = comparison.cheaper_marketplace_by_median === "mercari"
+        ? "メルカリの方が中央値ベースで安い"
+        : "ヤフオク系の方が中央値ベースで安い";
+      const gap = Math.abs(comparison.median_gap);
+
+      comparisonPanel.innerHTML = `
+        <div class="space-y-3">
+          <p class="text-base font-semibold text-white">${cheaperLabel}</p>
+          <p>中央値差: <span class="font-semibold text-blue-300">${yen(gap)}</span></p>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/10 bg-slate-900/70 p-3">
+              <p class="text-xs text-slate-400">メルカリ</p>
+              <p class="mt-1 text-sm">中央値 ${yen(mercari.median)} / 平均 ${yen(mercari.average)}</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-slate-900/70 p-3">
+              <p class="text-xs text-slate-400">ヤフオク系</p>
+              <p class="mt-1 text-sm">中央値 ${yen(yahoo.median)} / 平均 ${yen(yahoo.average)}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWarnings(data) {
+      const messages = [...(data.warnings || []), ...(data.errors || []).map((error) => `${error.marketplace}: ${error.message}`)];
+      if (!messages.length) {
+        warningsPanel.innerHTML = "";
+        return;
+      }
+      warningsPanel.innerHTML = messages
+        .map((message) => `<div class="rounded-2xl border border-amber-300/15 bg-amber-500/10 px-3 py-2">${escapeHtml(message)}</div>`)
+        .join("");
+    }
+
+    function renderResults(items) {
+      if (!items || !items.length) {
+        resultsBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">
+              条件に一致する結果がありませんでした。
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      resultsBody.innerHTML = items.map((item) => {
+        const noteParts = [];
+        if (item.start_price) noteParts.push(`開始 ${yen(item.start_price)}`);
+        if (item.end_time) noteParts.push(`${item.end_time}終了`);
+
+        return `
+          <tr class="align-top">
+            <td class="px-4 py-4">
+              <div class="inline-flex rounded-full border border-white/10 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-100">
+                ${escapeHtml(item.source_type_label || item.marketplace_label || "-")}
+              </div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="max-w-xl">
+                <p class="font-medium leading-relaxed text-slate-100">${escapeHtml(item.title)}</p>
+              </div>
+            </td>
+            <td class="px-4 py-4 font-semibold text-blue-200">${escapeHtml(item.price_display || yen(item.price))}</td>
+            <td class="px-4 py-4 text-xs text-slate-400">${escapeHtml(noteParts.join(" / ") || "-")}</td>
+            <td class="px-4 py-4">
+              <a
+                href="${escapeHtml(item.url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex rounded-full border border-blue-400/30 px-3 py-1 text-xs font-semibold text-blue-200 transition hover:border-blue-300 hover:text-white"
+              >
+                開く
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function syncUrlFromForm() {
+      const formData = new FormData(form);
+      const params = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        const normalized = String(value || "").trim();
+        if (normalized) params.set(key, normalized);
+      }
+      const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+      history.replaceState({}, "", nextUrl);
+      return params;
+    }
+
+    async function searchPrices() {
+      const params = syncUrlFromForm();
+      const query = params.get("query");
+      if (!query) return;
+
+      statusEl.textContent = "検索中です...";
+      resultsMeta.textContent = "取得中...";
+      resultsBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">
+            相場を取得しています...
+          </td>
+        </tr>
+      `;
+
+      try {
+        const response = await fetch(`/api/market-price-search?${params.toString()}`);
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "検索に失敗しました");
+        }
+
+        setSummaryCard("summary-all", "全体", data.sources?.all?.summary);
+        setSummaryCard("summary-mercari", "メルカリ", data.sources?.mercari?.summary);
+        setSummaryCard("summary-yahoo-auction", "Yahoo!オークション", data.sources?.yahoo_auction?.summary);
+        setSummaryCard("summary-yahoo-flea", "Yahoo!フリマ", data.sources?.yahoo_flea?.summary);
+        renderComparison(data);
+        renderWarnings(data);
+        renderResults(data.items || []);
+
+        resultsMeta.textContent = `${data.items?.length || 0}件表示 / 1ソース最大 ${data.limit_per_source}件 取得`;
+        statusEl.textContent = `${new Date(data.fetched_at * 1000).toLocaleString("ja-JP")} に更新`;
+      } catch (error) {
+        comparisonPanel.textContent = error.message || "検索に失敗しました。";
+        renderWarnings({ warnings: [], errors: [{ marketplace: "system", message: error.message || "unknown error" }] });
+        resultsMeta.textContent = "検索に失敗しました。";
+        resultsBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-sm text-rose-300">
+              ${escapeHtml(error.message || "検索に失敗しました")}
+            </td>
+          </tr>
+        `;
+        statusEl.textContent = "";
+      }
+    }
+
+    function restoreFormFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      document.getElementById("query").value = params.get("query") || "";
+      document.getElementById("marketplace").value = params.get("marketplace") || "all";
+      document.getElementById("exclude").value = params.get("exclude") || "";
+      document.getElementById("min-price").value = params.get("min_price") || "";
+      document.getElementById("max-price").value = params.get("max_price") || "";
+      document.getElementById("limit").value = params.get("limit") || "20";
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await searchPrices();
+    });
+
+    document.getElementById("share-button").addEventListener("click", async () => {
+      syncUrlFromForm();
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        statusEl.textContent = "検索URLをコピーしました";
+        setTimeout(() => {
+          statusEl.textContent = "";
+        }, 2000);
+      } catch (error) {
+        statusEl.textContent = "URLのコピーに失敗しました";
+      }
+    });
+
+    restoreFormFromUrl();
+    if (document.getElementById("query").value.trim()) {
+      searchPrices();
+    }
+  </script>
+</body>
+</html>
