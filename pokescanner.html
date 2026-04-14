@@ -350,6 +350,13 @@ body{background:var(--bg);background-image:radial-gradient(ellipse at 50% 0%,rgb
 .series-card-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;margin:0 4px 4px 0;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s}
 .series-card-chip:hover{border-color:var(--accent);background:var(--surface2)}
 .series-card-chip .chip-price{color:var(--gold);font-weight:700;font-family:monospace;font-size:10px}
+.pack-cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.pack-cards-loading{width:100%;text-align:center;padding:16px;color:var(--muted);font-size:11px}
+.pack-card-item{position:relative;border-radius:var(--radius-sm);overflow:hidden;background:var(--surface2);cursor:pointer;aspect-ratio:63/88;transition:transform .15s}
+.pack-card-item:active{transform:scale(.97)}
+.pack-card-item img{width:100%;height:100%;object-fit:cover;display:block}
+.pack-card-label{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:9px;color:var(--text);font-weight:500;line-height:1.2}
+.pack-card-label small{display:block;color:var(--muted);font-size:8px}
 .map-pin-instructions{text-align:center;padding:12px;font-size:11px;color:var(--accent);background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:var(--radius-sm);margin-bottom:10px;display:none}
 .map-pin-instructions.show{display:block}
 .add-search-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
@@ -762,25 +769,25 @@ const RARITY_TABLE = [
 ];
 
 const HIGH_VALUE_CARDS = [
-  { name: "リザードン", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 3000000, psa9: 800000, raw: "3〜20万", note: "ポケカ市場の象徴。旧裏面ホロは世界的に最も人気の高いカード。", tags: ["旧裏","ホロ"] },
-  { name: "ガルーラ", set: "ジャングル（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 5000000, psa9: 1500000, raw: "3〜15万", note: "PSA登録数34枚の超希少カード。封入ミスに起因する幻のカード。", tags: ["旧裏","超希少","ホロ"] },
-  { name: "ピカチュウ（コロコロプロモ）", set: "コロコロコミック付録", era: "旧裏面", rarity: "Promo", psa10: 3000000, psa9: 800000, raw: "5〜30万", note: "コロコロ付録限定。PSA10は国内最高価格帯。", tags: ["旧裏","プロモ","超希少"] },
-  { name: "ブラッキー", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 2500000, psa9: 600000, raw: "3〜20万", note: "海外市場でも人気No.1クラス。イーブイ系統の王者。", tags: ["Neo","ホロ"] },
-  { name: "ルギア", set: "neo genesis", era: "Neo", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "2〜15万", note: "neo genesisの看板。伝説ポケモンの代表格。", tags: ["Neo","ホロ"] },
-  { name: "カイリュー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 2000000, psa9: 500000, raw: "2〜12万", note: "化石セットの最高額ホロ。初代ドラゴンタイプの人気。", tags: ["旧裏","ホロ"] },
-  { name: "ミュウツー", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1000000, psa9: 300000, raw: "1.5〜10万", note: "初代最強ポケモン。映画人気も後押し。", tags: ["旧裏","ホロ"] },
-  { name: "ギャラドス", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "1.5〜10万", note: "コイキングからの進化が人気の理由。旧裏面ホロは高額。", tags: ["旧裏","ホロ"] },
-  { name: "ゲンガー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜6万", note: "ゴースト系の人気ポケモン。幅広い世代にファンが多い。", tags: ["旧裏","ホロ"] },
-  { name: "エーフィ", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜8万", note: "ブラッキーと対になるイーブイ進化系。", tags: ["Neo","ホロ"] },
-  { name: "ミュウ", set: "化石の秘密/プロモ（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 500000, psa9: 150000, raw: "0.5〜6万", note: "幻のポケモン。プロモ版は特に希少。", tags: ["旧裏","ホロ"] },
-  { name: "ブラッキーVMAX SA", set: "イーブイヒーローズ", era: "SWSH", rarity: "Special Art Rare", psa10: 300000, psa9: 150000, raw: "5〜12万", note: "SWSH最高額級SA。月夜のブラッキーの美麗イラスト。", tags: ["SWSH","SA"] },
-  { name: "リザードンex SAR", set: "黒炎の支配者", era: "SV", rarity: "Special Art Rare", psa10: 100000, psa9: 50000, raw: "1.5〜4万", note: "SV世代の代表的高額SAR。リザードン人気は不滅。", tags: ["SV","SAR"] },
-  { name: "ナンジャモ SR", set: "クレイバースト", era: "SV", rarity: "Super Rare", psa10: 80000, psa9: 40000, raw: "1.5〜3万", note: "人気キャラクターSR。初動から高騰を続ける。", tags: ["SV","SR"] },
-  { name: "リーリエ SR", set: "コレクションムーン", era: "SM", rarity: "Super Rare", psa10: 400000, psa9: 200000, raw: "5〜15万", note: "SM世代の最高額サポートSR。キャラ人気が価格を牽引。", tags: ["SM","SR"] },
-  { name: "マリィ SR", set: "シールド", era: "SWSH", rarity: "Super Rare", psa10: 200000, psa9: 80000, raw: "3〜8万", note: "SWSH人気キャラ。シールド初期のSR。", tags: ["SWSH","SR"] },
-  { name: "アセロラの予感 SR", set: "VMAXクライマックス", era: "SWSH", rarity: "Super Rare", psa10: 150000, psa9: 60000, raw: "2〜6万", note: "CSR・SRともに高額。横向きポーズが人気。", tags: ["SWSH","SR"] },
-  { name: "光るギャラドス", set: "neo 第3弾 めざめる伝説", era: "Neo", rarity: "Secret Rare", psa10: 1000000, psa9: 300000, raw: "3〜15万", note: "光るポケモンシリーズの代表。neo期のシークレット。", tags: ["Neo","光る","シークレット"] },
-  { name: "ピカチュウ（ポケモンイラストレーター）", set: "コロコロ懸賞", era: "旧裏面", rarity: "Promo", psa10: null, psa9: null, raw: "数千万〜数億円", note: "世界に数枚。史上最高額のポケモンカード。入手はほぼ不可能。", tags: ["旧裏","プロモ","超希少","殿堂"] },
+  { name: "リザードン", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 3000000, psa9: 800000, raw: "3〜20万", note: "ポケカ市場の象徴。旧裏面ホロは世界的に最も人気の高いカード。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ガルーラ", set: "ジャングル（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 5000000, psa9: 1500000, raw: "3〜15万", note: "PSA登録数34枚の超希少カード。封入ミスに起因する幻のカード。", tags: ["旧裏","超希少","ホロ"], category: "超希少" },
+  { name: "ピカチュウ（コロコロプロモ）", set: "コロコロコミック付録", era: "旧裏面", rarity: "Promo", psa10: 3000000, psa9: 800000, raw: "5〜30万", note: "コロコロ付録限定。PSA10は国内最高価格帯。", tags: ["旧裏","プロモ","超希少"], category: "超希少" },
+  { name: "ブラッキー", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 2500000, psa9: 600000, raw: "3〜20万", note: "海外市場でも人気No.1クラス。イーブイ系統の王者。", tags: ["Neo","ホロ"], category: "高額カード" },
+  { name: "ルギア", set: "neo genesis", era: "Neo", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "2〜15万", note: "neo genesisの看板。伝説ポケモンの代表格。", tags: ["Neo","ホロ"], category: "高額カード" },
+  { name: "カイリュー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 2000000, psa9: 500000, raw: "2〜12万", note: "化石セットの最高額ホロ。初代ドラゴンタイプの人気。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ミュウツー", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1000000, psa9: 300000, raw: "1.5〜10万", note: "初代最強ポケモン。映画人気も後押し。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ギャラドス", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "1.5〜10万", note: "コイキングからの進化が人気の理由。旧裏面ホロは高額。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ゲンガー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜6万", note: "ゴースト系の人気ポケモン。幅広い世代にファンが多い。", tags: ["旧裏","ホロ"], category: "旧裏レア" },
+  { name: "エーフィ", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜8万", note: "ブラッキーと対になるイーブイ進化系。", tags: ["Neo","ホロ"], category: "旧裏レア" },
+  { name: "ミュウ", set: "化石の秘密/プロモ（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 500000, psa9: 150000, raw: "0.5〜6万", note: "幻のポケモン。プロモ版は特に希少。", tags: ["旧裏","ホロ"], category: "旧裏レア" },
+  { name: "ブラッキーVMAX SA", set: "イーブイヒーローズ", era: "SWSH", rarity: "Special Art Rare", psa10: 300000, psa9: 150000, raw: "5〜12万", note: "SWSH最高額級SA。月夜のブラッキーの美麗イラスト。", tags: ["SWSH","SA"], category: "人気キャラクター" },
+  { name: "リザードンex SAR", set: "黒炎の支配者", era: "SV", rarity: "Special Art Rare", psa10: 100000, psa9: 50000, raw: "1.5〜4万", note: "SV世代の代表的高額SAR。リザードン人気は不滅。", tags: ["SV","SAR"], category: "モダン高額" },
+  { name: "ナンジャモ SR", set: "クレイバースト", era: "SV", rarity: "Super Rare", psa10: 80000, psa9: 40000, raw: "1.5〜3万", note: "人気キャラクターSR。初動から高騰を続ける。", tags: ["SV","SR"], category: "人気キャラクター" },
+  { name: "リーリエ SR", set: "コレクションムーン", era: "SM", rarity: "Super Rare", psa10: 400000, psa9: 200000, raw: "5〜15万", note: "SM世代の最高額サポートSR。キャラ人気が価格を牽引。", tags: ["SM","SR"], category: "人気キャラクター" },
+  { name: "マリィ SR", set: "シールド", era: "SWSH", rarity: "Super Rare", psa10: 200000, psa9: 80000, raw: "3〜8万", note: "SWSH人気キャラ。シールド初期のSR。", tags: ["SWSH","SR"], category: "人気キャラクター" },
+  { name: "アセロラの予感 SR", set: "VMAXクライマックス", era: "SWSH", rarity: "Super Rare", psa10: 150000, psa9: 60000, raw: "2〜6万", note: "CSR・SRともに高額。横向きポーズが人気。", tags: ["SWSH","SR"], category: "人気キャラクター" },
+  { name: "光るギャラドス", set: "neo 第3弾 めざめる伝説", era: "Neo", rarity: "Secret Rare", psa10: 1000000, psa9: 300000, raw: "3〜15万", note: "光るポケモンシリーズの代表。neo期のシークレット。", tags: ["Neo","光る","シークレット"], category: "高額カード" },
+  { name: "ピカチュウ（ポケモンイラストレーター）", set: "コロコロ懸賞", era: "旧裏面", rarity: "Promo", psa10: null, psa9: null, raw: "数千万〜数億円", note: "世界に数枚。史上最高額のポケモンカード。入手はほぼ不可能。", tags: ["旧裏","プロモ","超希少","殿堂"], category: "超希少" },
 ];
 
 // ============================================================
@@ -1006,6 +1013,43 @@ function renderDexSeries(filter) {
       }
       const imgEl = d.querySelector(".pack-img");
       if (imgEl) imgEl.addEventListener("click", (e) => { e.stopPropagation(); openLightbox(imgEl.dataset.full, imgEl.dataset.caption); });
+      d.addEventListener("click", async (e) => {
+        if (e.target.closest(".pack-img") || e.target.closest(".series-card-chip")) return;
+        const existing = d.querySelector(".pack-cards-grid");
+        if (existing) { existing.remove(); return; }
+        const loadingEl = document.createElement("div");
+        loadingEl.className = "pack-cards-loading";
+        loadingEl.style.width = "100%";
+        loadingEl.textContent = "カード読み込み中...";
+        d.appendChild(loadingEl);
+        try {
+          const code = p.code || "";
+          let setId = null;
+          let sRes = await fetch(`${TCGAPI}/sets?q=id:${encodeURIComponent(code.toLowerCase())}&select=id,name`);
+          if (sRes.ok) { const sData = await sRes.json(); if (sData.data?.length > 0) setId = sData.data[0].id; }
+          if (!setId) {
+            sRes = await fetch(`${TCGAPI}/sets?q=name:"${encodeURIComponent(code)}"&select=id,name`);
+            if (sRes.ok) { const sData = await sRes.json(); if (sData.data?.length > 0) setId = sData.data[0].id; }
+          }
+          if (!setId) { loadingEl.textContent = "セット情報が見つかりません"; return; }
+          const cRes = await fetch(`${TCGAPI}/cards?q=set.id:${setId}&pageSize=24&orderBy=number&select=id,name,images,set,rarity,number,artist,tcgplayer,cardmarket`);
+          if (!cRes.ok) { loadingEl.textContent = "カード取得に失敗しました"; return; }
+          const cData = await cRes.json();
+          const cards = cData.data || [];
+          loadingEl.remove();
+          if (cards.length === 0) { return; }
+          const grid = document.createElement("div");
+          grid.className = "pack-cards-grid";
+          cards.forEach(card => {
+            const item = document.createElement("div");
+            item.className = "pack-card-item";
+            item.innerHTML = `<img src="${card.images?.small || ''}" alt="${esc(card.name)}" loading="lazy" onerror="this.parentElement.style.background='var(--surface)';this.style.display='none'"><div class="pack-card-label">${esc(card.name)}<small>#${card.number || ''} ${esc(card.rarity || '')}</small></div>`;
+            item.addEventListener("click", (ev) => { ev.stopPropagation(); showCardModal(card); });
+            grid.appendChild(item);
+          });
+          d.appendChild(grid);
+        } catch (err) { loadingEl.textContent = "エラー: " + err.message; }
+      });
       packsDiv.appendChild(d);
     });
 
@@ -1049,7 +1093,7 @@ function renderDexHighValue(filter) {
 
   const filtered = HIGH_VALUE_CARDS.filter(c =>
     !q || c.name.toLowerCase().includes(q) || (c.set||"").toLowerCase().includes(q) || (c.era||"").toLowerCase().includes(q)
-       || (c.tags||[]).some(t => t.toLowerCase().includes(q))
+       || (c.tags||[]).some(t => t.toLowerCase().includes(q)) || (c.category||"").includes(q)
   );
 
   if (filtered.length === 0) {
@@ -1057,36 +1101,59 @@ function renderDexHighValue(filter) {
     return;
   }
 
-  filtered.forEach(card => {
-    const d = document.createElement("div");
-    d.className = "dex-card";
-    d.dataset.name = card.name;
-    const psa10Str = card.psa10 ? "¥" + card.psa10.toLocaleString() : "価格算定不能";
-    d.innerHTML = `
-      <div class="dex-card-with-img">
-        <div class="dex-card-thumb"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">🃏</div></div>
-        <div class="dex-card-body">
-          <div class="dex-card-header">
-            <div>
-              <div class="dex-card-name">${esc(card.name)}</div>
-              <div class="dex-card-set">${esc(card.set)} · ${esc(card.era)}</div>
-            </div>
-            <div class="dex-card-price">${card.psa10 ? "PSA10 " : ""}${esc(psa10Str)}</div>
+  const categories = [
+    { id: "超希少", icon: "🏛️", title: "超希少カード", subtitle: "流通数が極めて少ない幻のカード" },
+    { id: "高額カード", icon: "💰", title: "高額カード", subtitle: "PSA10で100万円以上の定番カード" },
+    { id: "人気キャラクター", icon: "⭐", title: "人気キャラクターSR/SAR", subtitle: "キャラ人気が価格を牽引するカード" },
+    { id: "モダン高額", icon: "🔥", title: "モダン高額カード", subtitle: "SV・SWSH世代の注目カード" },
+    { id: "旧裏レア", icon: "✨", title: "旧裏面レアカード", subtitle: "旧裏面の人気ポケモンカード" },
+  ];
+
+  if (q) {
+    filtered.forEach(card => container.appendChild(createHighValueCardEl(card)));
+    return;
+  }
+
+  categories.forEach(cat => {
+    const catCards = filtered.filter(c => c.category === cat.id);
+    if (catCards.length === 0) return;
+    const section = document.createElement("div");
+    section.style.marginBottom = "20px";
+    section.innerHTML = `<div style="font-size:13px;color:var(--text);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">${cat.icon} ${cat.title}</div><div style="font-size:11px;color:var(--muted);margin-bottom:12px">${cat.subtitle}</div>`;
+    catCards.forEach(card => section.appendChild(createHighValueCardEl(card)));
+    container.appendChild(section);
+  });
+}
+
+function createHighValueCardEl(card) {
+  const d = document.createElement("div");
+  d.className = "dex-card";
+  d.dataset.name = card.name;
+  const psa10Str = card.psa10 ? "¥" + card.psa10.toLocaleString() : "価格算定不能";
+  d.innerHTML = `
+    <div class="dex-card-with-img">
+      <div class="dex-card-thumb"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">🃏</div></div>
+      <div class="dex-card-body">
+        <div class="dex-card-header">
+          <div>
+            <div class="dex-card-name">${esc(card.name)}</div>
+            <div class="dex-card-set">${esc(card.set)} · ${esc(card.era)}</div>
           </div>
-          <div class="dex-card-tags">
-            ${(card.tags||[]).map(t => `<span class="tag tag-${t==='超希少'||t==='殿堂'?'ultra':t==='旧裏'?'vintage':t==='プロモ'?'warn':'psa'}">${esc(t)}</span>`).join("")}
-          </div>
-          ${card.note ? `<div class="dex-card-note">${esc(card.note)}</div>` : ""}
-          <div class="dex-card-psa">
-            ${card.psa10 ? `<span class="dex-psa-chip">PSA10 <b>¥${card.psa10.toLocaleString()}</b></span>` : ""}
-            ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
-            <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
-          </div>
+          <div class="dex-card-price">${card.psa10 ? "PSA10 " : ""}${esc(psa10Str)}</div>
+        </div>
+        <div class="dex-card-tags">
+          ${(card.tags||[]).map(t => `<span class="tag tag-${t==='超希少'||t==='殿堂'?'ultra':t==='旧裏'?'vintage':t==='プロモ'?'warn':'psa'}">${esc(t)}</span>`).join("")}
+        </div>
+        ${card.note ? `<div class="dex-card-note">${esc(card.note)}</div>` : ""}
+        <div class="dex-card-psa">
+          ${card.psa10 ? `<span class="dex-psa-chip">PSA10 <b>¥${card.psa10.toLocaleString()}</b></span>` : ""}
+          ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
+          <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
         </div>
       </div>
-    `;
-    container.appendChild(d);
-  });
+    </div>
+  `;
+  return d;
 }
 
 // Dex subtabs
@@ -1159,7 +1226,7 @@ async function searchCardImages(query) {
       const item = document.createElement("div");
       item.className = "img-grid-item";
       item.innerHTML = `
-        <img src="${card.images?.small || ''}" alt="${esc(card.name)}" loading="lazy">
+        <img src="${card.images?.small || ''}" alt="${esc(card.name)}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.img-grid-label')&&(this.parentElement.style.background='var(--surface)')">
         <div class="img-grid-label">${esc(card.name)}<small>${esc(card.set?.name || "")} #${card.number||""}</small></div>
       `;
       item.addEventListener("click", () => showCardModal(card));
@@ -1255,7 +1322,7 @@ function loadHighValueImages() {
 
       const thumb = el.querySelector(".dex-card-thumb");
       if (thumb) {
-        thumb.innerHTML = `<img src="${card.images.small}" alt="${esc(name)}" loading="lazy" style="cursor:zoom-in">`;
+        thumb.innerHTML = `<img src="${card.images.small}" alt="${esc(name)}" loading="lazy" style="cursor:zoom-in" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px\\'>🃏</div>'">`;
         thumb.querySelector("img").addEventListener("click", () => openLightbox(card.images.large || card.images.small, name));
       }
     } catch {}
