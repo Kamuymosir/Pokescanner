@@ -244,6 +244,41 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
 .dex-psa-chip{font-size:9px;background:#080810;padding:3px 8px;border-radius:5px;color:#64748b;font-family:monospace}
 .dex-psa-chip b{color:#fbbf24}
 .dex-empty{text-align:center;padding:30px;color:#2a3d52;font-size:12px}
+
+/* Image grid */
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.img-grid-item{position:relative;border-radius:10px;overflow:hidden;background:#0c0c14;border:1px solid #1a1a2e;cursor:pointer;transition:all .2s;aspect-ratio:63/88}
+.img-grid-item:hover{border-color:#7c3aed;transform:translateY(-2px);box-shadow:0 4px 12px rgba(124,58,237,.2)}
+.img-grid-item img{width:100%;height:100%;object-fit:cover;display:block}
+.img-grid-label{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:9px;color:#e2e8f0;font-weight:600;line-height:1.3}
+.img-grid-label small{display:block;color:#4a5568;font-weight:400;font-size:8px}
+.img-loading{width:100%;aspect-ratio:63/88;display:flex;align-items:center;justify-content:center;background:#0c0c14;border-radius:10px;border:1px solid #1a1a2e}
+.img-loading::after{content:'';width:20px;height:20px;border:2px solid #1a1a3a;border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite}
+
+/* Card detail modal */
+.card-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s}
+.card-modal-inner{background:#0c0c14;border:1px solid #1a1a2e;border-radius:16px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;position:relative;animation:up .3s ease}
+.card-modal-close{position:absolute;top:10px;right:10px;background:#1a1a2e;border:none;color:#94a3b8;font-size:16px;width:32px;height:32px;border-radius:8px;cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.card-modal-close:hover{background:#252540;color:#e2e8f0}
+.modal-img{width:100%;border-radius:14px 14px 0 0;display:block;max-height:50vh;object-fit:contain;background:#000}
+.modal-body{padding:16px}
+.modal-title{font-size:18px;font-weight:800;color:#e2e8f0;margin-bottom:2px}
+.modal-sub{font-size:11px;color:#3d4a5c;margin-bottom:10px}
+.modal-info{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.modal-info-item{background:#080810;border-radius:8px;padding:8px;text-align:center}
+.modal-info-label{font-size:8px;color:#3d4a5c;letter-spacing:.5px;text-transform:uppercase}
+.modal-info-value{font-size:12px;font-weight:700;color:#94a3b8;margin-top:2px}
+.modal-prices{margin-top:10px}
+.modal-price-title{font-size:9px;color:#334155;letter-spacing:1px;margin-bottom:6px;font-weight:600}
+.modal-price-row{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#080810;border-radius:6px;margin-bottom:3px}
+.modal-price-label{font-size:10px;color:#4a5568}
+.modal-price-value{font-size:12px;font-weight:700;color:#fbbf24;font-family:monospace}
+
+/* High-value card with image */
+.dex-card-with-img{display:flex;gap:12px}
+.dex-card-thumb{width:70px;height:98px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#080810;border:1px solid #1a1a2e}
+.dex-card-thumb img{width:100%;height:100%;object-fit:cover}
+.dex-card-body{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -363,13 +398,29 @@ body{background:#060609;color:#e2e8f0;font-family:system-ui,-apple-system,BlinkM
 <div id="page-dex" class="tab-page">
   <input class="dex-search" id="dex-search" type="text" placeholder="🔍 シリーズ・カード名を検索..." aria-label="図鑑検索">
   <div class="dex-subtabs" id="dex-subtabs">
-    <button class="dex-subtab active" data-panel="series">シリーズ一覧</button>
+    <button class="dex-subtab active" data-panel="imgsearch">カード画像検索</button>
+    <button class="dex-subtab" data-panel="series">シリーズ一覧</button>
     <button class="dex-subtab" data-panel="rarity">レアリティ表</button>
     <button class="dex-subtab" data-panel="highvalue">高額カード図鑑</button>
   </div>
-  <div id="dex-panel-series" class="dex-panel active"></div>
+  <div id="dex-panel-imgsearch" class="dex-panel active">
+    <div class="img-search-wrap">
+      <input class="dex-search" id="img-search-input" type="text" placeholder="🔍 カード名を入力（例: リザードン, Pikachu）..." aria-label="カード画像検索">
+      <button class="map-btn" id="img-search-btn" style="margin-top:8px;width:100%">🔎 画像を検索</button>
+    </div>
+    <div id="img-search-status" style="text-align:center;padding:10px;font-size:11px;color:#3d4a5c;display:none"></div>
+    <div id="img-search-results" class="img-grid"></div>
+    <div id="img-search-empty" class="dex-empty" style="display:none">カード名を入力して検索してください</div>
+  </div>
+  <div id="dex-panel-series" class="dex-panel"></div>
   <div id="dex-panel-rarity" class="dex-panel"></div>
   <div id="dex-panel-highvalue" class="dex-panel"></div>
+  <div id="card-detail-modal" class="card-modal" style="display:none">
+    <div class="card-modal-inner">
+      <button class="card-modal-close" id="modal-close" aria-label="閉じる">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ==================== BOTTOM NAV ==================== -->
@@ -644,6 +695,7 @@ document.querySelectorAll(".tab-item").forEach(tab => {
 
     if (target === "map" && !mapInstance) initMap();
     if (target === "map" && mapInstance) mapInstance.invalidateSize();
+    if (target === "dex") loadHighValueImages();
   });
 });
 
@@ -781,23 +833,29 @@ function renderDexHighValue(filter) {
   filtered.forEach(card => {
     const d = document.createElement("div");
     d.className = "dex-card";
+    d.dataset.name = card.name;
     const psa10Str = card.psa10 ? "¥" + card.psa10.toLocaleString() : "価格算定不能";
     d.innerHTML = `
-      <div class="dex-card-header">
-        <div>
-          <div class="dex-card-name">${esc(card.name)}</div>
-          <div class="dex-card-set">${esc(card.set)} · ${esc(card.era)}</div>
+      <div class="dex-card-with-img">
+        <div class="dex-card-thumb"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">🃏</div></div>
+        <div class="dex-card-body">
+          <div class="dex-card-header">
+            <div>
+              <div class="dex-card-name">${esc(card.name)}</div>
+              <div class="dex-card-set">${esc(card.set)} · ${esc(card.era)}</div>
+            </div>
+            <div class="dex-card-price">${card.psa10 ? "PSA10 " : ""}${esc(psa10Str)}</div>
+          </div>
+          <div class="dex-card-tags">
+            ${(card.tags||[]).map(t => `<span class="tag tag-${t==='超希少'||t==='殿堂'?'ultra':t==='旧裏'?'vintage':t==='プロモ'?'warn':'psa'}">${esc(t)}</span>`).join("")}
+          </div>
+          ${card.note ? `<div class="dex-card-note">${esc(card.note)}</div>` : ""}
+          <div class="dex-card-psa">
+            ${card.psa10 ? `<span class="dex-psa-chip">PSA10 <b>¥${card.psa10.toLocaleString()}</b></span>` : ""}
+            ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
+            <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
+          </div>
         </div>
-        <div class="dex-card-price">${card.psa10 ? "PSA10 " : ""}${esc(psa10Str)}</div>
-      </div>
-      <div class="dex-card-tags">
-        ${(card.tags||[]).map(t => `<span class="tag tag-${t==='超希少'||t==='殿堂'?'ultra':t==='旧裏'?'vintage':t==='プロモ'?'warn':'psa'}">${esc(t)}</span>`).join("")}
-      </div>
-      ${card.note ? `<div class="dex-card-note">${esc(card.note)}</div>` : ""}
-      <div class="dex-card-psa">
-        ${card.psa10 ? `<span class="dex-psa-chip">PSA10 <b>¥${card.psa10.toLocaleString()}</b></span>` : ""}
-        ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
-        <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
       </div>
     `;
     container.appendChild(d);
@@ -821,11 +879,158 @@ document.getElementById("dex-search").addEventListener("input", function() {
   if (activePanel === "series") renderDexSeries(q);
   else if (activePanel === "highvalue") renderDexHighValue(q);
 });
+document.getElementById("dex-search").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    const activePanel = document.querySelector(".dex-subtab.active")?.dataset.panel;
+    if (activePanel === "imgsearch") { document.getElementById("img-search-input").value = this.value; const q = this.value.trim(); if (q) searchCardImages(q); }
+  }
+});
 
 // Initial render
 renderDexSeries();
 renderDexRarity();
 renderDexHighValue();
+
+// ============================================================
+// POKEMONTCG API IMAGE SEARCH
+// ============================================================
+const TCGAPI = "https://api.pokemontcg.io/v2";
+let imgSearchAbort = null;
+
+async function searchCardImages(query) {
+  if (imgSearchAbort) imgSearchAbort.abort();
+  const controller = new AbortController();
+  imgSearchAbort = controller;
+
+  const statusEl = document.getElementById("img-search-status");
+  const resultsEl = document.getElementById("img-search-results");
+  const emptyEl = document.getElementById("img-search-empty");
+
+  statusEl.textContent = "検索中...";
+  statusEl.style.display = "block";
+  emptyEl.style.display = "none";
+  resultsEl.innerHTML = Array(6).fill('<div class="img-loading"></div>').join("");
+
+  try {
+    const q = encodeURIComponent(`name:"${query}*"`);
+    const res = await fetch(`${TCGAPI}/cards?q=${q}&pageSize=30&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,artist,tcgplayer,cardmarket`, { signal: controller.signal });
+    if (!res.ok) throw new Error("API error: " + res.status);
+    const data = await res.json();
+    const cards = data.data || [];
+
+    statusEl.textContent = `${data.totalCount || cards.length}件中 ${cards.length}件を表示`;
+
+    if (cards.length === 0) {
+      resultsEl.innerHTML = "";
+      emptyEl.textContent = `「${query}」に一致するカードが見つかりませんでした`;
+      emptyEl.style.display = "block";
+      return;
+    }
+
+    resultsEl.innerHTML = "";
+    cards.forEach(card => {
+      const item = document.createElement("div");
+      item.className = "img-grid-item";
+      item.innerHTML = `
+        <img src="${card.images?.small || ''}" alt="${esc(card.name)}" loading="lazy">
+        <div class="img-grid-label">${esc(card.name)}<small>${esc(card.set?.name || "")} #${card.number||""}</small></div>
+      `;
+      item.addEventListener("click", () => showCardModal(card));
+      resultsEl.appendChild(item);
+    });
+  } catch (e) {
+    if (e.name === "AbortError") return;
+    statusEl.textContent = "検索エラー: " + e.message;
+    resultsEl.innerHTML = "";
+  }
+}
+
+function showCardModal(card) {
+  const modal = document.getElementById("card-detail-modal");
+  const content = document.getElementById("modal-content");
+
+  const prices = card.tcgplayer?.prices || {};
+  const cmPrices = card.cardmarket?.prices || {};
+  const priceEntries = [];
+
+  Object.entries(prices).forEach(([type, p]) => {
+    if (p.market) priceEntries.push({ label: type.replace(/([A-Z])/g, " $1").trim(), value: "$" + p.market.toFixed(2), source: "TCGPlayer" });
+  });
+  if (cmPrices.averageSellPrice) priceEntries.push({ label: "Average Sell", value: "€" + cmPrices.averageSellPrice.toFixed(2), source: "Cardmarket" });
+  if (cmPrices.trendPrice) priceEntries.push({ label: "Trend", value: "€" + cmPrices.trendPrice.toFixed(2), source: "Cardmarket" });
+
+  content.innerHTML = `
+    <img class="modal-img" src="${card.images?.large || card.images?.small || ''}" alt="${esc(card.name)}">
+    <div class="modal-body">
+      <div class="modal-title">${esc(card.name)}</div>
+      <div class="modal-sub">${esc(card.set?.name || "")} · #${card.number || ""} · ${esc(card.rarity || "")}</div>
+      <div class="modal-info">
+        <div class="modal-info-item"><div class="modal-info-label">SET</div><div class="modal-info-value">${esc(card.set?.name || "-")}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">RARITY</div><div class="modal-info-value">${esc(card.rarity || "-")}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">NUMBER</div><div class="modal-info-value">#${card.number || "-"}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">ARTIST</div><div class="modal-info-value">${esc(card.artist || "-")}</div></div>
+      </div>
+      ${priceEntries.length > 0 ? `
+        <div class="modal-prices">
+          <div class="modal-price-title">MARKET PRICES (海外市場)</div>
+          ${priceEntries.map(p => `<div class="modal-price-row"><span class="modal-price-label">${esc(p.label)} <small style="color:#2a3d52">${esc(p.source)}</small></span><span class="modal-price-value">${esc(p.value)}</span></div>`).join("")}
+        </div>
+      ` : ""}
+    </div>
+  `;
+
+  modal.style.display = "flex";
+}
+
+document.getElementById("modal-close").addEventListener("click", () => {
+  document.getElementById("card-detail-modal").style.display = "none";
+});
+document.getElementById("card-detail-modal").addEventListener("click", (e) => {
+  if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
+});
+
+document.getElementById("img-search-btn").addEventListener("click", () => {
+  const q = document.getElementById("img-search-input").value.trim();
+  if (q) searchCardImages(q);
+});
+document.getElementById("img-search-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { const q = e.target.value.trim(); if (q) searchCardImages(q); }
+});
+
+// High-value cards: fetch thumbnail images on first view
+let hvImagesLoaded = false;
+function loadHighValueImages() {
+  if (hvImagesLoaded) return;
+  hvImagesLoaded = true;
+
+  const nameMap = {
+    "リザードン": "Charizard", "ガルーラ": "Kangaskhan", "ピカチュウ（コロコロプロモ）": "Pikachu",
+    "ブラッキー": "Umbreon", "ルギア": "Lugia", "カイリュー": "Dragonite", "ミュウツー": "Mewtwo",
+    "ギャラドス": "Gyarados", "ゲンガー": "Gengar", "エーフィ": "Espeon", "ミュウ": "Mew",
+    "ブラッキーVMAX SA": "Umbreon VMAX", "リザードンex SAR": "Charizard ex",
+    "ナンジャモ SR": "Iono", "リーリエ SR": "Lillie", "マリィ SR": "Marnie",
+    "アセロラの予感 SR": "Acerola", "光るギャラドス": "Shining Gyarados",
+    "ピカチュウ（ポケモンイラストレーター）": "Pikachu"
+  };
+
+  document.querySelectorAll(".dex-card[data-name]").forEach(async (el) => {
+    const name = el.dataset.name;
+    const enName = nameMap[name];
+    if (!enName) return;
+
+    try {
+      const q = encodeURIComponent(`name:"${enName}"`);
+      const res = await fetch(`${TCGAPI}/cards?q=${q}&pageSize=1&orderBy=-cardmarket.prices.averageSellPrice&select=id,images`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const card = data.data?.[0];
+      if (!card?.images?.small) return;
+
+      const thumb = el.querySelector(".dex-card-thumb");
+      if (thumb) thumb.innerHTML = `<img src="${card.images.small}" alt="${esc(name)}" loading="lazy">`;
+    } catch {}
+  });
+}
 
 // ============================================================
 // MAP
