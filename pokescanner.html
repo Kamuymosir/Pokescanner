@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-<meta name="theme-color" content="#060609">
+<meta name="theme-color" content="#0b1121">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="PokeScanner Pro – ポケモンカードの画像からレアリティ・コンディション・市場価格をAI鑑定">
@@ -11,28 +11,31 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#09090b;--surface:#111113;--surface2:#18181b;--border:#222228;--muted:#52525b;--text:#fafafa;--text2:#a1a1aa;--accent:#8b5cf6;--accent2:#6d28d9;--gold:#eab308;--green:#22c55e;--red:#ef4444;--radius:12px;--radius-sm:8px}
+:root{--bg:#0b1121;--surface:#111b2e;--surface2:#162036;--border:#1e2d4a;--muted:#4a6080;--text:#edf2f7;--text2:#94a8c8;--accent:#6c5ce7;--accent2:#a855f7;--gold:#f0b429;--green:#10b981;--red:#ef4444;--radius:14px;--radius-sm:10px;--glow:0 0 20px rgba(108,92,231,.15)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,sans-serif;max-width:480px;margin:0 auto;padding-bottom:68px;min-height:100vh;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);background-image:radial-gradient(ellipse at 50% 0%,rgba(108,92,231,.08) 0%,transparent 60%);color:var(--text);font-family:'Inter',system-ui,-apple-system,sans-serif;max-width:480px;margin:0 auto;padding-bottom:68px;min-height:100vh;-webkit-font-smoothing:antialiased}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes bar{0%{top:5%;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:95%;opacity:0}}
 @keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-#header{padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px}
-.icon{width:36px;height:36px;border-radius:10px;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+#header{padding:16px 20px;background:rgba(11,17,33,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px}
+.icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 2px 12px rgba(108,92,231,.3)}
 .title{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.4px}
 .sub{font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:1px}
-.pro-badge{margin-left:auto;font-size:8px;color:var(--accent);padding:4px 10px;border-radius:var(--radius-sm);font-weight:700;letter-spacing:1px;background:var(--surface)}
+.pro-badge{margin-left:auto;font-size:8px;color:var(--accent2);padding:4px 10px;border-radius:var(--radius-sm);font-weight:700;letter-spacing:1px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2)}
+.lang-toggle{margin-left:8px;display:flex;gap:0;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);flex-shrink:0}
+.lang-btn{padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted)}
+.lang-btn.active{background:var(--accent);color:#fff}
 
-#tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg);border-top:1px solid var(--border);display:flex;z-index:20;padding:6px 0 env(safe-area-inset-bottom,6px)}
+#tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(11,17,33,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:20;padding:6px 0 env(safe-area-inset-bottom,6px)}
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent;position:relative}
 .tab-icon{font-size:18px;line-height:1;opacity:.4;transition:opacity .15s}
 .tab-label{font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.2px;transition:color .15s}
 .tab-item.active .tab-label{color:var(--accent)}
 .tab-item.active .tab-icon{opacity:1}
-.tab-item.active::after{content:'';position:absolute;top:0;left:30%;right:30%;height:2px;background:var(--accent);border-radius:1px}
+.tab-item.active::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:1px;box-shadow:0 0 8px rgba(108,92,231,.5)}
 .tab-page{display:none;padding:20px;animation:fadeIn .2s}
 .tab-page.active{display:block}
 
@@ -44,8 +47,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .apikey-saved{font-size:10px;color:var(--green);flex-shrink:0;opacity:0;transition:opacity .2s}
 .apikey-saved.show{opacity:1}
 
-#dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:var(--radius);border:1.5px dashed var(--border);background:var(--surface);aspect-ratio:4/3;cursor:pointer;transition:all .2s}
-#dropzone:hover,#dropzone.drag-over{border-color:var(--accent);background:var(--surface2)}
+#dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:var(--radius);border:1.5px dashed var(--border);background:var(--surface);aspect-ratio:4/3;cursor:pointer;transition:all .2s;position:relative}
+#dropzone:hover,#dropzone.drag-over{border-color:var(--accent);background:var(--surface2);box-shadow:0 0 30px rgba(108,92,231,.1)}
 #dropzone.drag-over::after{content:'ここにドロップ';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,.08);color:var(--accent);font-size:15px;font-weight:600;border-radius:var(--radius)}
 .dz-emoji{font-size:42px}
 .dz-txt{font-size:15px;color:var(--text2);font-weight:600}
@@ -71,9 +74,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 #btn-grid{display:none;grid-template-columns:1fr 1fr;gap:8px}
 #btn-reset{padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
 #btn-reset:hover{color:var(--text2);background:var(--surface2)}
-#btn-scan{padding:14px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
-#btn-scan:hover{opacity:.9}
-#btn-scan:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed}
+#btn-scan{padding:14px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;box-shadow:0 4px 15px rgba(108,92,231,.3)}
+#btn-scan:hover{opacity:.9;box-shadow:0 4px 20px rgba(108,92,231,.5)}
+#btn-scan:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed;box-shadow:none}
 
 #status-bar{margin-top:12px;padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm);font-size:11px;color:var(--green);font-family:monospace;display:none;line-height:1.6}
 #err{margin-top:12px;padding:12px 14px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:var(--radius-sm);font-size:12px;color:var(--red);line-height:1.6;word-break:break-all;display:none}
@@ -86,7 +89,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .rare-alert-body{font-size:12px;color:rgba(234,179,8,.6);line-height:1.7}
 .rare-alert-body b{color:var(--gold)}
 
-#total-box{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+#total-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--glow)}
 .total-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .total-label{font-size:10px;color:var(--muted);letter-spacing:1px;font-weight:600}
 .total-count{font-size:10px;color:var(--muted);font-weight:500}
@@ -105,7 +108,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .market-price{font-size:14px;font-weight:700;color:var(--gold);font-family:monospace}
 .market-source{font-size:10px;color:var(--muted)}
 
-.card{background:var(--surface);border-radius:var(--radius);padding:16px 18px;margin-bottom:8px;animation:up .3s ease both}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:8px;animation:up .3s ease both;box-shadow:var(--glow)}
 .card-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .card-left{flex:1;min-width:0}
 .card-tags{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
@@ -157,7 +160,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 #btn-rescan{width:100%;margin-top:12px;padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
 #btn-rescan:hover{color:var(--text2);background:var(--surface)}
 
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface2);color:var(--text);padding:12px 24px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:100;animation:up .25s ease;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:none}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(17,27,46,.95);backdrop-filter:blur(12px);color:var(--text);padding:12px 24px;border-radius:var(--radius);border:1px solid var(--border);font-size:13px;font-weight:500;z-index:100;animation:up .25s ease;box-shadow:0 8px 30px rgba(0,0,0,.5);pointer-events:none}
 
 /* Glossary */
 .gloss-search{width:100%;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:14px;outline:none;margin-bottom:16px;transition:border-color .15s}
@@ -190,7 +193,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .map-empty{text-align:center;padding:24px;color:var(--muted);font-size:13px}
 
 .leaflet-container{background:var(--surface)!important}
-.leaflet-tile-pane{filter:brightness(.75) contrast(1.1) saturate(.7)}
+.leaflet-tile-pane{filter:brightness(.7) contrast(1.15) saturate(.6) hue-rotate(10deg)}
 .pin-popup{font-size:12px;line-height:1.6}
 .pin-popup b{color:var(--accent)}
 
@@ -260,8 +263,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .img-loading::after{content:'';width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 
 /* Card detail modal */
-.card-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .15s}
-.card-modal-inner{background:var(--surface);border-radius:var(--radius);max-width:400px;width:100%;max-height:90vh;overflow-y:auto;position:relative;animation:up .2s ease}
+.card-modal{position:fixed;inset:0;background:rgba(6,10,20,.9);backdrop-filter:blur(8px);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .15s}
+.card-modal-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);max-width:400px;width:100%;max-height:90vh;overflow-y:auto;position:relative;animation:up .2s ease;box-shadow:0 16px 48px rgba(0,0,0,.5)}
 .card-modal-close{position:absolute;top:12px;right:12px;background:var(--surface2);border:none;color:var(--text2);font-size:14px;width:32px;height:32px;border-radius:var(--radius-sm);cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center}
 .modal-img{width:100%;border-radius:var(--radius) var(--radius) 0 0;display:block;max-height:50vh;object-fit:contain;background:#000}
 .modal-body{padding:18px}
@@ -292,7 +295,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .api-switch-btn.active{color:var(--text);background:var(--surface2)}
 
 /* Wallet */
-.wallet-summary{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.wallet-summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:var(--glow)}
 .wallet-total-label{font-size:10px;color:var(--muted);letter-spacing:1px;font-weight:600}
 .wallet-total-value{font-size:34px;font-weight:800;color:var(--gold);font-family:monospace;line-height:1;margin-top:6px}
 .wallet-total-sub{font-size:12px;color:var(--muted);margin-top:6px}
@@ -309,8 +312,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .wallet-chart-canvas{width:100%!important;height:200px!important}
 
 .wallet-actions{display:flex;gap:8px;margin-bottom:16px}
-.wallet-add-btn{flex:1;padding:14px;border-radius:var(--radius);border:none;background:var(--surface);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:background .15s}
-.wallet-add-btn:hover{background:var(--surface2)}
+.wallet-add-btn{flex:1;padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+.wallet-add-btn:hover{background:var(--surface2);box-shadow:var(--glow)}
 
 .wallet-list-title{font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:10px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
 
@@ -336,22 +339,38 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 .wallet-empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:13px;line-height:1.9}
 
 /* Add card modal */
-.add-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn .1s}
-.add-modal-inner{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:24px 20px env(safe-area-inset-bottom,20px);animation:up .2s ease}
+.add-modal{position:fixed;inset:0;background:rgba(6,10,20,.85);backdrop-filter:blur(8px);z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn .1s}
+.add-modal-inner{background:var(--surface);border:1px solid var(--border);border-top:1px solid rgba(108,92,231,.3);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:24px 20px env(safe-area-inset-bottom,20px);animation:up .2s ease;box-shadow:0 -8px 30px rgba(0,0,0,.3)}
 .add-modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
 .add-field{margin-bottom:12px}
 .add-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px;font-weight:500}
 .add-field input,.add-field select{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-size:14px;outline:none}
 .add-field input:focus,.add-field select:focus{border-color:var(--accent)}
-.add-search-results{max-height:200px;overflow-y:auto;margin-bottom:12px}
+.add-search-results{max-height:280px;overflow-y:auto;margin-bottom:12px}
+.add-searching{text-align:center;padding:16px;color:var(--muted);font-size:12px}
+.series-cards-section{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.series-cards-title{font-size:10px;color:var(--gold);letter-spacing:.5px;font-weight:600;margin-bottom:8px}
+.series-card-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;margin:0 4px 4px 0;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s}
+.series-card-chip:hover{border-color:var(--accent);background:var(--surface2)}
+.series-card-chip .chip-price{color:var(--gold);font-weight:700;font-family:monospace;font-size:10px}
+.pack-cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.pack-cards-loading{width:100%;text-align:center;padding:16px;color:var(--muted);font-size:11px}
+.pack-card-item{position:relative;border-radius:var(--radius-sm);overflow:hidden;background:var(--surface2);cursor:pointer;aspect-ratio:63/88;transition:transform .15s}
+.pack-card-item:active{transform:scale(.97)}
+.pack-card-item img{width:100%;height:100%;object-fit:cover;display:block}
+.pack-card-label{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:9px;color:var(--text);font-weight:500;line-height:1.2}
+.pack-card-label small{display:block;color:var(--muted);font-size:8px}
+.map-pin-instructions{text-align:center;padding:12px;font-size:11px;color:var(--accent);background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:var(--radius-sm);margin-bottom:10px;display:none}
+.map-pin-instructions.show{display:block}
 .add-search-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
 .add-search-item:hover{background:var(--surface2)}
 .add-search-item img{width:40px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0}
 .add-search-item-info{flex:1;min-width:0}
 .add-search-item-name{font-size:13px;font-weight:600;color:var(--text)}
 .add-search-item-meta{font-size:10px;color:var(--muted)}
-.add-submit{width:100%;padding:14px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
-.add-submit:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed}
+.add-submit{width:100%;padding:14px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(108,92,231,.3);transition:all .15s}
+.add-submit:hover{box-shadow:0 4px 20px rgba(108,92,231,.5)}
+.add-submit:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed;box-shadow:none}
 </style>
 </head>
 <body>
@@ -363,20 +382,24 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
     <div class="sub">SCAN · VALUE · COLLECT</div>
   </div>
   <div class="pro-badge" aria-label="Pro版">PRO v2</div>
+  <div class="lang-toggle" id="lang-toggle">
+    <button class="lang-btn active" data-lang="ja">🇯🇵</button>
+    <button class="lang-btn" data-lang="en">🌍</button>
+  </div>
 </div>
 
 <!-- ==================== TAB: SCAN ==================== -->
 <div id="page-scan" class="tab-page active" role="main">
   <div id="apikey-wrap">
     <label for="apikey">API Key</label>
-    <input id="apikey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" aria-label="Anthropic APIキー">
+    <input id="apikey" type="password" placeholder="sk-ant-...（未設定でもデモ鑑定可）" autocomplete="off" spellcheck="false" aria-label="Anthropic APIキー">
     <span class="apikey-saved" id="apikey-saved" aria-live="polite">保存済</span>
   </div>
 
   <div id="dropzone" role="button" tabindex="0" aria-label="画像を選択またはドロップしてカードをスキャン">
     <div class="dz-emoji" aria-hidden="true">🃏</div>
-    <div class="dz-txt">タップして画像を選択</div>
-    <div class="dz-sub">写真ライブラリ / ファイル / ドラッグ&amp;ドロップ</div>
+    <div class="dz-txt" data-i18n="dz_txt">タップして画像を選択</div>
+    <div class="dz-sub" data-i18n="dz_sub">写真ライブラリ / ファイル / ドラッグ&amp;ドロップ</div>
     <div class="dz-methods">
       <span class="dz-method">JPG</span>
       <span class="dz-method">PNG</span>
@@ -398,14 +421,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 
   <div id="btn-area" style="margin-top:12px">
     <div class="btn-row" id="btn-initial-row">
-      <label class="primary-label" id="label-file" role="button" tabindex="0">🖼️ カードを読み込む</label>
+      <label class="primary-label" id="label-file" role="button" tabindex="0" data-i18n="label_file">🖼️ カードを読み込む</label>
       <label class="camera-label" id="label-camera" role="button" tabindex="0">📷</label>
     </div>
     <input id="fi2" type="file" accept="image/*" style="display:none" aria-hidden="true">
     <input id="fi-camera" type="file" accept="image/*" capture="environment" style="display:none" aria-hidden="true">
     <div id="btn-grid">
-      <button id="btn-reset" aria-label="やり直す">やり直す</button>
-      <button id="btn-scan">⚡ 判定する</button>
+      <button id="btn-reset" aria-label="やり直す" data-i18n="btn_reset">やり直す</button>
+      <button id="btn-scan" data-i18n="btn_scan">⚡ 判定する</button>
     </div>
   </div>
 
@@ -414,7 +437,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 
   <div id="results">
     <div id="rare-alert" role="alert">
-      <div class="rare-alert-title">⚠️ 超希少カード検出</div>
+      <div class="rare-alert-title" data-i18n="rare_alert">⚠️ 超希少カード検出</div>
       <div class="rare-alert-body" id="rare-alert-body"></div>
     </div>
     <div id="total-box">
@@ -426,22 +449,22 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
       <div class="total-range" id="total-range"></div>
       <div class="total-summary" id="total-summary"></div>
       <div class="total-actions">
-        <button class="action-btn" id="btn-share" aria-label="結果をコピー">📋 結果をコピー</button>
-        <button class="action-btn" id="btn-save" aria-label="履歴に保存">💾 履歴に保存</button>
+        <button class="action-btn" id="btn-share" aria-label="結果をコピー" data-i18n="btn_share">📋 結果をコピー</button>
+        <button class="action-btn" id="btn-save" aria-label="履歴に保存" data-i18n="btn_save">💾 履歴に保存</button>
       </div>
     </div>
     <div id="market-section">
-      <div class="market-title">📊 AI推定参考相場</div>
+      <div class="market-title" data-i18n="market_title">📊 AI推定参考相場</div>
       <div id="market-list"></div>
     </div>
     <div id="cards-list"></div>
-    <button id="btn-rescan">別のカードをスキャン</button>
+    <button id="btn-rescan" data-i18n="btn_rescan">別のカードをスキャン</button>
   </div>
 
   <div id="history-section">
     <div class="history-title">
-      <span>📜 スキャン履歴</span>
-      <button class="history-clear" id="btn-history-clear">全削除</button>
+      <span data-i18n="history_title">📜 スキャン履歴</span>
+      <button class="history-clear" id="btn-history-clear" data-i18n="btn_clear_all">全削除</button>
     </div>
     <div id="history-list"></div>
   </div>
@@ -456,13 +479,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 <!-- ==================== TAB: MAP ==================== -->
 <div id="page-map" class="tab-page">
   <div class="map-actions">
-    <button class="map-btn" id="map-btn-locate">📍 現在地</button>
-    <button class="map-btn" id="map-btn-add">➕ ピンを追加</button>
+    <button class="map-btn" id="map-btn-locate" data-i18n="map_locate">📍 現在地</button>
+    <button class="map-btn" id="map-btn-add" data-i18n="map_add">➕ ピンを追加</button>
   </div>
+  <div id="map-pin-instructions" class="map-pin-instructions" data-i18n="map_instructions">📌 地図をタップしてピンの位置を選択してください</div>
   <div id="map-container"></div>
   <div class="map-pins-title">
-    <span>📌 登録済みスポット</span>
-    <button class="history-clear" id="map-clear-all">全削除</button>
+    <span data-i18n="map_spots">📌 登録済みスポット</span>
+    <button class="history-clear" id="map-clear-all" data-i18n="btn_clear_all_map">全削除</button>
   </div>
   <div id="map-pins-list"></div>
 </div>
@@ -471,15 +495,15 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 <div id="page-dex" class="tab-page">
   <input class="dex-search" id="dex-search" type="text" placeholder="🔍 シリーズ・カード名を検索..." aria-label="図鑑検索">
   <div class="dex-subtabs" id="dex-subtabs">
-    <button class="dex-subtab active" data-panel="imgsearch">カード画像検索</button>
-    <button class="dex-subtab" data-panel="series">シリーズ一覧</button>
-    <button class="dex-subtab" data-panel="rarity">レアリティ表</button>
-    <button class="dex-subtab" data-panel="highvalue">高額カード図鑑</button>
+    <button class="dex-subtab active" data-panel="imgsearch" data-i18n="dex_imgsearch">カード画像検索</button>
+    <button class="dex-subtab" data-panel="series" data-i18n="dex_series">シリーズ一覧</button>
+    <button class="dex-subtab" data-panel="rarity" data-i18n="dex_rarity">レアリティ表</button>
+    <button class="dex-subtab" data-panel="highvalue" data-i18n="dex_highvalue">高額カード図鑑</button>
   </div>
   <div id="dex-panel-imgsearch" class="dex-panel active">
     <div class="img-search-wrap">
       <input class="dex-search" id="img-search-input" type="text" placeholder="🔍 カード名を入力（例: リザードン, Pikachu）..." aria-label="カード画像検索">
-      <button class="map-btn" id="img-search-btn" style="margin-top:8px;width:100%">🔎 画像を検索</button>
+      <button class="map-btn" id="img-search-btn" style="margin-top:8px;width:100%" data-i18n="img_search_btn">🔎 画像を検索</button>
     </div>
     <div id="img-search-status" style="text-align:center;padding:10px;font-size:11px;color:#3d4a5c;display:none"></div>
     <div id="img-search-results" class="img-grid"></div>
@@ -499,14 +523,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 <!-- ==================== TAB: WALLET ==================== -->
 <div id="page-wallet" class="tab-page">
   <div class="wallet-api-switch">
-    <div class="api-switch-label">価格ソース</div>
+    <div class="api-switch-label" data-i18n="price_source">価格ソース</div>
     <div class="api-switch-btns">
       <button class="api-switch-btn active" data-source="pokemontcg">🌍 PokemonTCG<small>海外・キー不要</small></button>
       <button class="api-switch-btn" data-source="tcglookup">🇯🇵 TCG Lookup<small>日本語対応・要キー</small></button>
     </div>
     <div id="tcglookup-key-wrap" style="display:none;margin-top:8px">
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="tcglookup-key" type="password" placeholder="tlk_live_..." style="flex:1;padding:8px 10px;background:#080810;border:1px solid #1a1a2e;border-radius:8px;color:#94a3b8;font-size:11px;font-family:monospace;outline:none">
+        <input id="tcglookup-key" type="password" placeholder="tlk_live_..." style="flex:1;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;font-family:monospace;outline:none">
         <span class="apikey-saved" id="tcglookup-key-saved">保存済</span>
       </div>
       <div style="font-size:9px;color:#2a3d52;margin-top:4px">無料取得: <a href="https://tcgpricelookup.com/tcg-api" target="_blank" rel="noopener" style="color:#60a5fa">tcgpricelookup.com</a> · 200回/日 · クレカ不要</div>
@@ -518,29 +542,29 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
     <div class="wallet-total-value" id="wallet-total">¥0</div>
     <div class="wallet-total-sub" id="wallet-total-sub">0枚のカードを登録</div>
     <div class="wallet-stats">
-      <div class="wallet-stat"><div class="wallet-stat-label">購入総額</div><div class="wallet-stat-value neutral" id="wallet-cost">¥0</div></div>
-      <div class="wallet-stat"><div class="wallet-stat-label">損益</div><div class="wallet-stat-value neutral" id="wallet-pnl">¥0</div></div>
-      <div class="wallet-stat"><div class="wallet-stat-label">損益率</div><div class="wallet-stat-value neutral" id="wallet-pnl-pct">0%</div></div>
+      <div class="wallet-stat"><div class="wallet-stat-label" data-i18n="cost_total">購入総額</div><div class="wallet-stat-value neutral" id="wallet-cost">¥0</div></div>
+      <div class="wallet-stat"><div class="wallet-stat-label" data-i18n="pnl">損益</div><div class="wallet-stat-value neutral" id="wallet-pnl">¥0</div></div>
+      <div class="wallet-stat"><div class="wallet-stat-label" data-i18n="pnl_pct">損益率</div><div class="wallet-stat-value neutral" id="wallet-pnl-pct">0%</div></div>
     </div>
   </div>
 
   <div class="wallet-chart-wrap">
-    <div class="wallet-chart-title"><span>📈 資産推移</span><span id="wallet-chart-period" style="font-size:9px;color:#4a5568">直近30日</span></div>
+    <div class="wallet-chart-title"><span data-i18n="chart_title">📈 資産推移</span><span id="wallet-chart-period" style="font-size:9px;color:#4a5568">直近30日</span></div>
     <canvas id="wallet-chart" class="wallet-chart-canvas"></canvas>
   </div>
 
   <div class="wallet-pie-wrap" id="wallet-pie-section" style="display:none">
-    <div class="wallet-chart-title"><span>🍩 ポートフォリオ構成</span></div>
+    <div class="wallet-chart-title"><span data-i18n="pie_title">🍩 ポートフォリオ構成</span></div>
     <canvas id="wallet-pie" class="wallet-pie-canvas"></canvas>
   </div>
 
   <div class="wallet-actions">
-    <button class="wallet-add-btn" id="wallet-add-btn">➕ カードを追加</button>
-    <button class="wallet-add-btn" id="wallet-refresh-btn" style="color:#4ade80">🔄 価格更新</button>
+    <button class="wallet-add-btn" id="wallet-add-btn" data-i18n="wallet_add">➕ カードを追加</button>
+    <button class="wallet-add-btn" id="wallet-refresh-btn" style="color:#4ade80" data-i18n="wallet_refresh">🔄 価格更新</button>
   </div>
 
   <div class="wallet-list-title">
-    <span>💼 所持カード一覧</span>
+    <span data-i18n="wallet_list_title">💼 所持カード一覧</span>
     <span id="wallet-card-count" style="font-size:9px;color:#3d4a5c"></span>
   </div>
   <div id="wallet-list"></div>
@@ -549,24 +573,24 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 <!-- Add card modal -->
 <div id="add-card-modal" class="add-modal" style="display:none">
   <div class="add-modal-inner">
-    <div class="add-modal-title">カードを追加 <button class="card-modal-close" id="add-modal-close" aria-label="閉じる">✕</button></div>
+    <div class="add-modal-title"><span data-i18n="add_card_title">カードを追加</span> <button class="card-modal-close" id="add-modal-close" aria-label="閉じる">✕</button></div>
     <div class="add-field">
-      <label>カード名で検索（英語推奨）</label>
+      <label data-i18n="add_search_label">カード名で検索（英語推奨）</label>
       <input id="add-card-search" type="text" placeholder="例: Charizard, Umbreon VMAX...">
     </div>
     <div id="add-search-results" class="add-search-results"></div>
     <div id="add-selected" style="display:none;margin-bottom:10px">
-      <div class="add-search-item" id="add-selected-card" style="background:#0f0f1e;border-radius:8px"></div>
+      <div class="add-search-item" id="add-selected-card" style="background:var(--surface2);border-radius:8px"></div>
     </div>
     <div class="add-field">
-      <label>数量</label>
+      <label data-i18n="add_qty">数量</label>
       <input id="add-card-qty" type="number" value="1" min="1" max="999">
     </div>
     <div class="add-field">
-      <label>購入価格（円）</label>
+      <label data-i18n="add_cost">購入価格（円）</label>
       <input id="add-card-cost" type="number" placeholder="0" min="0">
     </div>
-    <button class="add-submit" id="add-card-submit" disabled>追加する</button>
+    <button class="add-submit" id="add-card-submit" disabled data-i18n="add_submit">追加する</button>
   </div>
 </div>
 
@@ -574,23 +598,23 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple
 <nav id="tab-bar" role="tablist">
   <button class="tab-item active" data-tab="scan" role="tab" aria-selected="true" aria-label="スキャン">
     <span class="tab-icon">⚡</span>
-    <span class="tab-label">スキャン</span>
+    <span class="tab-label" data-i18n="tab_scan">スキャン</span>
   </button>
   <button class="tab-item" data-tab="glossary" role="tab" aria-selected="false" aria-label="用語集">
     <span class="tab-icon">📖</span>
-    <span class="tab-label">用語集</span>
+    <span class="tab-label" data-i18n="tab_glossary">用語集</span>
   </button>
   <button class="tab-item" data-tab="dex" role="tab" aria-selected="false" aria-label="図鑑">
     <span class="tab-icon">📚</span>
-    <span class="tab-label">図鑑</span>
+    <span class="tab-label" data-i18n="tab_dex">図鑑</span>
   </button>
   <button class="tab-item" data-tab="wallet" role="tab" aria-selected="false" aria-label="資産">
     <span class="tab-icon">💰</span>
-    <span class="tab-label">資産</span>
+    <span class="tab-label" data-i18n="tab_wallet">資産</span>
   </button>
   <button class="tab-item" data-tab="map" role="tab" aria-selected="false" aria-label="マップ">
     <span class="tab-icon">🗺️</span>
-    <span class="tab-label">マップ</span>
+    <span class="tab-label" data-i18n="tab_map">マップ</span>
   </button>
 </nav>
 
@@ -663,73 +687,73 @@ const GLOSSARY = [
 // ============================================================
 const SERIES_DATA = [
   { era: "旧裏面 (1996-2001)", id: "old", icon: "🏛️", packs: [
-    { name: "基本セット（初版/無印）", code: "Base Set", date: "1996/10", cards: 102, icon: "🔥", note: "リザードン・カメックス・フシギバナ収録。ポケカの原点。" },
-    { name: "ポケモンジャングル", code: "Jungle", date: "1997/03", cards: 48, icon: "🌿", note: "ガルーラ（封入ミス版）など希少カードあり。" },
-    { name: "化石の秘密", code: "Fossil", date: "1997/06", cards: 48, icon: "🦴", note: "ゲンガー・カイリュー・ラプラス等の人気ポケモン収録。" },
-    { name: "ロケット団", code: "Team Rocket", date: "1997/11", cards: 65, icon: "🚀", note: "わるいリザードン等のダーク系カード。" },
-    { name: "ジム拡張 第1弾（リーダーズ）", code: "Gym Heroes", date: "1998/04", cards: 96, icon: "🏟️", note: "ジムリーダーのポケモン。カスミのヒトデマン等。" },
-    { name: "ジム拡張 第2弾（チャレンジ）", code: "Gym Challenge", date: "1998/07", cards: 98, icon: "🏟️", note: "ジムリーダー後半。サカキのニドキング等。" },
+    { name: "基本セット（初版/無印）", code: "Base Set", apiId: "base1", jpSetId: "PMCG1", date: "1996/10", cards: 102, icon: "🔥", note: "リザードン・カメックス・フシギバナ収録。ポケカの原点。" },
+    { name: "ポケモンジャングル", code: "Jungle", apiId: "base2", jpSetId: "PMCG2", date: "1997/03", cards: 48, icon: "🌿", note: "ガルーラ（封入ミス版）など希少カードあり。" },
+    { name: "化石の秘密", code: "Fossil", apiId: "base3", jpSetId: "PMCG3", date: "1997/06", cards: 48, icon: "🦴", note: "ゲンガー・カイリュー・ラプラス等の人気ポケモン収録。" },
+    { name: "ロケット団", code: "Team Rocket", apiId: "base5", jpSetId: "PMCG4", date: "1997/11", cards: 65, icon: "🚀", note: "わるいリザードン等のダーク系カード。" },
+    { name: "ジム拡張 第1弾（リーダーズ）", code: "Gym Heroes", apiId: "gym1", jpSetId: "PMCG5", date: "1998/04", cards: 96, icon: "🏟️", note: "ジムリーダーのポケモン。カスミのヒトデマン等。" },
+    { name: "ジム拡張 第2弾（チャレンジ）", code: "Gym Challenge", apiId: "gym2", jpSetId: "PMCG6", date: "1998/07", cards: 98, icon: "🏟️", note: "ジムリーダー後半。サカキのニドキング等。" },
   ]},
   { era: "Neo シリーズ (2000-2001)", id: "neo", icon: "✨", packs: [
-    { name: "neo 第1弾 金、銀、新世界へ...", code: "Neo Genesis", date: "2000/02", cards: 96, icon: "🌟", note: "ルギア・ホウオウ初登場。ジョウト地方ポケモン。" },
-    { name: "neo 第2弾 遺跡をこえて...", code: "Neo Discovery", date: "2000/07", cards: 56, icon: "🏛️", note: "ブラッキー・エーフィのホロが超高額。" },
-    { name: "neo 第3弾 めざめる伝説", code: "Neo Revelation", date: "2000/11", cards: 57, icon: "⚡", note: "光るポケモンシリーズ。光るギャラドス等。" },
-    { name: "neo 第4弾 闇、そして光へ...", code: "Neo Destiny", date: "2001/03", cards: 56, icon: "🌓", note: "光るポケモン完結。光るミュウ等。" },
+    { name: "neo 第1弾 金、銀、新世界へ...", code: "Neo Genesis", apiId: "neo1", jpSetId: "neo1", date: "2000/02", cards: 96, icon: "🌟", note: "ルギア・ホウオウ初登場。ジョウト地方ポケモン。" },
+    { name: "neo 第2弾 遺跡をこえて...", code: "Neo Discovery", apiId: "neo2", jpSetId: "neo2", date: "2000/07", cards: 56, icon: "🏛️", note: "ブラッキー・エーフィのホロが超高額。" },
+    { name: "neo 第3弾 めざめる伝説", code: "Neo Revelation", apiId: "neo3", jpSetId: "neo3", date: "2000/11", cards: 57, icon: "⚡", note: "光るポケモンシリーズ。光るギャラドス等。" },
+    { name: "neo 第4弾 闇、そして光へ...", code: "Neo Destiny", apiId: "neo4", jpSetId: "neo4", date: "2001/03", cards: 56, icon: "🌓", note: "光るポケモン完結。光るミュウ等。" },
   ]},
   { era: "e シリーズ (2001-2003)", id: "e", icon: "📱", packs: [
-    { name: "基本拡張パック 第1弾", code: "Expedition", date: "2001/12", cards: 128, icon: "📦", note: "eカードリーダー対応。新デザインフレーム。" },
-    { name: "基本拡張パック 第2弾 地図にない町", code: "Aquapolis", date: "2002/03", cards: 92, icon: "🌊", note: "クリスタルタイプ初登場。" },
-    { name: "基本拡張パック 第3弾 海からの風", code: "Skyridge", date: "2002/06", cards: 88, icon: "🌊", note: "クリスタルタイプ継続。" },
+    { name: "基本拡張パック 第1弾", code: "Expedition", apiId: "ecard1", date: "2001/12", cards: 128, icon: "📦", note: "eカードリーダー対応。新デザインフレーム。" },
+    { name: "基本拡張パック 第2弾 地図にない町", code: "Aquapolis", apiId: "ecard2", date: "2002/03", cards: 92, icon: "🌊", note: "クリスタルタイプ初登場。" },
+    { name: "基本拡張パック 第3弾 海からの風", code: "Skyridge", apiId: "ecard3", date: "2002/06", cards: 88, icon: "🌊", note: "クリスタルタイプ継続。" },
     { name: "拡張パック 第4弾 裂けた大地", code: "Split Earth", date: "2002/09", cards: 88, icon: "🌋" },
     { name: "拡張パック 第5弾 神秘なる山", code: "Mysterious Mountains", date: "2002/12", cards: 88, icon: "⛰️" },
   ]},
   { era: "ADV/PCG (2003-2006)", id: "adv", icon: "🎮", packs: [
-    { name: "ADV 拡張パック 第1弾", code: "ADV", date: "2003/01", cards: 76, icon: "🎮", note: "ホウエン地方。ルビー＆サファイアの世代。" },
-    { name: "ADV 拡張パック 第2弾 砂漠のかげ", code: "ADV2", date: "2003/03", cards: 53, icon: "🏜️" },
-    { name: "PCG 拡張パック 第1弾", code: "PCG1", date: "2004/01", cards: 75, icon: "💎", note: "exポケモンシリーズ本格化。" },
+    { name: "ADV 拡張パック 第1弾", code: "ADV", apiId: "ex1", date: "2003/01", cards: 76, icon: "🎮", note: "ホウエン地方。ルビー＆サファイアの世代。" },
+    { name: "ADV 拡張パック 第2弾 砂漠のかげ", code: "ADV2", apiId: "ex2", date: "2003/03", cards: 53, icon: "🏜️" },
+    { name: "PCG 拡張パック 第1弾", code: "PCG1", apiId: "ex6", date: "2004/01", cards: 75, icon: "💎", note: "exポケモンシリーズ本格化。" },
   ]},
   { era: "DPt シリーズ (2006-2010)", id: "dpt", icon: "💠", packs: [
-    { name: "DP 拡張パック 第1弾", code: "DP1", date: "2006/11", cards: 106, icon: "💠", note: "シンオウ地方。ダイヤモンド＆パール世代。Lv.X初登場。" },
-    { name: "DPt 拡張パック ギンガの覇道", code: "DPt4", date: "2009/03", cards: 100, icon: "🌌" },
-    { name: "LEGEND 拡張パック ハートゴールドコレクション", code: "L1", date: "2009/10", cards: 70, icon: "💛", note: "LEGEND カード登場。上下2枚で1枚のカード。" },
+    { name: "DP 拡張パック 第1弾", code: "DP1", apiId: "dp1", date: "2006/11", cards: 106, icon: "💠", note: "シンオウ地方。ダイヤモンド＆パール世代。Lv.X初登場。" },
+    { name: "DPt 拡張パック ギンガの覇道", code: "DPt4", apiId: "pl4", date: "2009/03", cards: 100, icon: "🌌" },
+    { name: "LEGEND 拡張パック ハートゴールドコレクション", code: "L1", apiId: "hgss1", date: "2009/10", cards: 70, icon: "💛", note: "LEGEND カード登場。上下2枚で1枚のカード。" },
   ]},
   { era: "BW シリーズ (2010-2013)", id: "bw", icon: "⚫", packs: [
-    { name: "BW 拡張パック ブラックコレクション", code: "BW1", date: "2010/09", cards: 56, icon: "⚫", note: "イッシュ地方。EXポケモン再導入。フルアートカード。" },
-    { name: "BW 拡張パック プラズマ団の野望", code: "BW8", date: "2012/09", cards: 70, icon: "🔮" },
+    { name: "BW 拡張パック ブラックコレクション", code: "BW1", apiId: "bw1", date: "2010/09", cards: 56, icon: "⚫", note: "イッシュ地方。EXポケモン再導入。フルアートカード。" },
+    { name: "BW 拡張パック プラズマ団の野望", code: "BW8", apiId: "bw8", date: "2012/09", cards: 70, icon: "🔮" },
   ]},
   { era: "XY シリーズ (2013-2016)", id: "xy", icon: "🦋", packs: [
-    { name: "XY 拡張パック コレクションX", code: "XY1", date: "2013/11", cards: 60, icon: "🦋", note: "カロス地方。メガシンカ・BREAK初登場。" },
-    { name: "XY BREAK 拡張パック 青い衝撃", code: "XY8", date: "2015/09", cards: 59, icon: "💙", note: "BREAK進化ポケモン登場。" },
+    { name: "XY 拡張パック コレクションX", code: "XY1", apiId: "xy1", jpSetId: "XY1a", date: "2013/11", cards: 60, icon: "🦋", note: "カロス地方。メガシンカ・BREAK初登場。" },
+    { name: "XY BREAK 拡張パック 青い衝撃", code: "XY8", apiId: "xy8", jpSetId: "XY8a", date: "2015/09", cards: 59, icon: "💙", note: "BREAK進化ポケモン登場。" },
   ]},
   { era: "SM シリーズ (2016-2019)", id: "sm", icon: "🌺", packs: [
-    { name: "SM 拡張パック コレクション サン", code: "SM1S", date: "2016/12", cards: 60, icon: "☀️", note: "アローラ地方。GXポケモン・SR全面イラスト。" },
-    { name: "SM 拡張パック コレクション ムーン", code: "SM1M", date: "2016/12", cards: 60, icon: "🌙" },
-    { name: "SM 強化拡張パック ドリームリーグ", code: "SM11b", date: "2019/08", cards: 49, icon: "🌈", note: "CHR（キャラクターレア）大量収録。" },
-    { name: "SM 拡張パック タッグオールスターズ", code: "SM12a", date: "2019/10", cards: 173, icon: "⭐", note: "TAG TEAM総集編。高額SRが多い。" },
+    { name: "SM 拡張パック コレクション サン", code: "SM1S", apiId: "sm1", jpSetId: "SM1S", date: "2016/12", cards: 60, icon: "☀️", note: "アローラ地方。GXポケモン・SR全面イラスト。" },
+    { name: "SM 拡張パック コレクション ムーン", code: "SM1M", apiId: "sm1", jpSetId: "SM1M", date: "2016/12", cards: 60, icon: "🌙" },
+    { name: "SM 強化拡張パック ドリームリーグ", code: "SM11b", apiId: "sm11", jpSetId: "SM11b", date: "2019/08", cards: 49, icon: "🌈", note: "CHR（キャラクターレア）大量収録。" },
+    { name: "SM 拡張パック タッグオールスターズ", code: "SM12a", apiId: "sm12", jpSetId: "SM12a", date: "2019/10", cards: 173, icon: "⭐", note: "TAG TEAM総集編。高額SRが多い。" },
   ]},
   { era: "SWSH ソード&シールド (2019-2023)", id: "swsh", icon: "⚔️", packs: [
-    { name: "S 拡張パック ソード", code: "S1W", date: "2019/12", cards: 60, icon: "⚔️", note: "ガラル地方。V/VMAX ポケモン登場。" },
-    { name: "S 拡張パック シールド", code: "S1H", date: "2019/12", cards: 60, icon: "🛡️" },
-    { name: "S 強化拡張パック イーブイヒーローズ", code: "S6a", date: "2021/05", cards: 69, icon: "🦊", note: "ブイズSA全種収録。ブラッキーVMAX SAは最高級。" },
-    { name: "S 強化拡張パック VSTARユニバース", code: "S12a", date: "2022/12", cards: 172, icon: "🌟", note: "AR・SAR大量収録のハイクラスパック。" },
-    { name: "S 拡張パック ムゲンゾーン", code: "S3", date: "2020/06", cards: 100, icon: "♾️", note: "ムゲンダイナVMAX収録。" },
+    { name: "S 拡張パック ソード", code: "S1W", apiId: "swsh1", jpSetId: "S1W", date: "2019/12", cards: 60, icon: "⚔️", note: "ガラル地方。V/VMAX ポケモン登場。" },
+    { name: "S 拡張パック シールド", code: "S1H", apiId: "swsh1", jpSetId: "S1H", date: "2019/12", cards: 60, icon: "🛡️" },
+    { name: "S 強化拡張パック イーブイヒーローズ", code: "S6a", apiId: "swsh7", jpSetId: "S6a", date: "2021/05", cards: 69, icon: "🦊", note: "ブイズSA全種収録。ブラッキーVMAX SAは最高級。" },
+    { name: "S 強化拡張パック VSTARユニバース", code: "S12a", apiId: "swsh12pt5", jpSetId: "S12a", date: "2022/12", cards: 172, icon: "🌟", note: "AR・SAR大量収録のハイクラスパック。" },
+    { name: "S 拡張パック ムゲンゾーン", code: "S3", apiId: "swsh3", jpSetId: "S3", date: "2020/06", cards: 100, icon: "♾️", note: "ムゲンダイナVMAX収録。" },
   ]},
   { era: "SV スカーレット&バイオレット (2023-)", id: "sv", icon: "🟣", packs: [
-    { name: "SV 拡張パック スカーレットex", code: "SV1S", date: "2023/01", cards: 78, icon: "🔴", note: "パルデア地方。exポケモン復活。SAR/SR/UR。" },
-    { name: "SV 拡張パック バイオレットex", code: "SV1V", date: "2023/01", cards: 78, icon: "🟣" },
-    { name: "SV 強化拡張パック レイジングサーフ", code: "SV3a", date: "2023/09", cards: 62, icon: "🌊" },
-    { name: "SV 強化拡張パック シャイニートレジャーex", code: "SV4a", date: "2023/12", cards: 190, icon: "✨", note: "色違いポケモン大量収録。ハイクラスパック。" },
-    { name: "SV 拡張パック ワイルドフォース", code: "SV5K", date: "2024/01", cards: 71, icon: "🦁" },
-    { name: "SV 拡張パック サイバージャッジ", code: "SV5M", date: "2024/01", cards: 71, icon: "🤖" },
-    { name: "SV 強化拡張パック クリムゾンヘイズ", code: "SV5a", date: "2024/03", cards: 66, icon: "🔥" },
-    { name: "SV 拡張パック 変幻の仮面", code: "SV6", date: "2024/04", cards: 101, icon: "🎭" },
-    { name: "SV 強化拡張パック ステラミラクル", code: "SV7", date: "2024/07", cards: 102, icon: "🌠" },
-    { name: "SV 拡張パック スーパーエレクトリックブレイカー", code: "SV8", date: "2024/09", cards: 100, icon: "⚡" },
-    { name: "SV 拡張パック パラダイムトリガー", code: "SV8a", date: "2024/10", cards: 75, icon: "🔮" },
-    { name: "SV 拡張パック テラスタルフェスex", code: "SV8b", date: "2024/12", cards: 190, icon: "💎", note: "ハイクラスパック。テラスタル大量収録。" },
-    { name: "SV 拡張パック バトルマスターズ", code: "SV9", date: "2025/01", cards: 100, icon: "🏆" },
-    { name: "SV 拡張パック ニンジャスピナー", code: "SVninja", date: "2025/03", cards: 71, icon: "🥷", note: "忍者テーマ。ゲッコウガex等収録。" },
-    { name: "SV 拡張パック 超電ブレイカー", code: "SV10", date: "2025/06", cards: 100, icon: "⚡" },
+    { name: "SV 拡張パック スカーレットex", code: "SV1S", apiId: "sv1", jpSetId: "SV1S", date: "2023/01", cards: 78, icon: "🔴", note: "パルデア地方。exポケモン復活。SAR/SR/UR。" },
+    { name: "SV 拡張パック バイオレットex", code: "SV1V", apiId: "sv1", jpSetId: "SV1V", date: "2023/01", cards: 78, icon: "🟣" },
+    { name: "SV 強化拡張パック レイジングサーフ", code: "SV3a", apiId: "sv3", jpSetId: "SV3a", date: "2023/09", cards: 62, icon: "🌊" },
+    { name: "SV 強化拡張パック シャイニートレジャーex", code: "SV4a", apiId: "sv4pt5", jpSetId: "SV4a", date: "2023/12", cards: 190, icon: "✨", note: "色違いポケモン大量収録。ハイクラスパック。" },
+    { name: "SV 拡張パック ワイルドフォース", code: "SV5K", apiId: "sv5", jpSetId: "SV5K", date: "2024/01", cards: 71, icon: "🦁" },
+    { name: "SV 拡張パック サイバージャッジ", code: "SV5M", apiId: "sv5", jpSetId: "SV5M", date: "2024/01", cards: 71, icon: "🤖" },
+    { name: "SV 強化拡張パック クリムゾンヘイズ", code: "SV5a", apiId: "sv5", jpSetId: "SV5a", date: "2024/03", cards: 66, icon: "🔥" },
+    { name: "SV 拡張パック 変幻の仮面", code: "SV6", apiId: "sv6", jpSetId: "SV6", date: "2024/04", cards: 101, icon: "🎭" },
+    { name: "SV 強化拡張パック ステラミラクル", code: "SV7", apiId: "sv7", jpSetId: "SV7", date: "2024/07", cards: 102, icon: "🌠" },
+    { name: "SV 拡張パック スーパーエレクトリックブレイカー", code: "SV8", apiId: "sv8", jpSetId: "SV8", date: "2024/09", cards: 100, icon: "⚡" },
+    { name: "SV 拡張パック パラダイムトリガー", code: "SV8a", apiId: "sv8pt5", jpSetId: "SV8a", date: "2024/10", cards: 75, icon: "🔮" },
+    { name: "SV 拡張パック テラスタルフェスex", code: "SV8b", apiId: "sv8pt5", jpSetId: "SV8a", date: "2024/12", cards: 190, icon: "💎", note: "ハイクラスパック。テラスタル大量収録。" },
+    { name: "SV 拡張パック バトルマスターズ", code: "SV9", apiId: "sv9", jpSetId: "SV9", date: "2025/01", cards: 100, icon: "🏆" },
+    { name: "SV 拡張パック ニンジャスピナー", code: "SVninja", apiId: "sv9", jpSetId: "SV9a", date: "2025/03", cards: 71, icon: "🥷", note: "忍者テーマ。ゲッコウガex等収録。" },
+    { name: "SV 拡張パック 超電ブレイカー", code: "SV10", apiId: "sv10", jpSetId: "SV10", date: "2025/06", cards: 100, icon: "⚡" },
   ]},
 ];
 
@@ -752,25 +776,25 @@ const RARITY_TABLE = [
 ];
 
 const HIGH_VALUE_CARDS = [
-  { name: "リザードン", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 3000000, psa9: 800000, raw: "3〜20万", note: "ポケカ市場の象徴。旧裏面ホロは世界的に最も人気の高いカード。", tags: ["旧裏","ホロ"] },
-  { name: "ガルーラ", set: "ジャングル（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 5000000, psa9: 1500000, raw: "3〜15万", note: "PSA登録数34枚の超希少カード。封入ミスに起因する幻のカード。", tags: ["旧裏","超希少","ホロ"] },
-  { name: "ピカチュウ（コロコロプロモ）", set: "コロコロコミック付録", era: "旧裏面", rarity: "Promo", psa10: 3000000, psa9: 800000, raw: "5〜30万", note: "コロコロ付録限定。PSA10は国内最高価格帯。", tags: ["旧裏","プロモ","超希少"] },
-  { name: "ブラッキー", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 2500000, psa9: 600000, raw: "3〜20万", note: "海外市場でも人気No.1クラス。イーブイ系統の王者。", tags: ["Neo","ホロ"] },
-  { name: "ルギア", set: "neo genesis", era: "Neo", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "2〜15万", note: "neo genesisの看板。伝説ポケモンの代表格。", tags: ["Neo","ホロ"] },
-  { name: "カイリュー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 2000000, psa9: 500000, raw: "2〜12万", note: "化石セットの最高額ホロ。初代ドラゴンタイプの人気。", tags: ["旧裏","ホロ"] },
-  { name: "ミュウツー", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1000000, psa9: 300000, raw: "1.5〜10万", note: "初代最強ポケモン。映画人気も後押し。", tags: ["旧裏","ホロ"] },
-  { name: "ギャラドス", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "1.5〜10万", note: "コイキングからの進化が人気の理由。旧裏面ホロは高額。", tags: ["旧裏","ホロ"] },
-  { name: "ゲンガー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜6万", note: "ゴースト系の人気ポケモン。幅広い世代にファンが多い。", tags: ["旧裏","ホロ"] },
-  { name: "エーフィ", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜8万", note: "ブラッキーと対になるイーブイ進化系。", tags: ["Neo","ホロ"] },
-  { name: "ミュウ", set: "化石の秘密/プロモ（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 500000, psa9: 150000, raw: "0.5〜6万", note: "幻のポケモン。プロモ版は特に希少。", tags: ["旧裏","ホロ"] },
-  { name: "ブラッキーVMAX SA", set: "イーブイヒーローズ", era: "SWSH", rarity: "Special Art Rare", psa10: 300000, psa9: 150000, raw: "5〜12万", note: "SWSH最高額級SA。月夜のブラッキーの美麗イラスト。", tags: ["SWSH","SA"] },
-  { name: "リザードンex SAR", set: "黒炎の支配者", era: "SV", rarity: "Special Art Rare", psa10: 100000, psa9: 50000, raw: "1.5〜4万", note: "SV世代の代表的高額SAR。リザードン人気は不滅。", tags: ["SV","SAR"] },
-  { name: "ナンジャモ SR", set: "クレイバースト", era: "SV", rarity: "Super Rare", psa10: 80000, psa9: 40000, raw: "1.5〜3万", note: "人気キャラクターSR。初動から高騰を続ける。", tags: ["SV","SR"] },
-  { name: "リーリエ SR", set: "コレクションムーン", era: "SM", rarity: "Super Rare", psa10: 400000, psa9: 200000, raw: "5〜15万", note: "SM世代の最高額サポートSR。キャラ人気が価格を牽引。", tags: ["SM","SR"] },
-  { name: "マリィ SR", set: "シールド", era: "SWSH", rarity: "Super Rare", psa10: 200000, psa9: 80000, raw: "3〜8万", note: "SWSH人気キャラ。シールド初期のSR。", tags: ["SWSH","SR"] },
-  { name: "アセロラの予感 SR", set: "VMAXクライマックス", era: "SWSH", rarity: "Super Rare", psa10: 150000, psa9: 60000, raw: "2〜6万", note: "CSR・SRともに高額。横向きポーズが人気。", tags: ["SWSH","SR"] },
-  { name: "光るギャラドス", set: "neo 第3弾 めざめる伝説", era: "Neo", rarity: "Secret Rare", psa10: 1000000, psa9: 300000, raw: "3〜15万", note: "光るポケモンシリーズの代表。neo期のシークレット。", tags: ["Neo","光る","シークレット"] },
-  { name: "ピカチュウ（ポケモンイラストレーター）", set: "コロコロ懸賞", era: "旧裏面", rarity: "Promo", psa10: null, psa9: null, raw: "数千万〜数億円", note: "世界に数枚。史上最高額のポケモンカード。入手はほぼ不可能。", tags: ["旧裏","プロモ","超希少","殿堂"] },
+  { name: "リザードン", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 3000000, psa9: 800000, raw: "3〜20万", note: "ポケカ市場の象徴。旧裏面ホロは世界的に最も人気の高いカード。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ガルーラ", set: "ジャングル（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 5000000, psa9: 1500000, raw: "3〜15万", note: "PSA登録数34枚の超希少カード。封入ミスに起因する幻のカード。", tags: ["旧裏","超希少","ホロ"], category: "超希少" },
+  { name: "ピカチュウ（コロコロプロモ）", set: "コロコロコミック付録", era: "旧裏面", rarity: "Promo", psa10: 3000000, psa9: 800000, raw: "5〜30万", note: "コロコロ付録限定。PSA10は国内最高価格帯。", tags: ["旧裏","プロモ","超希少"], category: "超希少" },
+  { name: "ブラッキー", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 2500000, psa9: 600000, raw: "3〜20万", note: "海外市場でも人気No.1クラス。イーブイ系統の王者。", tags: ["Neo","ホロ"], category: "高額カード" },
+  { name: "ルギア", set: "neo genesis", era: "Neo", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "2〜15万", note: "neo genesisの看板。伝説ポケモンの代表格。", tags: ["Neo","ホロ"], category: "高額カード" },
+  { name: "カイリュー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 2000000, psa9: 500000, raw: "2〜12万", note: "化石セットの最高額ホロ。初代ドラゴンタイプの人気。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ミュウツー", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1000000, psa9: 300000, raw: "1.5〜10万", note: "初代最強ポケモン。映画人気も後押し。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ギャラドス", set: "基本セット（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 1500000, psa9: 400000, raw: "1.5〜10万", note: "コイキングからの進化が人気の理由。旧裏面ホロは高額。", tags: ["旧裏","ホロ"], category: "高額カード" },
+  { name: "ゲンガー", set: "化石の秘密（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜6万", note: "ゴースト系の人気ポケモン。幅広い世代にファンが多い。", tags: ["旧裏","ホロ"], category: "旧裏レア" },
+  { name: "エーフィ", set: "neo discovery", era: "Neo", rarity: "Holo Rare", psa10: 800000, psa9: 200000, raw: "1〜8万", note: "ブラッキーと対になるイーブイ進化系。", tags: ["Neo","ホロ"], category: "旧裏レア" },
+  { name: "ミュウ", set: "化石の秘密/プロモ（旧裏面）", era: "旧裏面", rarity: "Holo Rare", psa10: 500000, psa9: 150000, raw: "0.5〜6万", note: "幻のポケモン。プロモ版は特に希少。", tags: ["旧裏","ホロ"], category: "旧裏レア" },
+  { name: "ブラッキーVMAX SA", set: "イーブイヒーローズ", era: "SWSH", rarity: "Special Art Rare", psa10: 300000, psa9: 150000, raw: "5〜12万", note: "SWSH最高額級SA。月夜のブラッキーの美麗イラスト。", tags: ["SWSH","SA"], category: "人気キャラクター" },
+  { name: "リザードンex SAR", set: "黒炎の支配者", era: "SV", rarity: "Special Art Rare", psa10: 100000, psa9: 50000, raw: "1.5〜4万", note: "SV世代の代表的高額SAR。リザードン人気は不滅。", tags: ["SV","SAR"], category: "モダン高額" },
+  { name: "ナンジャモ SR", set: "クレイバースト", era: "SV", rarity: "Super Rare", psa10: 80000, psa9: 40000, raw: "1.5〜3万", note: "人気キャラクターSR。初動から高騰を続ける。", tags: ["SV","SR"], category: "人気キャラクター" },
+  { name: "リーリエ SR", set: "コレクションムーン", era: "SM", rarity: "Super Rare", psa10: 400000, psa9: 200000, raw: "5〜15万", note: "SM世代の最高額サポートSR。キャラ人気が価格を牽引。", tags: ["SM","SR"], category: "人気キャラクター" },
+  { name: "マリィ SR", set: "シールド", era: "SWSH", rarity: "Super Rare", psa10: 200000, psa9: 80000, raw: "3〜8万", note: "SWSH人気キャラ。シールド初期のSR。", tags: ["SWSH","SR"], category: "人気キャラクター" },
+  { name: "アセロラの予感 SR", set: "VMAXクライマックス", era: "SWSH", rarity: "Super Rare", psa10: 150000, psa9: 60000, raw: "2〜6万", note: "CSR・SRともに高額。横向きポーズが人気。", tags: ["SWSH","SR"], category: "人気キャラクター" },
+  { name: "光るギャラドス", set: "neo 第3弾 めざめる伝説", era: "Neo", rarity: "Secret Rare", psa10: 1000000, psa9: 300000, raw: "3〜15万", note: "光るポケモンシリーズの代表。neo期のシークレット。", tags: ["Neo","光る","シークレット"], category: "高額カード" },
+  { name: "ピカチュウ（ポケモンイラストレーター）", set: "コロコロ懸賞", era: "旧裏面", rarity: "Promo", psa10: null, psa9: null, raw: "数千万〜数億円", note: "世界に数枚。史上最高額のポケモンカード。入手はほぼ不可能。", tags: ["旧裏","プロモ","超希少","殿堂"], category: "超希少" },
 ];
 
 // ============================================================
@@ -834,6 +858,8 @@ const RARITY = {
 // ============================================================
 let mapInstance = null;
 let mapMarkers = [];
+
+// Language toggle (initialized after LANGUAGE TOGGLE section loads, see below)
 
 document.querySelectorAll(".tab-item").forEach(tab => {
   tab.addEventListener("click", () => {
@@ -954,6 +980,7 @@ function renderDexSeries(filter) {
       d.className = "pack-item";
       d.dataset.setcode = p.code || "";
       d.dataset.setname = p.name || "";
+      d.style.flexWrap = "wrap";
       const cached = setImageCache[(p.code||"").toLowerCase()];
       const imgHtml = cached?.logo
         ? `<img class="pack-img" src="${cached.logo}" alt="" loading="lazy" data-full="${cached.logo}" data-caption="${esc(p.name)}">`
@@ -966,8 +993,110 @@ function renderDexSeries(filter) {
         </div>
         <div class="pack-date">${esc(p.date)}</div>
       `;
+      const relatedCards = HIGH_VALUE_CARDS.filter(c => {
+        const eraMatch = c.era === era.era.split(" ")[0] || era.id === c.era?.toLowerCase();
+        const setMatch = c.set && (p.name.includes(c.set.replace(/（.*）/, "")) || c.set.includes(p.name.replace(/（.*）/, "")));
+        return setMatch || (eraMatch && p.name.includes(c.set?.split("（")[0]?.split("（")[0] || "___NOMATCH"));
+      });
+      if (relatedCards.length > 0) {
+        const cardsSection = document.createElement("div");
+        cardsSection.className = "series-cards-section";
+        cardsSection.style.width = "100%";
+        cardsSection.innerHTML = `<div class="series-cards-title">💰 高額レアカード</div>` +
+          relatedCards.map(c => {
+            const price = c.psa10 ? "PSA10 ¥" + c.psa10.toLocaleString() : c.raw;
+            return `<span class="series-card-chip" data-cardname="${esc(c.name)}">${esc(c.name)} <span class="chip-price">${esc(price)}</span></span>`;
+          }).join("");
+        d.appendChild(cardsSection);
+        cardsSection.querySelectorAll(".series-card-chip").forEach(chip => {
+          chip.addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.querySelectorAll(".dex-subtab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".dex-panel").forEach(p => p.classList.remove("active"));
+            document.querySelector('.dex-subtab[data-panel="highvalue"]').classList.add("active");
+            document.getElementById("dex-panel-highvalue").classList.add("active");
+            document.getElementById("dex-search").value = chip.dataset.cardname;
+            renderDexHighValue(chip.dataset.cardname);
+          });
+        });
+      }
       const imgEl = d.querySelector(".pack-img");
       if (imgEl) imgEl.addEventListener("click", (e) => { e.stopPropagation(); openLightbox(imgEl.dataset.full, imgEl.dataset.caption); });
+      d.addEventListener("click", async (e) => {
+        if (e.target.closest(".pack-img") || e.target.closest(".series-card-chip")) return;
+        const existing = d.querySelector(".pack-cards-grid");
+        if (existing) { existing.remove(); return; }
+        const loadingEl = document.createElement("div");
+        loadingEl.className = "pack-cards-loading";
+        loadingEl.style.width = "100%";
+        loadingEl.textContent = "カード読み込み中...";
+        d.appendChild(loadingEl);
+        try {
+          let allCards = [];
+          if (currentLang === "ja" && p.jpSetId) {
+            loadingEl.textContent = t("cardsLoading");
+            const cRes = await fetch(`${TCGDEX}/ja/sets/${p.jpSetId}`);
+            if (!cRes.ok) { loadingEl.textContent = t("cardsNotFound"); return; }
+            const setData = await cRes.json();
+            allCards = (setData.cards || []).map(c => ({ ...c, _fromTcgDex: true, image: c.image || `https://assets.tcgdex.net/ja/${p.jpSetId.replace(/([A-Z]+)(\d)/, '$1/$1$2')}/${c.localId}` }));
+          } else {
+            let setId = p.apiId || null;
+            if (!setId) {
+              const code = p.code || "";
+              let sRes = await fetch(`${TCGAPI}/sets?q=id:${encodeURIComponent(code.toLowerCase())}&select=id,name`);
+              if (sRes.ok) { const sData = await sRes.json(); if (sData.data?.length > 0) setId = sData.data[0].id; }
+              if (!setId) {
+                sRes = await fetch(`${TCGAPI}/sets?q=name:"${encodeURIComponent(code)}"&select=id,name`);
+                if (sRes.ok) { const sData = await sRes.json(); if (sData.data?.length > 0) setId = sData.data[0].id; }
+              }
+            }
+            if (!setId) { loadingEl.textContent = t("cardsNotFound"); return; }
+            let pg = 1;
+            while (true) {
+              loadingEl.textContent = allCards.length > 0 ? `${t("cardsLoading")} ${allCards.length}枚` : t("cardsLoading");
+              const cRes = await fetch(`${TCGAPI}/cards?q=set.id:${setId}&page=${pg}&pageSize=250&orderBy=number&select=id,name,images,set,rarity,number,artist,tcgplayer,cardmarket`);
+              if (!cRes.ok) { loadingEl.textContent = "Failed to load"; return; }
+              const cData = await cRes.json();
+              const batch = cData.data || [];
+              allCards = allCards.concat(batch);
+              if (batch.length < 250 || allCards.length >= (cData.totalCount || 999)) break;
+              pg++;
+            }
+          }
+          const cards = allCards;
+          loadingEl.remove();
+          if (cards.length === 0) { return; }
+          const grid = document.createElement("div");
+          grid.className = "pack-cards-grid";
+          const countLabel = document.createElement("div");
+          countLabel.style.cssText = "grid-column:1/-1;font-size:10px;color:var(--muted);padding:0 0 4px;text-align:center";
+          const langLabel = currentLang === "ja" ? `全${cards.length}枚（日本語版 · TCGDex API · 無料）` : `全${cards.length}枚（英語版 · PokemonTCG API · 無料）`;
+          countLabel.textContent = langLabel;
+          grid.appendChild(countLabel);
+          cards.forEach(card => {
+            const item = document.createElement("div");
+            item.className = "pack-card-item";
+            let imgSrc, cardName, cardMeta;
+            if (card._fromTcgDex) {
+              imgSrc = card.image ? card.image + "/low.webp" : "";
+              cardName = card.name || "";
+              cardMeta = `#${card.localId || ""} ${card.rarity || ""}`;
+            } else {
+              imgSrc = card.images?.small || "";
+              cardName = card.name || "";
+              cardMeta = `#${card.number || ""} ${card.rarity || ""}`;
+            }
+            item.innerHTML = `<img src="${imgSrc}" alt="${esc(cardName)}" loading="lazy" onerror="this.parentElement.style.background='var(--surface)';this.style.display='none'"><div class="pack-card-label">${esc(cardName)}<small>${esc(cardMeta)}</small></div>`;
+            item.addEventListener("click", (ev) => {
+              ev.stopPropagation();
+              if (card._fromTcgDex) showCardModalJP(card);
+              else showCardModal(card);
+            });
+            grid.appendChild(item);
+          });
+          d.appendChild(grid);
+        } catch (err) { loadingEl.textContent = "Error: " + err.message; }
+      });
       packsDiv.appendChild(d);
     });
 
@@ -1011,7 +1140,7 @@ function renderDexHighValue(filter) {
 
   const filtered = HIGH_VALUE_CARDS.filter(c =>
     !q || c.name.toLowerCase().includes(q) || (c.set||"").toLowerCase().includes(q) || (c.era||"").toLowerCase().includes(q)
-       || (c.tags||[]).some(t => t.toLowerCase().includes(q))
+       || (c.tags||[]).some(t => t.toLowerCase().includes(q)) || (c.category||"").includes(q)
   );
 
   if (filtered.length === 0) {
@@ -1019,36 +1148,59 @@ function renderDexHighValue(filter) {
     return;
   }
 
-  filtered.forEach(card => {
-    const d = document.createElement("div");
-    d.className = "dex-card";
-    d.dataset.name = card.name;
-    const psa10Str = card.psa10 ? "¥" + card.psa10.toLocaleString() : "価格算定不能";
-    d.innerHTML = `
-      <div class="dex-card-with-img">
-        <div class="dex-card-thumb"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">🃏</div></div>
-        <div class="dex-card-body">
-          <div class="dex-card-header">
-            <div>
-              <div class="dex-card-name">${esc(card.name)}</div>
-              <div class="dex-card-set">${esc(card.set)} · ${esc(card.era)}</div>
-            </div>
-            <div class="dex-card-price">${card.psa10 ? "PSA10 " : ""}${esc(psa10Str)}</div>
+  const categories = [
+    { id: "超希少", icon: "🏛️", title: "超希少カード", subtitle: "流通数が極めて少ない幻のカード" },
+    { id: "高額カード", icon: "💰", title: "高額カード", subtitle: "PSA10で100万円以上の定番カード" },
+    { id: "人気キャラクター", icon: "⭐", title: "人気キャラクターSR/SAR", subtitle: "キャラ人気が価格を牽引するカード" },
+    { id: "モダン高額", icon: "🔥", title: "モダン高額カード", subtitle: "SV・SWSH世代の注目カード" },
+    { id: "旧裏レア", icon: "✨", title: "旧裏面レアカード", subtitle: "旧裏面の人気ポケモンカード" },
+  ];
+
+  if (q) {
+    filtered.forEach(card => container.appendChild(createHighValueCardEl(card)));
+    return;
+  }
+
+  categories.forEach(cat => {
+    const catCards = filtered.filter(c => c.category === cat.id);
+    if (catCards.length === 0) return;
+    const section = document.createElement("div");
+    section.style.marginBottom = "20px";
+    section.innerHTML = `<div style="font-size:13px;color:var(--text);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">${cat.icon} ${cat.title}</div><div style="font-size:11px;color:var(--muted);margin-bottom:12px">${cat.subtitle}</div>`;
+    catCards.forEach(card => section.appendChild(createHighValueCardEl(card)));
+    container.appendChild(section);
+  });
+}
+
+function createHighValueCardEl(card) {
+  const d = document.createElement("div");
+  d.className = "dex-card";
+  d.dataset.name = card.name;
+  const psa10Str = card.psa10 ? "¥" + card.psa10.toLocaleString() : "価格算定不能";
+  d.innerHTML = `
+    <div class="dex-card-with-img">
+      <div class="dex-card-thumb"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">🃏</div></div>
+      <div class="dex-card-body">
+        <div class="dex-card-header">
+          <div>
+            <div class="dex-card-name">${esc(card.name)}</div>
+            <div class="dex-card-set">${esc(card.set)} · ${esc(card.era)}</div>
           </div>
-          <div class="dex-card-tags">
-            ${(card.tags||[]).map(t => `<span class="tag tag-${t==='超希少'||t==='殿堂'?'ultra':t==='旧裏'?'vintage':t==='プロモ'?'warn':'psa'}">${esc(t)}</span>`).join("")}
-          </div>
-          ${card.note ? `<div class="dex-card-note">${esc(card.note)}</div>` : ""}
-          <div class="dex-card-psa">
-            ${card.psa10 ? `<span class="dex-psa-chip">PSA10 <b>¥${card.psa10.toLocaleString()}</b></span>` : ""}
-            ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
-            <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
-          </div>
+          <div class="dex-card-price">${card.psa10 ? "PSA10 " : ""}${esc(psa10Str)}</div>
+        </div>
+        <div class="dex-card-tags">
+          ${(card.tags||[]).map(t => `<span class="tag tag-${t==='超希少'||t==='殿堂'?'ultra':t==='旧裏'?'vintage':t==='プロモ'?'warn':'psa'}">${esc(t)}</span>`).join("")}
+        </div>
+        ${card.note ? `<div class="dex-card-note">${esc(card.note)}</div>` : ""}
+        <div class="dex-card-psa">
+          ${card.psa10 ? `<span class="dex-psa-chip">PSA10 <b>¥${card.psa10.toLocaleString()}</b></span>` : ""}
+          ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
+          <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
         </div>
       </div>
-    `;
-    container.appendChild(d);
-  });
+    </div>
+  `;
+  return d;
 }
 
 // Dex subtabs
@@ -1081,9 +1233,194 @@ renderDexRarity();
 renderDexHighValue();
 
 // ============================================================
+// LANGUAGE TOGGLE (EN/JP)
+// ============================================================
+const TCGDEX = "https://api.tcgdex.net/v2";
+const STORAGE_KEY_LANG = "pokescanner_lang";
+let currentLang = "ja";
+try { currentLang = localStorage.getItem(STORAGE_KEY_LANG) || "ja"; } catch {}
+
+function setLang(lang) {
+  currentLang = lang;
+  try { localStorage.setItem(STORAGE_KEY_LANG, lang); } catch {}
+  document.querySelectorAll(".lang-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.lang === lang);
+  });
+  applyLangUI();
+}
+
+const i18n = {
+  ja: {
+    scanTab: "スキャン", glossaryTab: "用語集", dexTab: "図鑑", walletTab: "資産", mapTab: "マップ",
+    apiKeyPlaceholder: "sk-ant-...（未設定でもデモ鑑定可）",
+    dropzoneText: "タップして画像を選択", dropzoneSub: "写真ライブラリ / ファイル / ドラッグ&ドロップ",
+    loadCard: "🖼️ カードを読み込む", judge: "⚡ 判定する", reset: "やり直す", rescan: "別のカードをスキャン",
+    copyResult: "📋 結果をコピー", saveHistory: "💾 履歴に保存",
+    historyTitle: "📜 スキャン履歴", deleteAll: "全削除",
+    rareAlert: "⚠️ 超希少カード検出", marketTitle: "📊 AI推定参考相場",
+    glossarySearch: "🔍 用語を検索...",
+    dexSearch: "🔍 シリーズ・カード名を検索...",
+    imgSearchPlaceholder: "🔍 カード名を入力（例: リザードン, Pikachu）...",
+    imgSearchBtn: "🔎 画像を検索", imgSearchEmpty: "カード名を入力して検索してください",
+    subtabImgSearch: "カード画像検索", subtabSeries: "シリーズ一覧", subtabRarity: "レアリティ表", subtabHighValue: "高額カード図鑑",
+    mapLocate: "📍 現在地", mapAddPin: "➕ ピンを追加", mapCancelPin: "✕ キャンセル",
+    mapPinInstruction: "📌 地図をタップしてピンの位置を選択してください",
+    mapSpots: "📌 登録済みスポット", mapEmpty: "ピンが登録されていません<br>「ピンを追加」から在庫情報を登録しましょう",
+    walletPortfolioValue: "PORTFOLIO VALUE", walletCost: "購入総額", walletPnl: "損益", walletPnlRate: "損益率",
+    walletChart: "📈 資産推移", walletPie: "🍩 ポートフォリオ構成",
+    walletAdd: "➕ カードを追加", walletRefresh: "🔄 価格更新", walletCardList: "💼 所持カード一覧",
+    walletEmpty: "カードが登録されていません<br>「➕ カードを追加」から所持カードを登録しましょう<br><br>PokemonTCG APIから海外市場価格を自動取得し<br>円換算で資産額を計算します",
+    addCardTitle: "カードを追加", addCardLabel: "カード名で検索（英語推奨）", addCardPlaceholder: "例: Charizard, Umbreon VMAX...",
+    addQty: "数量", addCost: "購入価格（円）", addSubmit: "追加する",
+    priceSource: "価格ソース",
+    cardsLoading: "カード読み込み中...", cardsNotFound: "このセットはAPIに未登録です",
+    searchLoading: "検索中...",
+    cardCountLabel: (n, lang) => lang === "ja" ? `全${n}枚（日本語版 · TCGDex API · 無料）` : `全${n}枚（英語版 · PokemonTCG API · 無料）`,
+  },
+  en: {
+    scanTab: "Scan", glossaryTab: "Glossary", dexTab: "Pokédex", walletTab: "Portfolio", mapTab: "Map",
+    apiKeyPlaceholder: "sk-ant-... (demo available without key)",
+    dropzoneText: "Tap to select image", dropzoneSub: "Photo Library / Files / Drag & Drop",
+    loadCard: "🖼️ Load Card", judge: "⚡ Appraise", reset: "Reset", rescan: "Scan Another Card",
+    copyResult: "📋 Copy Result", saveHistory: "💾 Save to History",
+    historyTitle: "📜 Scan History", deleteAll: "Delete All",
+    rareAlert: "⚠️ Ultra Rare Card Detected", marketTitle: "📊 AI Market Estimate",
+    glossarySearch: "🔍 Search terms...",
+    dexSearch: "🔍 Search series or card name...",
+    imgSearchPlaceholder: "🔍 Enter card name (e.g. Charizard, Pikachu)...",
+    imgSearchBtn: "🔎 Search Images", imgSearchEmpty: "Enter a card name to search",
+    subtabImgSearch: "Card Image Search", subtabSeries: "Series List", subtabRarity: "Rarity Table", subtabHighValue: "High-Value Cards",
+    mapLocate: "📍 My Location", mapAddPin: "➕ Add Pin", mapCancelPin: "✕ Cancel",
+    mapPinInstruction: "📌 Tap the map to place a pin",
+    mapSpots: "📌 Registered Spots", mapEmpty: "No pins registered<br>Add pins to track card shop inventory",
+    walletPortfolioValue: "PORTFOLIO VALUE", walletCost: "Total Cost", walletPnl: "P&L", walletPnlRate: "P&L %",
+    walletChart: "📈 Value History", walletPie: "🍩 Portfolio Breakdown",
+    walletAdd: "➕ Add Card", walletRefresh: "🔄 Refresh Prices", walletCardList: "💼 Card Collection",
+    walletEmpty: "No cards registered<br>Add cards from \"➕ Add Card\" to start tracking<br><br>Prices fetched from PokemonTCG API<br>converted to JPY",
+    addCardTitle: "Add Card", addCardLabel: "Search by card name (English)", addCardPlaceholder: "e.g. Charizard, Umbreon VMAX...",
+    addQty: "Quantity", addCost: "Purchase Price (¥)", addSubmit: "Add Card",
+    priceSource: "Price Source",
+    cardsLoading: "Loading cards...", cardsNotFound: "Set not found in API",
+    searchLoading: "Searching...",
+    cardCountLabel: (n, lang) => `${n} cards (English · PokemonTCG API · Free)`,
+  }
+};
+
+function t(key) { return (i18n[currentLang] || i18n.ja)[key] || (i18n.ja)[key] || key; }
+
+function applyLangUI() {
+  // Tab labels
+  const tabLabels = document.querySelectorAll(".tab-label");
+  const tabKeys = ["scanTab","glossaryTab","dexTab","walletTab","mapTab"];
+  tabLabels.forEach((el, i) => { if (tabKeys[i]) el.textContent = t(tabKeys[i]); });
+
+  // Scan page
+  const apikeyInput = document.getElementById("apikey");
+  if (apikeyInput) apikeyInput.placeholder = t("apiKeyPlaceholder");
+  const dzTxt = document.querySelector(".dz-txt");
+  if (dzTxt) dzTxt.textContent = t("dropzoneText");
+  const dzSub = document.querySelector(".dz-sub");
+  if (dzSub) dzSub.textContent = t("dropzoneSub");
+  const labelFile = document.getElementById("label-file");
+  if (labelFile) labelFile.textContent = t("loadCard");
+  const btnReset = document.getElementById("btn-reset");
+  if (btnReset) btnReset.textContent = t("reset");
+  const btnScan = document.getElementById("btn-scan");
+  if (btnScan && !btnScan.disabled) btnScan.textContent = t("judge");
+  const btnRescan = document.getElementById("btn-rescan");
+  if (btnRescan) btnRescan.textContent = t("rescan");
+  const btnShare = document.getElementById("btn-share");
+  if (btnShare) btnShare.textContent = t("copyResult");
+  const btnSave = document.getElementById("btn-save");
+  if (btnSave) btnSave.textContent = t("saveHistory");
+  const rareTitle = document.querySelector(".rare-alert-title");
+  if (rareTitle) rareTitle.textContent = t("rareAlert");
+  const marketTitle = document.querySelector(".market-title");
+  if (marketTitle) marketTitle.textContent = t("marketTitle");
+  const histTitle = document.querySelector(".history-title span");
+  if (histTitle) histTitle.textContent = t("historyTitle");
+  const histClear = document.getElementById("btn-history-clear");
+  if (histClear) histClear.textContent = t("deleteAll");
+
+  // Glossary
+  const glossSearch = document.getElementById("gloss-search");
+  if (glossSearch) glossSearch.placeholder = t("glossarySearch");
+
+  // Dex
+  const dexSearch = document.getElementById("dex-search");
+  if (dexSearch) dexSearch.placeholder = t("dexSearch");
+  const imgInput = document.getElementById("img-search-input");
+  if (imgInput) imgInput.placeholder = t("imgSearchPlaceholder");
+  const imgBtn = document.getElementById("img-search-btn");
+  if (imgBtn) imgBtn.textContent = t("imgSearchBtn");
+  const imgEmpty = document.getElementById("img-search-empty");
+  if (imgEmpty) imgEmpty.textContent = t("imgSearchEmpty");
+  const subtabs = document.querySelectorAll(".dex-subtab");
+  const subtabKeys = ["subtabImgSearch","subtabSeries","subtabRarity","subtabHighValue"];
+  subtabs.forEach((el, i) => { if (subtabKeys[i]) el.textContent = t(subtabKeys[i]); });
+
+  // Map
+  const mapLocate = document.getElementById("map-btn-locate");
+  if (mapLocate) mapLocate.textContent = t("mapLocate");
+  const mapAdd = document.getElementById("map-btn-add");
+  if (mapAdd && !mapAddMode) mapAdd.textContent = t("mapAddPin");
+  const mapInstr = document.getElementById("map-pin-instructions");
+  if (mapInstr) mapInstr.textContent = t("mapPinInstruction");
+  const mapSpotsTitle = document.querySelector(".map-pins-title span");
+  if (mapSpotsTitle) mapSpotsTitle.textContent = t("mapSpots");
+  const mapClearAll = document.getElementById("map-clear-all");
+  if (mapClearAll) mapClearAll.textContent = t("deleteAll");
+
+  // Wallet
+  const walletLabel = document.querySelector(".wallet-total-label");
+  if (walletLabel) walletLabel.textContent = t("walletPortfolioValue");
+  const statLabels = document.querySelectorAll(".wallet-stat-label");
+  const statKeys = ["walletCost","walletPnl","walletPnlRate"];
+  statLabels.forEach((el, i) => { if (statKeys[i]) el.textContent = t(statKeys[i]); });
+  const chartTitle = document.querySelector(".wallet-chart-title span");
+  if (chartTitle) chartTitle.textContent = t("walletChart");
+  const pieTitle = document.querySelectorAll(".wallet-chart-title span")[2];
+  if (pieTitle) pieTitle.textContent = t("walletPie");
+  const addBtn = document.getElementById("wallet-add-btn");
+  if (addBtn) addBtn.textContent = t("walletAdd");
+  const refreshBtn = document.getElementById("wallet-refresh-btn");
+  if (refreshBtn) refreshBtn.textContent = t("walletRefresh");
+  const listTitle = document.querySelector(".wallet-list-title span");
+  if (listTitle) listTitle.textContent = t("walletCardList");
+  const priceLabel = document.querySelector(".api-switch-label");
+  if (priceLabel) priceLabel.textContent = t("priceSource");
+
+  // Add card modal
+  const addTitle = document.querySelector(".add-modal-title");
+  if (addTitle) { const closeBtn = addTitle.querySelector("button"); addTitle.textContent = t("addCardTitle") + " "; if (closeBtn) addTitle.appendChild(closeBtn); }
+  const addLabels = document.querySelectorAll(".add-field label");
+  if (addLabels[0]) addLabels[0].textContent = t("addCardLabel");
+  if (addLabels[1]) addLabels[1].textContent = t("addQty");
+  if (addLabels[2]) addLabels[2].textContent = t("addCost");
+  const addSearchInput = document.getElementById("add-card-search");
+  if (addSearchInput) addSearchInput.placeholder = t("addCardPlaceholder");
+  const addSubmit = document.getElementById("add-card-submit");
+  if (addSubmit) addSubmit.textContent = t("addSubmit");
+
+  // Re-render series to pick up language changes
+  renderDexSeries(document.getElementById("dex-search")?.value || "");
+}
+
+// Language toggle event listeners
+document.getElementById("lang-toggle").addEventListener("click", (e) => {
+  const btn = e.target.closest(".lang-btn");
+  if (!btn) return;
+  setLang(btn.dataset.lang);
+});
+document.querySelectorAll(".lang-btn").forEach(b => {
+  b.classList.toggle("active", b.dataset.lang === currentLang);
+});
+
+// ============================================================
 // POKEMONTCG API IMAGE SEARCH
 // ============================================================
 const TCGAPI = "https://api.pokemontcg.io/v2";
+
 let imgSearchAbort = null;
 
 async function searchCardImages(query) {
@@ -1101,11 +1438,21 @@ async function searchCardImages(query) {
   resultsEl.innerHTML = Array(6).fill('<div class="img-loading"></div>').join("");
 
   try {
-    const q = encodeURIComponent(`name:"${query}*"`);
-    const res = await fetch(`${TCGAPI}/cards?q=${q}&pageSize=30&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,artist,tcgplayer,cardmarket`, { signal: controller.signal });
+    let res;
+    if (currentLang === "ja") {
+      res = await fetch(`${TCGDEX}/ja/cards?name=${encodeURIComponent(query)}&sort:field=id&sort:order=DESC`, { signal: controller.signal });
+    } else {
+      const q = encodeURIComponent(`name:"${query}*"`);
+      res = await fetch(`${TCGAPI}/cards?q=${q}&pageSize=30&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,artist,tcgplayer,cardmarket`, { signal: controller.signal });
+    }
     if (!res.ok) throw new Error("API error: " + res.status);
     const data = await res.json();
-    const cards = data.data || [];
+    let cards;
+    if (currentLang === "ja") {
+      cards = (Array.isArray(data) ? data : data.data || []).slice(0, 30);
+    } else {
+      cards = data.data || [];
+    }
 
     statusEl.textContent = `${data.totalCount || cards.length}件中 ${cards.length}件を表示`;
 
@@ -1120,11 +1467,20 @@ async function searchCardImages(query) {
     cards.forEach(card => {
       const item = document.createElement("div");
       item.className = "img-grid-item";
+      const imgSrcSmall = currentLang === "ja" ? (card.image ? card.image + "/low.webp" : "") : (card.images?.small || "");
+      const setLabel = currentLang === "ja" ? (card.set?.name || "") : (card.set?.name || "");
+      const numLabel = currentLang === "ja" ? (card.localId || "") : (card.number || "");
       item.innerHTML = `
-        <img src="${card.images?.small || ''}" alt="${esc(card.name)}" loading="lazy">
-        <div class="img-grid-label">${esc(card.name)}<small>${esc(card.set?.name || "")} #${card.number||""}</small></div>
+        <img src="${imgSrcSmall}" alt="${esc(card.name)}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.img-grid-label')&&(this.parentElement.style.background='var(--surface)')">
+        <div class="img-grid-label">${esc(card.name)}<small>${esc(setLabel)} #${numLabel}</small></div>
       `;
-      item.addEventListener("click", () => showCardModal(card));
+      item.addEventListener("click", () => {
+        if (currentLang === "ja") {
+          showCardModalJP(card);
+        } else {
+          showCardModal(card);
+        }
+      });
       resultsEl.appendChild(item);
     });
   } catch (e) {
@@ -1168,6 +1524,29 @@ function showCardModal(card) {
     </div>
   `;
 
+  modal.style.display = "flex";
+}
+
+function showCardModalJP(card) {
+  const modal = document.getElementById("card-detail-modal");
+  const content = document.getElementById("modal-content");
+  const imgUrl = card.image ? card.image + "/high.webp" : "";
+  const imgSmall = card.image ? card.image + "/low.webp" : "";
+
+  content.innerHTML = `
+    ${imgUrl ? `<img class="modal-img" src="${imgUrl}" alt="${esc(card.name)}" style="cursor:zoom-in" onclick="openLightbox('${imgUrl}','${esc(card.name)}')" onerror="this.src='${imgSmall}'">` : ""}
+    <div class="modal-body">
+      <div class="modal-title">${esc(card.name)}</div>
+      <div class="modal-sub">${esc(card.set?.name || "")} · #${card.localId || ""} · ${esc(card.rarity || "")}</div>
+      <div class="modal-info">
+        <div class="modal-info-item"><div class="modal-info-label">SET</div><div class="modal-info-value">${esc(card.set?.name || "-")}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">RARITY</div><div class="modal-info-value">${esc(card.rarity || "-")}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">NUMBER</div><div class="modal-info-value">#${card.localId || "-"}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">HP</div><div class="modal-info-value">${card.hp || "-"}</div></div>
+      </div>
+      ${card.category ? `<div style="margin-top:8px;font-size:12px;color:var(--text2)">カテゴリ: ${esc(card.category)}</div>` : ""}
+    </div>
+  `;
   modal.style.display = "flex";
 }
 
@@ -1217,7 +1596,7 @@ function loadHighValueImages() {
 
       const thumb = el.querySelector(".dex-card-thumb");
       if (thumb) {
-        thumb.innerHTML = `<img src="${card.images.small}" alt="${esc(name)}" loading="lazy" style="cursor:zoom-in">`;
+        thumb.innerHTML = `<img src="${card.images.small}" alt="${esc(name)}" loading="lazy" style="cursor:zoom-in" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px\\'>🃏</div>'">`;
         thumb.querySelector("img").addEventListener("click", () => openLightbox(card.images.large || card.images.small, name));
       }
     } catch {}
@@ -1417,7 +1796,7 @@ function renderWallet() {
     walletChart = new Chart(document.getElementById("wallet-chart"), {
       type: "line",
       data: { labels, datasets: [{ data: values, borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,.1)", fill: true, tension: 0.3, pointRadius: values.length > 15 ? 0 : 3, pointBackgroundColor: "#7c3aed", borderWidth: 2 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#2a3d52", font: { size: 9 } }, grid: { color: "#0f1520" } }, y: { ticks: { color: "#2a3d52", font: { size: 9 }, callback: v => "¥" + (v/1000).toFixed(0) + "k" }, grid: { color: "#0f1520" } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#4a6080", font: { size: 9 } }, grid: { color: "#1e2d4a" } }, y: { ticks: { color: "#4a6080", font: { size: 9 }, callback: v => "¥" + (v/1000).toFixed(0) + "k" }, grid: { color: "#1e2d4a" } } } }
     });
   }
 
@@ -1521,15 +1900,21 @@ document.getElementById("add-card-search").addEventListener("input", function() 
   clearTimeout(addSearchTimer);
   const q = this.value.trim();
   if (q.length < 2) { document.getElementById("add-search-results").innerHTML = ""; return; }
+  document.getElementById("add-search-results").innerHTML = '<div class="add-searching">' + t("searchLoading") + '</div>';
   addSearchTimer = setTimeout(async () => {
     try {
       let cards = [];
       if (priceSource === "tcglookup") {
         cards = await searchCardsTcgLookup(q);
       } else {
-        const encoded = encodeURIComponent(`name:"${q}*"`);
-        const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=10&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
+        const encoded = encodeURIComponent(`name:"${q}"`);
+        const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=12&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
         if (res.ok) { const data = await res.json(); cards = data.data || []; }
+        if (cards.length === 0) {
+          const encoded2 = encodeURIComponent(`name:${q.split(/\s+/).join("*+")}*`);
+          const res2 = await fetch(`${TCGAPI}/cards?q=${encoded2}&pageSize=12&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
+          if (res2.ok) { const data2 = await res2.json(); cards = data2.data || []; }
+        }
       }
       const results = document.getElementById("add-search-results");
       results.innerHTML = "";
@@ -1538,7 +1923,7 @@ document.getElementById("add-card-search").addEventListener("input", function() 
         item.className = "add-search-item";
         const imgUrl = card.images?.small || card.image_url || "";
         item.innerHTML = `
-          ${imgUrl ? `<img src="${imgUrl}" alt="" loading="lazy">` : '<div style="width:40px;height:56px;background:#0c0c14;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px">🃏</div>'}
+          ${imgUrl ? `<img src="${imgUrl}" alt="" loading="lazy">` : '<div style="width:40px;height:56px;background:var(--bg);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px">🃏</div>'}
           <div class="add-search-item-info">
             <div class="add-search-item-name">${esc(card.name)}</div>
             <div class="add-search-item-meta">${esc(card.set?.name || "")} #${card.number || ""} · ${esc(card.rarity || "")}${card._price ? " · $" + card._price.toFixed(2) : ""}</div>
@@ -1613,6 +1998,13 @@ function initMap() {
   mapInstance = L.map("map-container", { zoomControl: true, attributionControl: false }).setView([35.6812, 139.7671], 13);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(mapInstance);
 
+  mapInstance.on("click", (e) => {
+    if (!mapAddMode) return;
+    if (pendingPinMarker) mapInstance.removeLayer(pendingPinMarker);
+    pendingPinMarker = L.marker([e.latlng.lat, e.latlng.lng], { draggable: true }).addTo(mapInstance);
+    pendingPinMarker.bindPopup('<div style="text-align:center;font-size:12px"><b>ここにピンを設置</b><br><small>ドラッグで位置調整可</small><br><button onclick="confirmPinPlacement()" style="margin-top:6px;padding:6px 16px;background:#6c5ce7;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px">✓ 決定</button></div>').openPopup();
+  });
+
   const pins = getPins();
   pins.forEach(pin => addMapMarker(pin));
   renderPinList();
@@ -1621,9 +2013,16 @@ function initMap() {
 function addMapMarker(pin) {
   if (!mapInstance) return;
   const icon = L.divIcon({ className: "", html: `<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))">${pin.type === "shop" ? "🏪" : pin.type === "found" ? "✅" : "📍"}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
-  const marker = L.marker([pin.lat, pin.lng], { icon }).addTo(mapInstance);
-  marker.bindPopup(`<div class="pin-popup"><b>${esc(pin.name)}</b><br>${esc(pin.note || "")}<br><small>${esc(pin.date || "")}</small></div>`);
+  const marker = L.marker([pin.lat, pin.lng], { icon, draggable: true }).addTo(mapInstance);
+  marker.bindPopup(`<div class="pin-popup"><b>${esc(pin.name)}</b><br>${esc(pin.note || "")}<br><small>${esc(pin.date || "")}</small><br><small style="color:#6c5ce7">長押し/ドラッグで移動可</small></div>`);
   marker._pinId = pin.id;
+  marker.on("dragend", () => {
+    const pos = marker.getLatLng();
+    const pins = getPins();
+    const p = pins.find(pp => pp.id === pin.id);
+    if (p) { p.lat = pos.lat; p.lng = pos.lng; savePins(pins); renderPinList(); }
+    showToast("ピンの位置を更新しました");
+  });
   mapMarkers.push(marker);
 }
 
@@ -1687,24 +2086,28 @@ document.getElementById("map-btn-locate").addEventListener("click", () => {
   );
 });
 
+let mapAddMode = false;
+let pendingPinMarker = null;
+
 document.getElementById("map-btn-add").addEventListener("click", () => {
   if (!mapInstance) return;
-  const name = prompt("店舗名・場所の名前:");
-  if (!name) return;
-  const note = prompt("メモ（商品名・在庫状況など）:") || "";
-  const typeStr = prompt("種類を選択（1: カードショップ, 2: 在庫あり, 3: その他）:") || "1";
-  const type = typeStr === "2" ? "found" : typeStr === "1" ? "shop" : "other";
+  const btn = document.getElementById("map-btn-add");
+  const instructions = document.getElementById("map-pin-instructions");
 
-  const center = mapInstance.getCenter();
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      pos => { createPin(name, note, type, pos.coords.latitude, pos.coords.longitude); },
-      () => { createPin(name, note, type, center.lat, center.lng); }
-    );
-  } else {
-    createPin(name, note, type, center.lat, center.lng);
+  if (mapAddMode) {
+    mapAddMode = false;
+    btn.classList.remove("active");
+    btn.textContent = "➕ ピンを追加";
+    instructions.classList.remove("show");
+    if (pendingPinMarker) { mapInstance.removeLayer(pendingPinMarker); pendingPinMarker = null; }
+    return;
   }
+
+  mapAddMode = true;
+  btn.classList.add("active");
+  btn.textContent = "✕ キャンセル";
+  instructions.classList.add("show");
+  showToast("地図をタップしてピンの位置を選択");
 });
 
 function createPin(name, note, type, lat, lng) {
@@ -1720,6 +2123,25 @@ function createPin(name, note, type, lat, lng) {
   renderPinList();
   mapInstance.setView([lat, lng], 15);
   showToast("ピンを追加しました");
+}
+
+function confirmPinPlacement() {
+  if (!pendingPinMarker) return;
+  const pos = pendingPinMarker.getLatLng();
+  const name = prompt("店舗名・場所の名前:");
+  if (!name) { mapInstance.removeLayer(pendingPinMarker); pendingPinMarker = null; return; }
+  const note = prompt("メモ（商品名・在庫状況など）:") || "";
+  const typeStr = prompt("種類を選択（1: カードショップ, 2: 在庫あり, 3: その他）:") || "1";
+  const type = typeStr === "2" ? "found" : typeStr === "1" ? "shop" : "other";
+
+  mapInstance.removeLayer(pendingPinMarker);
+  pendingPinMarker = null;
+  mapAddMode = false;
+  document.getElementById("map-btn-add").classList.remove("active");
+  document.getElementById("map-btn-add").textContent = "➕ ピンを追加";
+  document.getElementById("map-pin-instructions").classList.remove("show");
+
+  createPin(name, note, type, pos.lat, pos.lng);
 }
 
 // ============================================================
@@ -1981,8 +2403,10 @@ document.getElementById("btn-rescan").addEventListener("click", () => { document
 document.getElementById("btn-scan").addEventListener("click", async () => {
   if (!currentB64) { showErr("画像を選択してください"); return; }
   const apiKey = document.getElementById("apikey").value.trim();
-  if (!apiKey) { showErr("APIキーを入力してください", "Anthropic Console → API Keys からキーを取得できます"); return; }
-  if (!apiKey.startsWith("sk-")) { showErr("APIキーの形式が正しくありません", "「sk-ant-」で始まるキーを入力してください"); return; }
+  if (!apiKey || !apiKey.startsWith("sk-")) {
+    showDemoResult();
+    return;
+  }
   const btn = document.getElementById("btn-scan");
   btn.disabled = true; btn.textContent = "解析中...";
   document.getElementById("overlay").style.display = "flex"; document.getElementById("scan-bar").style.display = "block";
@@ -2043,6 +2467,43 @@ function renderHistory() {
 }
 renderHistory();
 
+function showDemoResult() {
+  const demoData = {
+    cards: [{
+      name: "デモカード（APIキー未設定）",
+      set: "—",
+      setCode: "demo",
+      cardNumber: "—",
+      rarity: "Rare",
+      rarityScore: 5,
+      era: "—",
+      isVintage: false,
+      isFirstEdition: false,
+      isUltraRare: false,
+      circulation: null,
+      condition: {
+        overall: "—",
+        psaEquivalent: null,
+        surface: "APIキーを設定すると実際の鑑定が行われます",
+        corners: "—",
+        centering: "—",
+        edges: "—"
+      },
+      pricing: { rawMin: 0, rawMax: 0, rawNote: "APIキーを設定してください", psa10: null, psa9: null, psa8: null, psa7: null },
+      gradeCandidate: false,
+      notes: "AI鑑定を利用するには、画面上部の「API Key」欄にAnthropicのAPIキーを入力してください。\n\n取得方法: console.anthropic.com → API Keys → Create Key\n\nキーは「sk-ant-」で始まる文字列です。入力すると自動保存され、次回以降は入力不要です。",
+      marketInsight: "APIキーは無料枠あり。図鑑・資産管理・マップ機能はAPIキー不要で利用できます。"
+    }],
+    marketReferences: [],
+    totalRawMin: 0,
+    totalRawMax: 0,
+    overallAssessment: "APIキー未設定のためデモ表示中。Anthropic APIキーを入力するとAIによる本格鑑定が利用できます。図鑑タブのカード画像検索、資産タブのカード追加はAPIキー不要で今すぐ利用可能です。"
+  };
+  lastResult = demoData;
+  renderResults(demoData);
+  showStatus("デモモード | APIキーを入力するとAI鑑定が利用できます");
+}
+
 // ============================================================
 // RENDER RESULTS
 // ============================================================
@@ -2091,6 +2552,9 @@ function renderResults(data) {
   document.getElementById("results").style.display = "block";
   document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
 }
+
+// Apply language UI after all initial renders
+setTimeout(() => applyLangUI(), 200);
 </script>
 </body>
 </html>
