@@ -1034,14 +1034,27 @@ function renderDexSeries(filter) {
             }
           }
           if (!setId) { loadingEl.textContent = "このセットはAPIに未登録です"; return; }
-          const cRes = await fetch(`${TCGAPI}/cards?q=set.id:${setId}&pageSize=24&orderBy=number&select=id,name,images,set,rarity,number,artist,tcgplayer,cardmarket`);
-          if (!cRes.ok) { loadingEl.textContent = "カード取得に失敗しました"; return; }
-          const cData = await cRes.json();
-          const cards = cData.data || [];
+          let allCards = [];
+          let pg = 1;
+          while (true) {
+            loadingEl.textContent = allCards.length > 0 ? `カード読み込み中... ${allCards.length}枚取得済み` : "カード読み込み中...";
+            const cRes = await fetch(`${TCGAPI}/cards?q=set.id:${setId}&page=${pg}&pageSize=250&orderBy=number&select=id,name,images,set,rarity,number,artist,tcgplayer,cardmarket`);
+            if (!cRes.ok) { loadingEl.textContent = "カード取得に失敗しました"; return; }
+            const cData = await cRes.json();
+            const batch = cData.data || [];
+            allCards = allCards.concat(batch);
+            if (batch.length < 250 || allCards.length >= (cData.totalCount || 999)) break;
+            pg++;
+          }
+          const cards = allCards;
           loadingEl.remove();
           if (cards.length === 0) { return; }
           const grid = document.createElement("div");
           grid.className = "pack-cards-grid";
+          const countLabel = document.createElement("div");
+          countLabel.style.cssText = "grid-column:1/-1;font-size:10px;color:var(--muted);padding:0 0 4px;text-align:center";
+          countLabel.textContent = `全${cards.length}枚（英語版 · PokemonTCG API · 無料）`;
+          grid.appendChild(countLabel);
           cards.forEach(card => {
             const item = document.createElement("div");
             item.className = "pack-card-item";
