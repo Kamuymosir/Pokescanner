@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="theme-color" content="#0b1121">
+<title>PokeScanner Pro</title>
+<style>
+  :root{--bg:#0b1121;--surface:#111b2e;--border:#1e2d4a;--text:#edf2f7;--muted:#94a8c8;--accent:#6c5ce7;--red:#ef4444}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;padding:24px}
+  .boot{width:min(100%,460px);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+  .title{font-size:20px;font-weight:800;margin:0 0 8px}
+  .desc{font-size:13px;line-height:1.8;color:var(--muted);margin:0 0 16px}
+  .status{font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px 14px;border-radius:12px;background:#0f172a;color:#cbd5e1;word-break:break-word}
+  .status.err{background:rgba(239,68,68,.08);color:#fecaca;border:1px solid rgba(239,68,68,.2)}
+  .actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);text-decoration:none;font-size:12px;font-weight:600}
+</style>
+</head>
+<body>
+  <div class="boot">
+    <h1 class="title">PokeScanner Pro</h1>
+    <p class="desc">安全強化パッチを適用した起動シーケンスです。現行アプリ本体を読み込み、APIキー保持・価格表示・入力UIの改善を有効化します。</p>
+    <div class="status" id="boot-status">boot: loading base app...</div>
+    <div class="actions">
+      <a class="btn" href="./pokescanner.html">legacy entry</a>
+    </div>
+  </div>
+<script>
+(async function () {
+  const statusEl = document.getElementById('boot-status');
+  const BASE_URL = './pokescanner.html';
+
+  function setStatus(msg, isError) {
+    statusEl.textContent = msg;
+    statusEl.classList.toggle('err', !!isError);
+  }
+
+  try {
+    setStatus('boot: fetching base app...');
+    const res = await fetch(BASE_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('base app fetch failed: HTTP ' + res.status);
+    let html = await res.text();
+    if (!html || html.indexOf('<!DOCTYPE html>') === -1) throw new Error('base app payload invalid');
+
+    setStatus('boot: injecting enhancement patch...');
+    const injection = '\n<script src="./pokescanner-improvements.js"></' + 'script>\n';
+    if (html.indexOf('pokescanner-improvements.js') === -1) {
+      html = html.replace('</body>', injection + '</body>');
+    }
+
+    document.open();
+    document.write(html);
+    document.close();
+  } catch (err) {
+    console.error(err);
+    setStatus('boot error: ' + (err && err.message ? err.message : String(err)), true);
+  }
+})();
+</script>
+</body>
+</html>
