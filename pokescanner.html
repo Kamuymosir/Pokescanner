@@ -362,6 +362,25 @@ body{background:var(--bg);background-image:radial-gradient(ellipse at 50% 0%,rgb
 .pack-card-label small{display:block;color:var(--muted);font-size:8px}
 .map-pin-instructions{text-align:center;padding:12px;font-size:11px;color:var(--accent);background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:var(--radius-sm);margin-bottom:10px;display:none}
 .map-pin-instructions.show{display:block}
+.price-api-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.price-api-title{font-size:11px;color:var(--muted);letter-spacing:.5px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.price-api-url{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-size:11px;font-family:monospace;outline:none;margin-bottom:8px;transition:border-color .15s}
+.price-api-url:focus{border-color:var(--accent)}
+.price-api-status{font-size:10px;color:var(--muted);margin-bottom:8px}
+.price-api-status.ok{color:var(--green)}
+.price-api-status.err{color:var(--red)}
+.price-api-actions{display:flex;gap:6px}
+.price-api-btn{flex:1;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s}
+.price-api-btn:hover{background:var(--surface2)}
+.market-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:var(--radius-sm);font-size:10px;font-weight:600;font-family:monospace}
+.market-badge.ebay{background:rgba(229,35,39,.08);color:#e52327}
+.market-badge.snkrdunk{background:rgba(0,0,0,.08);color:#10b981}
+.market-badge.mercari{background:rgba(255,81,81,.08);color:#ff5151}
+.custom-prices-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.custom-price-item{background:var(--bg);border-radius:var(--radius-sm);padding:8px 10px}
+.custom-price-label{font-size:9px;color:var(--muted);letter-spacing:.3px;margin-bottom:2px}
+.custom-price-value{font-size:13px;font-weight:700;font-family:monospace;color:var(--gold)}
+.custom-price-value.no-data{color:var(--muted);font-weight:400;font-size:11px}
 .add-search-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
 .add-search-item:hover{background:var(--surface2)}
 .add-search-item img{width:40px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0}
@@ -534,6 +553,19 @@ body{background:var(--bg);background-image:radial-gradient(ellipse at 50% 0%,rgb
         <span class="apikey-saved" id="tcglookup-key-saved">保存済</span>
       </div>
       <div style="font-size:9px;color:#2a3d52;margin-top:4px">無料取得: <a href="https://tcgpricelookup.com/tcg-api" target="_blank" rel="noopener" style="color:#60a5fa">tcgpricelookup.com</a> · 200回/日 · クレカ不要</div>
+    </div>
+  </div>
+
+  <div class="price-api-section" id="price-api-section">
+    <div class="price-api-title">
+      <span>📡 カスタム相場API</span>
+      <span id="price-api-time" style="font-size:9px;color:var(--muted);font-weight:400"></span>
+    </div>
+    <input class="price-api-url" id="price-api-url" type="url" placeholder="https://your-server.com/api/prices.json">
+    <div class="price-api-status" id="price-api-status"></div>
+    <div class="price-api-actions">
+      <button class="price-api-btn" id="price-api-fetch">🔄 今すぐ取得</button>
+      <button class="price-api-btn" id="price-api-clear">🗑️ クリア</button>
     </div>
   </div>
 
@@ -1207,6 +1239,7 @@ function createHighValueCardEl(card) {
           ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
           <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
         </div>
+        ${renderCustomPrices(card.name, card.set)}
       </div>
     </div>
   `;
@@ -1285,6 +1318,9 @@ const i18n = {
     priceSource: "価格ソース",
     cardsLoading: "カード読み込み中...", cardsNotFound: "このセットはAPIに未登録です",
     searchLoading: "検索中...",
+    priceApiTitle: "📡 カスタム相場API",
+    priceApiFetch: "🔄 今すぐ取得",
+    priceApiClear: "🗑️ クリア",
     cardCountLabel: (n, lang) => lang === "ja" ? `全${n}枚（日本語版 · TCGDex API · 無料）` : `全${n}枚（英語版 · PokemonTCG API · 無料）`,
   },
   en: {
@@ -1312,6 +1348,9 @@ const i18n = {
     priceSource: "Price Source",
     cardsLoading: "Loading cards...", cardsNotFound: "Set not found in API",
     searchLoading: "Searching...",
+    priceApiTitle: "📡 Custom Price API",
+    priceApiFetch: "🔄 Fetch Now",
+    priceApiClear: "🗑️ Clear",
     cardCountLabel: (n, lang) => `${n} cards (English · PokemonTCG API · Free)`,
   }
 };
@@ -1534,6 +1573,7 @@ function showCardModal(card) {
           ${priceEntries.map(p => `<div class="modal-price-row"><span class="modal-price-label">${esc(p.label)} <small style="color:#2a3d52">${esc(p.source)}</small></span><span class="modal-price-value">${esc(p.value)}</span></div>`).join("")}
         </div>
       ` : ""}
+      ${renderCustomPrices(card.name, card.set?.name)}
     </div>
   `;
 
@@ -1558,6 +1598,7 @@ async function showCardModalJP(card) {
         <div class="modal-info-item"><div class="modal-info-label">HP</div><div class="modal-info-value" id="jp-modal-hp">${card.hp || "読み込み中..."}</div></div>
       </div>
       <div id="jp-modal-extra"></div>
+      <div id="jp-modal-custom-prices"></div>
     </div>
   `;
   modal.style.display = "flex";
@@ -1595,6 +1636,9 @@ async function showCardModalJP(card) {
       }
     }
   } catch {}
+  const customHtml = renderCustomPrices(card.name, card.set?.name);
+  const cpEl = document.getElementById("jp-modal-custom-prices");
+  if (cpEl) cpEl.innerHTML = customHtml;
 }
 
 document.getElementById("modal-close").addEventListener("click", () => {
@@ -2032,6 +2076,169 @@ document.getElementById("add-card-submit").addEventListener("click", async () =>
 document.getElementById("wallet-refresh-btn").addEventListener("click", refreshWalletPrices);
 
 renderWallet();
+
+// ============================================================
+// CUSTOM PRICE API
+// ============================================================
+const STORAGE_KEY_PRICE_API_URL = "pokescanner_price_api_url";
+const STORAGE_KEY_PRICE_API_DATA = "pokescanner_price_api_data";
+const STORAGE_KEY_PRICE_API_TIME = "pokescanner_price_api_time";
+const PRICE_API_INTERVAL = 60 * 60 * 1000; // 1 hour
+var customPriceData = null;
+var priceApiFetchTimer = null;
+
+function getCustomPriceApiUrl() { try { return localStorage.getItem(STORAGE_KEY_PRICE_API_URL) || ""; } catch { return ""; } }
+function setCustomPriceApiUrl(url) { try { localStorage.setItem(STORAGE_KEY_PRICE_API_URL, url); } catch {} }
+function getCustomPriceCache() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PRICE_API_DATA);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+function setCustomPriceCache(data) { try { localStorage.setItem(STORAGE_KEY_PRICE_API_DATA, JSON.stringify(data)); } catch {} }
+function getCustomPriceTime() { try { return localStorage.getItem(STORAGE_KEY_PRICE_API_TIME) || ""; } catch { return ""; } }
+function setCustomPriceTime(t) { try { localStorage.setItem(STORAGE_KEY_PRICE_API_TIME, t); } catch {} }
+
+async function fetchCustomPrices() {
+  const url = getCustomPriceApiUrl();
+  if (!url) return;
+  const statusEl = document.getElementById("price-api-status");
+  const timeEl = document.getElementById("price-api-time");
+  statusEl.textContent = "取得中...";
+  statusEl.className = "price-api-status";
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.cards || !Array.isArray(data.cards)) throw new Error("cardsフィールドがありません");
+    customPriceData = data;
+    setCustomPriceCache(data);
+    const now = new Date().toISOString();
+    setCustomPriceTime(now);
+    const count = data.cards.length;
+    const sources = new Set();
+    data.cards.forEach(c => { if (c.prices) Object.keys(c.prices).forEach(k => sources.add(k)); });
+    statusEl.textContent = `✅ ${count}件取得済み（${[...sources].join(", ")}）`;
+    statusEl.className = "price-api-status ok";
+    const updated = data.updated ? new Date(data.updated).toLocaleString("ja-JP") : now;
+    timeEl.textContent = `更新: ${updated}`;
+    showToast(`相場データ ${count}件を取得しました`);
+  } catch (e) {
+    statusEl.textContent = `❌ エラー: ${e.message}`;
+    statusEl.className = "price-api-status err";
+  }
+}
+
+function lookupCustomPrice(cardName, setName) {
+  if (!customPriceData?.cards) return null;
+  const name = (cardName || "").replace(/\s/g, "");
+  return customPriceData.cards.find(c => {
+    const cName = (c.name || "").replace(/\s/g, "");
+    const cNameEn = (c.nameEn || "").replace(/\s/g, "");
+    if (cName === name || cNameEn === name) return true;
+    if (name.includes(cName) || cName.includes(name)) return true;
+    if (cNameEn && (name.toLowerCase().includes(cNameEn.toLowerCase()) || cNameEn.toLowerCase().includes(name.toLowerCase()))) return true;
+    return false;
+  }) || null;
+}
+
+function renderCustomPrices(cardName, setName) {
+  const match = lookupCustomPrice(cardName, setName);
+  if (!match) return "";
+  const prices = match.prices || {};
+  const psa = match.psa || {};
+  const priceLabels = {
+    ebay_avg: { label: "eBay平均", cls: "ebay" },
+    ebay_last_sold: { label: "eBay直近落札", cls: "ebay" },
+    snkrdunk: { label: "スニーカーダンク", cls: "snkrdunk" },
+    mercari_avg: { label: "メルカリ平均", cls: "mercari" }
+  };
+  let html = '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:10px;color:var(--muted);letter-spacing:.5px;font-weight:600;margin-bottom:8px">📡 カスタム相場データ</div>';
+  html += '<div class="custom-prices-grid">';
+  for (const [key, info] of Object.entries(priceLabels)) {
+    const val = prices[key];
+    html += `<div class="custom-price-item"><div class="custom-price-label">${info.label}</div>`;
+    if (val != null) {
+      html += `<div class="custom-price-value">¥${Math.round(val).toLocaleString()}</div>`;
+    } else {
+      html += `<div class="custom-price-value no-data">データなし</div>`;
+    }
+    html += `</div>`;
+  }
+  html += '</div>';
+  if (Object.keys(psa).length > 0) {
+    html += '<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">';
+    for (const [grade, price] of Object.entries(psa)) {
+      html += `<span class="dex-psa-chip">PSA${grade} <b>¥${Math.round(price).toLocaleString()}</b></span>`;
+    }
+    html += '</div>';
+  }
+  const updated = customPriceData?.updated ? new Date(customPriceData.updated).toLocaleString("ja-JP") : "";
+  if (updated) html += `<div style="font-size:9px;color:var(--muted);margin-top:6px">データ更新: ${updated}</div>`;
+  html += '</div>';
+  return html;
+}
+
+function initCustomPriceApi() {
+  const urlInput = document.getElementById("price-api-url");
+  const savedUrl = getCustomPriceApiUrl();
+  if (savedUrl) urlInput.value = savedUrl;
+
+  // Load cached data
+  const cached = getCustomPriceCache();
+  if (cached) {
+    customPriceData = cached;
+    const statusEl = document.getElementById("price-api-status");
+    const timeEl = document.getElementById("price-api-time");
+    const count = cached.cards?.length || 0;
+    statusEl.textContent = `✅ ${count}件キャッシュ済み`;
+    statusEl.className = "price-api-status ok";
+    const lastTime = getCustomPriceTime();
+    if (lastTime) timeEl.textContent = `更新: ${new Date(lastTime).toLocaleString("ja-JP")}`;
+  }
+
+  // URL input save
+  urlInput.addEventListener("input", function() {
+    const url = this.value.trim();
+    setCustomPriceApiUrl(url);
+    if (!url) {
+      document.getElementById("price-api-status").textContent = "";
+      document.getElementById("price-api-time").textContent = "";
+    }
+  });
+
+  // Fetch button
+  document.getElementById("price-api-fetch").addEventListener("click", fetchCustomPrices);
+
+  // Clear button
+  document.getElementById("price-api-clear").addEventListener("click", () => {
+    customPriceData = null;
+    try {
+      localStorage.removeItem(STORAGE_KEY_PRICE_API_DATA);
+      localStorage.removeItem(STORAGE_KEY_PRICE_API_TIME);
+    } catch {}
+    document.getElementById("price-api-status").textContent = "";
+    document.getElementById("price-api-status").className = "price-api-status";
+    document.getElementById("price-api-time").textContent = "";
+    showToast("相場データをクリアしました");
+  });
+
+  // Auto-fetch: check if last fetch > 1 hour ago
+  if (savedUrl) {
+    const lastTime = getCustomPriceTime();
+    const elapsed = lastTime ? Date.now() - new Date(lastTime).getTime() : Infinity;
+    if (elapsed >= PRICE_API_INTERVAL) {
+      setTimeout(fetchCustomPrices, 2000);
+    }
+    // Set interval for periodic refresh
+    priceApiFetchTimer = setInterval(() => {
+      if (getCustomPriceApiUrl()) fetchCustomPrices();
+    }, PRICE_API_INTERVAL);
+  }
+}
+
+initCustomPriceApi();
 
 // ============================================================
 // MAP

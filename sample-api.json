@@ -1,0 +1,42 @@
+{
+  "updated": "2026-04-21T10:00:00Z",
+  "cards": [
+    {
+      "name": "リザードン",
+      "nameEn": "Charizard",
+      "prices": {
+        "ebay_avg": 85000,
+        "ebay_last_sold": 78000,
+        "snkrdunk": 92000,
+        "mercari_avg": 88000
+      },
+      "psa": {
+        "10": 350000,
+        "9": 120000
+      }
+    },
+    {
+      "name": "ピカチュウ",
+      "nameEn": "Pikachu",
+      "prices": {
+        "ebay_avg": 12000,
+        "ebay_last_sold": 11500,
+        "mercari_avg": 13000
+      },
+      "psa": {
+        "10": 45000,
+        "9": 18000
+      }
+    },
+    {
+      "name": "ミュウツー",
+      "nameEn": "Mewtwo",
+      "prices": {
+        "ebay_avg": 25000,
+        "snkrdunk": 28000,
+        "mercari_avg": 26500
+      },
+      "psa": {}
+    }
+  ]
+}
