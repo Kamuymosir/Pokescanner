@@ -561,7 +561,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse at 50% 0%,rgb
       <span>📡 カスタム相場API</span>
       <span id="price-api-time" style="font-size:9px;color:var(--muted);font-weight:400"></span>
     </div>
-    <input class="price-api-url" id="price-api-url" type="url" placeholder="https://your-server.com/api/prices.json">
+    <input class="price-api-url" id="price-api-url" type="url" placeholder="https://raw.githubusercontent.com/.../prices.json">
     <div class="price-api-status" id="price-api-status"></div>
     <div class="price-api-actions">
       <button class="price-api-btn" id="price-api-fetch">🔄 今すぐ取得</button>
@@ -2084,6 +2084,7 @@ const STORAGE_KEY_PRICE_API_URL = "pokescanner_price_api_url";
 const STORAGE_KEY_PRICE_API_DATA = "pokescanner_price_api_data";
 const STORAGE_KEY_PRICE_API_TIME = "pokescanner_price_api_time";
 const PRICE_API_INTERVAL = 60 * 60 * 1000; // 1 hour
+const DEFAULT_PRICE_API_URL = "https://raw.githubusercontent.com/Kamuymosir/Pokescanner/main/prices.json";
 var customPriceData = null;
 var priceApiFetchTimer = null;
 
@@ -2150,10 +2151,13 @@ function renderCustomPrices(cardName, setName) {
   const prices = match.prices || {};
   const psa = match.psa || {};
   const priceLabels = {
-    ebay_avg: { label: "eBay平均", cls: "ebay" },
-    ebay_last_sold: { label: "eBay直近落札", cls: "ebay" },
-    snkrdunk: { label: "スニーカーダンク", cls: "snkrdunk" },
-    mercari_avg: { label: "メルカリ平均", cls: "mercari" }
+    tcgplayer_jpy: { label: "TCGPlayer" },
+    cardmarket_jpy: { label: "Cardmarket" },
+    ebay_avg: { label: "eBay平均" },
+    ebay_last_sold: { label: "eBay直近落札" },
+    snkrdunk: { label: "スニーカーダンク" },
+    mercari_avg: { label: "メルカリ平均" },
+    cardmarket_trend_jpy: { label: "CM Trend" }
   };
   let html = '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:10px;color:var(--muted);letter-spacing:.5px;font-weight:600;margin-bottom:8px">📡 カスタム相場データ</div>';
   html += '<div class="custom-prices-grid">';
@@ -2183,8 +2187,12 @@ function renderCustomPrices(cardName, setName) {
 
 function initCustomPriceApi() {
   const urlInput = document.getElementById("price-api-url");
-  const savedUrl = getCustomPriceApiUrl();
-  if (savedUrl) urlInput.value = savedUrl;
+  let savedUrl = getCustomPriceApiUrl();
+  if (!savedUrl) {
+    savedUrl = DEFAULT_PRICE_API_URL;
+    setCustomPriceApiUrl(savedUrl);
+  }
+  urlInput.value = savedUrl;
 
   // Load cached data
   const cached = getCustomPriceCache();
