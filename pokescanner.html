@@ -1280,7 +1280,7 @@ const i18n = {
     walletChart: "📈 資産推移", walletPie: "🍩 ポートフォリオ構成",
     walletAdd: "➕ カードを追加", walletRefresh: "🔄 価格更新", walletCardList: "💼 所持カード一覧",
     walletEmpty: "カードが登録されていません<br>「➕ カードを追加」から所持カードを登録しましょう<br><br>PokemonTCG APIから海外市場価格を自動取得し<br>円換算で資産額を計算します",
-    addCardTitle: "カードを追加", addCardLabel: "カード名で検索（英語推奨）", addCardPlaceholder: "例: Charizard, Umbreon VMAX...",
+    addCardTitle: "カードを追加", addCardLabel: "カード名で検索（日本語OK）", addCardPlaceholder: "例: リーフィア, リザードン, Pikachu...",
     addQty: "数量", addCost: "購入価格（円）", addSubmit: "追加する",
     priceSource: "価格ソース",
     cardsLoading: "カード読み込み中...", cardsNotFound: "このセットはAPIに未登録です",
@@ -1919,6 +1919,13 @@ document.getElementById("add-card-search").addEventListener("input", function() 
       let cards = [];
       if (priceSource === "tcglookup") {
         cards = await searchCardsTcgLookup(q);
+      } else if (currentLang === "ja") {
+        const res = await fetch(`${TCGDEX}/ja/cards?name=${encodeURIComponent(q)}`);
+        if (res.ok) { const data = await res.json(); cards = (Array.isArray(data) ? data : []).slice(0, 12).map(c => ({ ...c, _fromTcgDex: true })); }
+        if (cards.length === 0) {
+          const res2 = await fetch(`${TCGAPI}/cards?q=${encodeURIComponent('name:"' + q + '"')}&pageSize=12&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
+          if (res2.ok) { const data2 = await res2.json(); cards = data2.data || []; }
+        }
       } else {
         const encoded = encodeURIComponent(`name:"${q}"`);
         const res = await fetch(`${TCGAPI}/cards?q=${encoded}&pageSize=12&orderBy=-set.releaseDate&select=id,name,images,set,rarity,number,tcgplayer,cardmarket`);
@@ -1934,12 +1941,13 @@ document.getElementById("add-card-search").addEventListener("input", function() 
       cards.forEach(card => {
         const item = document.createElement("div");
         item.className = "add-search-item";
-        const imgUrl = card.images?.small || card.image_url || "";
+        const imgUrl = card._fromTcgDex ? (card.image ? card.image + "/low.webp" : "") : (card.images?.small || card.image_url || "");
+        const cardNum = card._fromTcgDex ? (card.localId || "") : (card.number || "");
         item.innerHTML = `
           ${imgUrl ? `<img src="${imgUrl}" alt="" loading="lazy">` : '<div style="width:40px;height:56px;background:var(--bg);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px">🃏</div>'}
           <div class="add-search-item-info">
             <div class="add-search-item-name">${esc(card.name)}</div>
-            <div class="add-search-item-meta">${esc(card.set?.name || "")} #${card.number || ""} · ${esc(card.rarity || "")}${card._price ? " · $" + card._price.toFixed(2) : ""}</div>
+            <div class="add-search-item-meta">${esc(card.set?.name || "")} #${cardNum} · ${esc(card.rarity || "")}${card._price ? " · $" + card._price.toFixed(2) : ""}</div>
           </div>
         `;
         item.addEventListener("click", () => {
@@ -1969,7 +1977,7 @@ document.getElementById("add-card-submit").addEventListener("click", async () =>
     name: addSelectedCard.name,
     set: setName,
     rarity: addSelectedCard.rarity || "",
-    image: addSelectedCard.images?.small || addSelectedCard.image_url || "",
+    image: addSelectedCard._fromTcgDex ? (addSelectedCard.image ? addSelectedCard.image + "/low.webp" : "") : (addSelectedCard.images?.small || addSelectedCard.image_url || ""),
     qty,
     cost,
     currentPrice: price || 0,
