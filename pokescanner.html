@@ -2124,6 +2124,7 @@ async function fetchCustomPrices() {
     const updated = data.updated ? new Date(data.updated).toLocaleString("ja-JP") : now;
     timeEl.textContent = `更新: ${updated}`;
     showToast(`相場データ ${count}件を取得しました`);
+    renderDexHighValue(document.getElementById("dex-search")?.value || "");
   } catch (e) {
     statusEl.textContent = `❌ エラー: ${e.message}`;
     statusEl.className = "price-api-status err";
@@ -2196,6 +2197,7 @@ function initCustomPriceApi() {
     statusEl.className = "price-api-status ok";
     const lastTime = getCustomPriceTime();
     if (lastTime) timeEl.textContent = `更新: ${new Date(lastTime).toLocaleString("ja-JP")}`;
+    setTimeout(() => renderDexHighValue(document.getElementById("dex-search")?.value || ""), 300);
   }
 
   // URL input save

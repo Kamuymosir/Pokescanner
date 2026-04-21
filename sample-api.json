@@ -1,42 +1,97 @@
 {
-  "updated": "2026-04-21T10:00:00Z",
+  "updated": "2026-04-21T12:00:00Z",
+  "source": "PokeScanner Custom API Sample",
   "cards": [
     {
       "name": "リザードン",
       "nameEn": "Charizard",
+      "set": "基本セット",
       "prices": {
-        "ebay_avg": 85000,
-        "ebay_last_sold": 78000,
-        "snkrdunk": 92000,
-        "mercari_avg": 88000
+        "ebay_avg": 152000,
+        "ebay_last_sold": 148000,
+        "snkrdunk": 185000,
+        "mercari_avg": 165000
       },
-      "psa": {
-        "10": 350000,
-        "9": 120000
-      }
+      "psa": { "10": 3200000, "9": 850000, "8": 220000 }
     },
     {
-      "name": "ピカチュウ",
-      "nameEn": "Pikachu",
+      "name": "ガルーラ",
+      "nameEn": "Kangaskhan",
+      "set": "ジャングル",
       "prices": {
-        "ebay_avg": 12000,
-        "ebay_last_sold": 11500,
-        "mercari_avg": 13000
+        "ebay_avg": 1800000,
+        "mercari_avg": 1500000
       },
-      "psa": {
-        "10": 45000,
-        "9": 18000
-      }
+      "psa": { "10": 5500000, "9": 1600000, "8": 550000 }
+    },
+    {
+      "name": "ブラッキー",
+      "nameEn": "Umbreon",
+      "set": "neo discovery",
+      "prices": {
+        "ebay_avg": 620000,
+        "ebay_last_sold": 590000,
+        "snkrdunk": 700000,
+        "mercari_avg": 650000
+      },
+      "psa": { "10": 2600000, "9": 650000, "8": 160000 }
+    },
+    {
+      "name": "ブラッキーVMAX SA",
+      "nameEn": "Umbreon VMAX",
+      "set": "イーブイヒーローズ",
+      "prices": {
+        "ebay_avg": 95000,
+        "ebay_last_sold": 92000,
+        "snkrdunk": 120000,
+        "mercari_avg": 110000
+      },
+      "psa": { "10": 320000, "9": 160000 }
+    },
+    {
+      "name": "ナンジャモ SR",
+      "nameEn": "Iono",
+      "set": "クレイバースト",
+      "prices": {
+        "ebay_avg": 28000,
+        "snkrdunk": 35000,
+        "mercari_avg": 32000
+      },
+      "psa": { "10": 85000, "9": 42000 }
+    },
+    {
+      "name": "リーリエ SR",
+      "nameEn": "Lillie",
+      "set": "コレクションムーン",
+      "prices": {
+        "ebay_avg": 180000,
+        "snkrdunk": 210000,
+        "mercari_avg": 195000
+      },
+      "psa": { "10": 420000, "9": 210000 }
     },
     {
       "name": "ミュウツー",
       "nameEn": "Mewtwo",
+      "set": "基本セット",
       "prices": {
-        "ebay_avg": 25000,
-        "snkrdunk": 28000,
-        "mercari_avg": 26500
+        "ebay_avg": 75000,
+        "ebay_last_sold": 72000,
+        "snkrdunk": 88000,
+        "mercari_avg": 80000
       },
-      "psa": {}
+      "psa": { "10": 1050000, "9": 310000 }
+    },
+    {
+      "name": "リザードンex SAR",
+      "nameEn": "Charizard ex",
+      "set": "黒炎の支配者",
+      "prices": {
+        "ebay_avg": 22000,
+        "snkrdunk": 28000,
+        "mercari_avg": 25000
+      },
+      "psa": { "10": 105000, "9": 52000 }
     }
   ]
 }
