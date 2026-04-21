@@ -1039,13 +1039,13 @@ function renderDexSeries(filter) {
             if (cRes.ok) {
               const setData = await cRes.json();
               const jpCards = setData.cards || [];
-              const hasImages = jpCards.some(c => c.image);
-              if (jpCards.length > 0 && hasImages) {
+              const withImg = jpCards.filter(c => c.image);
+              if (jpCards.length > 0 && withImg.length > jpCards.length * 0.3) {
                 allCards = jpCards.map(c => ({ ...c, _fromTcgDex: true }));
               }
             }
             if (allCards.length === 0 && p.apiId) {
-              loadingEl.textContent = t("cardsLoading") + "（EN fallback）";
+              loadingEl.textContent = t("cardsLoading") + "（EN版で表示）";
             }
           }
           if (allCards.length === 0) {
@@ -1540,27 +1540,61 @@ function showCardModal(card) {
   modal.style.display = "flex";
 }
 
-function showCardModalJP(card) {
+async function showCardModalJP(card) {
   const modal = document.getElementById("card-detail-modal");
   const content = document.getElementById("modal-content");
   const imgUrl = card.image ? card.image + "/high.webp" : "";
   const imgSmall = card.image ? card.image + "/low.webp" : "";
 
   content.innerHTML = `
-    ${imgUrl ? `<img class="modal-img" src="${imgUrl}" alt="${esc(card.name)}" style="cursor:zoom-in" onclick="openLightbox('${imgUrl}','${esc(card.name)}')" onerror="this.src='${imgSmall}'">` : ""}
+    ${imgUrl ? `<img class="modal-img" src="${imgUrl}" alt="${esc(card.name)}" style="cursor:zoom-in" onclick="openLightbox('${imgUrl}','${esc(card.name)}')" onerror="this.src='${imgSmall}'">` : '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">📷 画像なし</div>'}
     <div class="modal-body">
       <div class="modal-title">${esc(card.name)}</div>
       <div class="modal-sub">${esc(card.set?.name || "")} · #${card.localId || ""} · ${esc(card.rarity || "")}</div>
       <div class="modal-info">
-        <div class="modal-info-item"><div class="modal-info-label">SET</div><div class="modal-info-value">${esc(card.set?.name || "-")}</div></div>
-        <div class="modal-info-item"><div class="modal-info-label">RARITY</div><div class="modal-info-value">${esc(card.rarity || "-")}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">SET</div><div class="modal-info-value" id="jp-modal-set">${esc(card.set?.name || "読み込み中...")}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">RARITY</div><div class="modal-info-value" id="jp-modal-rarity">${esc(card.rarity || "読み込み中...")}</div></div>
         <div class="modal-info-item"><div class="modal-info-label">NUMBER</div><div class="modal-info-value">#${card.localId || "-"}</div></div>
-        <div class="modal-info-item"><div class="modal-info-label">HP</div><div class="modal-info-value">${card.hp || "-"}</div></div>
+        <div class="modal-info-item"><div class="modal-info-label">HP</div><div class="modal-info-value" id="jp-modal-hp">${card.hp || "読み込み中..."}</div></div>
       </div>
-      ${card.category ? `<div style="margin-top:8px;font-size:12px;color:var(--text2)">カテゴリ: ${esc(card.category)}</div>` : ""}
+      <div id="jp-modal-extra"></div>
     </div>
   `;
   modal.style.display = "flex";
+
+  try {
+    const res = await fetch(`${TCGDEX}/ja/cards/${card.id}`);
+    if (res.ok) {
+      const full = await res.json();
+      const setEl = document.getElementById("jp-modal-set");
+      const rarEl = document.getElementById("jp-modal-rarity");
+      const hpEl = document.getElementById("jp-modal-hp");
+      const extraEl = document.getElementById("jp-modal-extra");
+      if (setEl) setEl.textContent = full.set?.name || card.set?.name || "-";
+      if (rarEl) rarEl.textContent = full.rarity || "-";
+      if (hpEl) hpEl.textContent = full.hp || "-";
+      let extraHtml = "";
+      if (full.types?.length) extraHtml += `<div style="margin-top:8px;font-size:12px;color:var(--text2)">タイプ: ${full.types.join(", ")}</div>`;
+      if (full.stage) extraHtml += `<div style="font-size:12px;color:var(--text2)">ステージ: ${esc(full.stage)}</div>`;
+      if (full.attacks?.length) {
+        extraHtml += '<div style="margin-top:10px;font-size:10px;color:var(--muted);letter-spacing:.5px;font-weight:600">ATTACKS</div>';
+        full.attacks.forEach(a => {
+          extraHtml += `<div style="margin-top:6px;padding:8px 10px;background:var(--bg);border-radius:var(--radius-sm)"><div style="font-size:13px;font-weight:600;color:var(--text)">${esc(a.name)} ${a.damage ? '<span style="color:var(--gold);font-family:monospace">' + esc(a.damage) + '</span>' : ''}</div>${a.effect ? '<div style="font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5">' + esc(a.effect) + '</div>' : ''}</div>`;
+        });
+      }
+      if (full.weaknesses?.length) extraHtml += `<div style="margin-top:8px;font-size:12px;color:var(--red)">弱点: ${full.weaknesses.map(w => w.type + " " + w.value).join(", ")}</div>`;
+      if (full.retreat) extraHtml += `<div style="font-size:12px;color:var(--text2)">にげる: ${full.retreat}</div>`;
+      if (full.illustrator) extraHtml += `<div style="margin-top:8px;font-size:11px;color:var(--muted)">イラスト: ${esc(full.illustrator)}</div>`;
+      if (extraEl) extraEl.innerHTML = extraHtml;
+
+      if (!imgUrl && full.image) {
+        const modalImg = content.querySelector('.modal-img') || content.querySelector('div');
+        if (modalImg && !content.querySelector('.modal-img')) {
+          modalImg.outerHTML = `<img class="modal-img" src="${full.image}/high.webp" alt="${esc(card.name)}" style="cursor:zoom-in" onclick="openLightbox('${full.image}/high.webp','${esc(card.name)}')" onerror="this.src='${full.image}/low.webp'">`;
+        }
+      }
+    }
+  } catch {}
 }
 
 document.getElementById("modal-close").addEventListener("click", () => {
