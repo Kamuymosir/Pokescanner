@@ -14,7 +14,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#c4cfa1;--surface:#b8c490;--surface2:#a8b880;--border:#5a6238;--muted:#6b7040;--text:#1a2000;--text2:#2d3518;--accent:#2d3518;--accent2:#3a4520;--gold:#2d3518;--green:#2d3518;--red:#3a1010;--radius:0px;--radius-sm:0px;--glow:none;--gb-darkest:#1a2000;--gb-dark:#3a4520;--gb-light:#a8b880;--gb-lightest:#c4cfa1}
-*{box-sizing:border-box;margin:0;padding:0;image-rendering:pixelated}
+*{box-sizing:border-box;margin:0;padding:0}
+img{image-rendering:auto!important}
 body{background:var(--gb-lightest);color:var(--gb-darkest);font-family:'DotGothic16','MS Gothic','ＭＳ ゴシック',monospace;max-width:480px;margin:0 auto;padding-bottom:68px;min-height:100vh;font-size:13px;letter-spacing:.5px;position:relative}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);mix-blend-mode:multiply}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -575,7 +576,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
   </div>
 
   <div class="wallet-chart-wrap">
-    <div class="wallet-chart-title"><span data-i18n="chart_title">📈 資産推移</span><span id="wallet-chart-period" style="font-size:9px;color:#4a5568">直近30日</span></div>
+    <div class="wallet-chart-title"><span data-i18n="chart_title">📈 資産推移</span><span id="wallet-chart-period" style="font-size:9px;color:var(--muted)">直近30日</span></div>
     <canvas id="wallet-chart" class="wallet-chart-canvas"></canvas>
   </div>
 
@@ -1170,9 +1171,10 @@ function renderDexSeries(filter) {
 function renderDexRarity() {
   const container = document.getElementById("dex-panel-rarity");
   const tierColors = { low: "#64748b", mid: "#60a5fa", high: "#a78bfa", ultra: "#fbbf24", varies: "#fb923c" };
-  const tierLabels = { low: "低", mid: "中", high: "高", ultra: "最高", varies: "不定" };
+  const tierLabels = currentLang === "en" ? { low: "Low", mid: "Mid", high: "High", ultra: "Top", varies: "Var" } : { low: "低", mid: "中", high: "高", ultra: "最高", varies: "不定" };
 
-  let html = '<table class="rarity-table"><thead><tr><th></th><th>レアリティ</th><th>封入率</th><th>価格帯</th></tr></thead><tbody>';
+  const hdrs = currentLang === "en" ? ["","Rarity","Pull Rate","Description"] : ["","レアリティ","封入率","価格帯"];
+  let html = `<table class="rarity-table"><thead><tr><th>${hdrs[0]}</th><th>${hdrs[1]}</th><th>${hdrs[2]}</th><th>${hdrs[3]}</th></tr></thead><tbody>`;
   RARITY_TABLE.forEach(r => {
     const tc = tierColors[r.tier] || "#64748b";
     html += `<tr>
@@ -1466,10 +1468,31 @@ function applyLangUI() {
   const addSubmit = document.getElementById("add-card-submit");
   if (addSubmit) addSubmit.textContent = t("addSubmit");
 
+  // Wallet extra texts
+  const walletPeriod = document.getElementById("wallet-chart-period");
+  if (walletPeriod) walletPeriod.textContent = currentLang === "en" ? "Last 30 days" : "直近30日";
+  const walletTotalSub = document.getElementById("wallet-total-sub");
+  if (walletTotalSub) {
+    const n = walletTotalSub.textContent.match(/\d+/)?.[0] || "0";
+    walletTotalSub.textContent = currentLang === "en" ? `${n} cards registered` : `${n}枚のカードを登録`;
+  }
+  const walletEmptyEl = document.getElementById("wallet-list");
+  if (walletEmptyEl?.querySelector(".wallet-empty")) walletEmptyEl.querySelector(".wallet-empty").innerHTML = t("walletEmpty");
+
+  // Price API section
+  const priceApiTitle = document.querySelector("#price-api-section .price-api-title span");
+  if (priceApiTitle) priceApiTitle.textContent = t("priceApiTitle");
+  const priceApiFetch = document.getElementById("price-api-fetch");
+  if (priceApiFetch) priceApiFetch.textContent = t("priceApiFetch");
+  const priceApiClear = document.getElementById("price-api-clear");
+  if (priceApiClear) priceApiClear.textContent = t("priceApiClear");
+
   // Re-render all content to pick up language changes
   renderGlossary(document.getElementById("gloss-search")?.value || "");
   renderDexSeries(document.getElementById("dex-search")?.value || "");
+  renderDexRarity();
   renderDexHighValue(document.getElementById("dex-search")?.value || "");
+  renderWallet();
 }
 
 // Language toggle event listeners
@@ -1847,7 +1870,7 @@ function renderWallet() {
   const pnlPct = totalCost > 0 ? ((pnl / totalCost) * 100).toFixed(1) : "0";
 
   document.getElementById("wallet-total").textContent = fmt(totalValue);
-  document.getElementById("wallet-total-sub").textContent = `${totalCards}枚のカードを登録`;
+  document.getElementById("wallet-total-sub").textContent = currentLang === "en" ? `${totalCards} cards registered` : `${totalCards}枚のカードを登録`;
   document.getElementById("wallet-cost").textContent = fmt(totalCost);
   document.getElementById("wallet-cost").className = "wallet-stat-value neutral";
 
@@ -2722,7 +2745,7 @@ function openPriceModal(cardName, cardNameEn, setName) {
   html += '<a class="price-link" href="https://snkrdunk.com/brands/pokemon?keyword=' + encodeURIComponent(searchNameJa) + '" target="_blank" rel="noopener"><div class="price-link-icon">👟</div><div class="price-link-info"><div class="price-link-name">SNKRDUNK</div><div class="price-link-desc">' + (isEn?"JP card trading platform":"ポケカ取引プラットフォーム") + '</div></div><div class="price-link-arrow">→</div></a>';
   html += '<a class="price-link" href="https://www.tcgplayer.com/search/pokemon/product?q=' + encodeURIComponent(searchNameEn) + '&view=grid" target="_blank" rel="noopener"><div class="price-link-icon">📈</div><div class="price-link-info"><div class="price-link-name">TCGPlayer</div><div class="price-link-desc">' + (isEn?"Price charts & EN market":"英語版の価格チャート・取引") + '</div></div><div class="price-link-arrow">→</div></a>';
   html += '<a class="price-link" href="https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=' + encodeURIComponent(searchNameEn) + '" target="_blank" rel="noopener"><div class="price-link-icon">💶</div><div class="price-link-info"><div class="price-link-name">Cardmarket</div><div class="price-link-desc">' + (isEn?"European market prices":"欧州市場の相場・チャート") + '</div></div><div class="price-link-arrow">→</div></a>';
-  html += '<a class="price-link" href="https://www.pricecharting.com/search-products?q=' + encodeURIComponent(searchNameEn + " pokemon") + '&type=prices" target="_blank" rel="noopener"><div class="price-link-icon">📉</div><div class="price-link-info"><div class="price-link-name">PriceCharting</div><div class="price-link-desc">長期価格チャート・トレンド</div></div><div class="price-link-arrow">→</div></a>';
+  html += '<a class="price-link" href="https://www.pricecharting.com/search-products?q=' + encodeURIComponent(searchNameEn + " pokemon") + '&type=prices" target="_blank" rel="noopener"><div class="price-link-icon">📉</div><div class="price-link-info"><div class="price-link-name">PriceCharting</div><div class="price-link-desc">' + (isEn?"Long-term price charts & trends":"長期価格チャート・トレンド") + '</div></div><div class="price-link-arrow">→</div></a>';
   html += '</div></div>';
 
   contentEl.innerHTML = html;
