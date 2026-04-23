@@ -931,7 +931,9 @@ function renderGlossary(filter) {
 
     const catDiv = document.createElement("div");
     catDiv.className = "gloss-cat";
-    catDiv.innerHTML = `<div class="gloss-cat-title" data-cat="${cat.id}">${cat.cat} <span style="font-size:10px;color:#3d4a5c">(${filtered.length})</span><span class="arrow">▼</span></div>`;
+    const catNames = { cond: "🎯 Condition Terms", rank: "📊 Grade Ranks", grade: "🏆 Grading & Auth", storage: "📦 Storage & Protection", defense: "🛡️ Search Prevention", market: "💰 Market & Trading" };
+    const catLabel = currentLang === "en" && catNames[cat.id] ? catNames[cat.id] : cat.cat;
+    catDiv.innerHTML = `<div class="gloss-cat-title" data-cat="${cat.id}">${catLabel} <span style="font-size:10px;color:var(--muted)">(${filtered.length})</span><span class="arrow">▼</span></div>`;
     const itemsDiv = document.createElement("div");
     itemsDiv.className = "gloss-items";
     itemsDiv.id = "gloss-items-" + cat.id;
@@ -939,8 +941,10 @@ function renderGlossary(filter) {
     filtered.forEach(item => {
       const d = document.createElement("div");
       d.className = "gloss-item";
+      const mainName = currentLang === "en" && item.en ? item.en : item.term;
+      const subName = currentLang === "en" ? item.term : (item.en || "");
       d.innerHTML = `
-        <div class="gloss-term">${esc(item.term)} <span class="gloss-term-en">${esc(item.en || "")}</span></div>
+        <div class="gloss-term">${esc(mainName)} <span class="gloss-term-en">${esc(subName)}</span></div>
         <div class="gloss-desc">${esc(item.desc)}</div>
         ${item.tip ? `<div class="gloss-tip">💡 ${esc(item.tip)}</div>` : ""}
         ${item.visual ? `<div class="gloss-visual">${esc(item.visual)}</div>` : ""}
@@ -1041,7 +1045,7 @@ function renderDexSeries(filter) {
         const cardsSection = document.createElement("div");
         cardsSection.className = "series-cards-section";
         cardsSection.style.width = "100%";
-        cardsSection.innerHTML = `<div class="series-cards-title">💰 高額レアカード</div>` +
+        cardsSection.innerHTML = `<div class="series-cards-title">💰 ${currentLang === "en" ? "High-Value Cards" : "高額レアカード"}</div>` +
           relatedCards.map(c => {
             const price = c.psa10 ? "PSA10 ¥" + c.psa10.toLocaleString() : c.raw;
             return `<span class="series-card-chip" data-cardname="${esc(c.name)}">${esc(c.name)} <span class="chip-price">${esc(price)}</span></span>`;
@@ -1197,7 +1201,13 @@ function renderDexHighValue(filter) {
     return;
   }
 
-  const categories = [
+  const categories = currentLang === "en" ? [
+    { id: "超希少", icon: "🏛️", title: "Ultra Rare", subtitle: "Extremely low circulation cards" },
+    { id: "高額カード", icon: "💰", title: "High Value", subtitle: "PSA 10 valued at ¥1M+" },
+    { id: "人気キャラクター", icon: "⭐", title: "Popular Character SR/SAR", subtitle: "Character-driven premium cards" },
+    { id: "モダン高額", icon: "🔥", title: "Modern High Value", subtitle: "SV & SWSH era spotlight cards" },
+    { id: "旧裏レア", icon: "✨", title: "Vintage Rare", subtitle: "Classic Base Set era cards" },
+  ] : [
     { id: "超希少", icon: "🏛️", title: "超希少カード", subtitle: "流通数が極めて少ない幻のカード" },
     { id: "高額カード", icon: "💰", title: "高額カード", subtitle: "PSA10で100万円以上の定番カード" },
     { id: "人気キャラクター", icon: "⭐", title: "人気キャラクターSR/SAR", subtitle: "キャラ人気が価格を牽引するカード" },
@@ -1246,7 +1256,7 @@ function createHighValueCardEl(card) {
           ${card.psa9 ? `<span class="dex-psa-chip">PSA9 <b>¥${card.psa9.toLocaleString()}</b></span>` : ""}
           <span class="dex-psa-chip">生 <b>${esc(card.raw)}</b></span>
         </div>
-        <div style="margin-top:8px"><button class="price-tag" data-price-name="${esc(card.name)}" data-price-set="${esc(card.set || "")}">💹 相場を見る</button></div>
+        <div style="margin-top:8px"><button class="price-tag" data-price-name="${esc(card.name)}" data-price-set="${esc(card.set || "")}">💹 ${currentLang==="en"?"View Prices":"相場を見る"}</button></div>
       </div>
     </div>
   `;
@@ -1291,7 +1301,7 @@ renderDexHighValue();
 // ============================================================
 const TCGDEX = "https://api.tcgdex.net/v2";
 const STORAGE_KEY_LANG = "pokescanner_lang";
-let currentLang = "ja";
+var currentLang = "ja";
 try { currentLang = localStorage.getItem(STORAGE_KEY_LANG) || "ja"; } catch {}
 
 function setLang(lang) {
@@ -1456,8 +1466,10 @@ function applyLangUI() {
   const addSubmit = document.getElementById("add-card-submit");
   if (addSubmit) addSubmit.textContent = t("addSubmit");
 
-  // Re-render series to pick up language changes
+  // Re-render all content to pick up language changes
+  renderGlossary(document.getElementById("gloss-search")?.value || "");
   renderDexSeries(document.getElementById("dex-search")?.value || "");
+  renderDexHighValue(document.getElementById("dex-search")?.value || "");
 }
 
 // Language toggle event listeners
@@ -1578,7 +1590,7 @@ function showCardModal(card) {
           ${priceEntries.map(p => `<div class="modal-price-row"><span class="modal-price-label">${esc(p.label)} <small style="color:#2a3d52">${esc(p.source)}</small></span><span class="modal-price-value">${esc(p.value)}</span></div>`).join("")}
         </div>
       ` : ""}
-      <div style="margin-top:12px"><button class="price-tag" id="en-modal-price-btn">💹 相場を見る</button></div>
+      <div style="margin-top:12px"><button class="price-tag" id="en-modal-price-btn">💹 ${currentLang==="en"?"View Prices":"相場を見る"}</button></div>
     </div>
   `;
 
@@ -1607,7 +1619,7 @@ function showCardModalJP(card) {
         <div class="modal-info-item"><div class="modal-info-label">HP</div><div class="modal-info-value">${card.hp || "-"}</div></div>
       </div>
       ${card.category ? `<div style="margin-top:8px;font-size:12px;color:var(--text2)">カテゴリ: ${esc(card.category)}</div>` : ""}
-      <div style="margin-top:12px"><button class="price-tag" id="jp-modal-price-btn">💹 相場を見る</button></div>
+      <div style="margin-top:12px"><button class="price-tag" id="jp-modal-price-btn">💹 ${currentLang==="en"?"View Prices":"相場を見る"}</button></div>
     </div>
   `;
   document.getElementById("jp-modal-price-btn")?.addEventListener("click", () => {
@@ -2674,7 +2686,7 @@ function openPriceModal(cardName, cardNameEn, setName) {
       snkrdunk: "スニーカーダンク",
       mercari_avg: "メルカリ 平均"
     };
-    html += '<div class="price-section"><div class="price-section-title">📊 市場相場</div>';
+    html += `<div class="price-section"><div class="price-section-title">📊 ${currentLang==="en"?"Market Prices":"市場相場"}</div>`;
     for (const [key, label] of Object.entries(labels)) {
       const val = match.prices[key];
       if (val == null) continue;
@@ -2686,7 +2698,7 @@ function openPriceModal(cardName, cardNameEn, setName) {
     html += '</div>';
 
     if (match.psa && Object.keys(match.psa).length > 0) {
-      html += '<div class="price-section"><div class="price-section-title">🏆 PSA鑑定済み想定価格</div>';
+      html += `<div class="price-section"><div class="price-section-title">🏆 ${currentLang==="en"?"PSA Graded Prices":"PSA鑑定済み想定価格"}</div>`;
       for (const [grade, price] of Object.entries(match.psa)) {
         html += '<div class="price-row"><div class="price-row-label">PSA ' + grade + '</div><div class="price-row-value">¥' + Math.round(price).toLocaleString() + '</div></div>';
       }
@@ -2697,18 +2709,19 @@ function openPriceModal(cardName, cardNameEn, setName) {
       html += '<div style="font-size:9px;color:var(--muted);margin-bottom:12px">データ更新: ' + new Date(customPriceData.updated).toLocaleString("ja-JP") + '</div>';
     }
   } else {
-    html += '<div style="padding:16px;text-align:center;color:var(--muted);font-size:12px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:12px">📡 相場データなし<br><small>資産タブの「カスタム相場API」を設定すると表示されます</small></div>';
+    html += `<div style="padding:16px;text-align:center;color:var(--muted);font-size:12px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:12px">📡 ${currentLang==="en"?"No price data":"相場データなし"}<br><small>${currentLang==="en"?"Set up Custom Price API in Portfolio tab":"資産タブの「カスタム相場API」を設定すると表示されます"}</small></div>`;
   }
 
   const encodedEn = encodeURIComponent(searchNameEn + " pokemon card");
   const encodedJa = encodeURIComponent(searchNameJa + " ポケモンカード");
-  html += '<div class="price-section"><div class="price-section-title">🔗 外部サイトで相場を確認</div>';
+  html += `<div class="price-section"><div class="price-section-title">🔗 ${currentLang==="en"?"Check Prices on External Sites":"外部サイトで相場を確認"}</div>`;
   html += '<div class="price-links">';
-  html += '<a class="price-link" href="https://www.ebay.com/sch/i.html?_nkw=' + encodedEn + '&_sacat=0&LH_Complete=1&LH_Sold=1&_sop=13" target="_blank" rel="noopener"><div class="price-link-icon">🌐</div><div class="price-link-info"><div class="price-link-name">eBay 落札履歴</div><div class="price-link-desc">英語版カードの実売データ</div></div><div class="price-link-arrow">→</div></a>';
-  html += '<a class="price-link" href="https://jp.mercari.com/search?keyword=' + encodedJa + '" target="_blank" rel="noopener"><div class="price-link-icon">🟥</div><div class="price-link-info"><div class="price-link-name">メルカリ</div><div class="price-link-desc">日本国内の取引相場</div></div><div class="price-link-arrow">→</div></a>';
-  html += '<a class="price-link" href="https://snkrdunk.com/brands/pokemon?keyword=' + encodeURIComponent(searchNameJa) + '" target="_blank" rel="noopener"><div class="price-link-icon">👟</div><div class="price-link-info"><div class="price-link-name">スニーカーダンク</div><div class="price-link-desc">ポケカ取引プラットフォーム</div></div><div class="price-link-arrow">→</div></a>';
-  html += '<a class="price-link" href="https://www.tcgplayer.com/search/pokemon/product?q=' + encodeURIComponent(searchNameEn) + '&view=grid" target="_blank" rel="noopener"><div class="price-link-icon">📈</div><div class="price-link-info"><div class="price-link-name">TCGPlayer</div><div class="price-link-desc">英語版の価格チャート・取引</div></div><div class="price-link-arrow">→</div></a>';
-  html += '<a class="price-link" href="https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=' + encodeURIComponent(searchNameEn) + '" target="_blank" rel="noopener"><div class="price-link-icon">💶</div><div class="price-link-info"><div class="price-link-name">Cardmarket</div><div class="price-link-desc">欧州市場の相場・チャート</div></div><div class="price-link-arrow">→</div></a>';
+  const isEn = currentLang === "en";
+  html += '<a class="price-link" href="https://www.ebay.com/sch/i.html?_nkw=' + encodedEn + '&_sacat=0&LH_Complete=1&LH_Sold=1&_sop=13" target="_blank" rel="noopener"><div class="price-link-icon">🌐</div><div class="price-link-info"><div class="price-link-name">' + (isEn?"eBay Sold Listings":"eBay 落札履歴") + '</div><div class="price-link-desc">' + (isEn?"Actual sold prices for EN cards":"英語版カードの実売データ") + '</div></div><div class="price-link-arrow">→</div></a>';
+  html += '<a class="price-link" href="https://jp.mercari.com/search?keyword=' + encodedJa + '" target="_blank" rel="noopener"><div class="price-link-icon">🟥</div><div class="price-link-info"><div class="price-link-name">' + (isEn?"Mercari Japan":"メルカリ") + '</div><div class="price-link-desc">' + (isEn?"Japan domestic marketplace":"日本国内の取引相場") + '</div></div><div class="price-link-arrow">→</div></a>';
+  html += '<a class="price-link" href="https://snkrdunk.com/brands/pokemon?keyword=' + encodeURIComponent(searchNameJa) + '" target="_blank" rel="noopener"><div class="price-link-icon">👟</div><div class="price-link-info"><div class="price-link-name">SNKRDUNK</div><div class="price-link-desc">' + (isEn?"JP card trading platform":"ポケカ取引プラットフォーム") + '</div></div><div class="price-link-arrow">→</div></a>';
+  html += '<a class="price-link" href="https://www.tcgplayer.com/search/pokemon/product?q=' + encodeURIComponent(searchNameEn) + '&view=grid" target="_blank" rel="noopener"><div class="price-link-icon">📈</div><div class="price-link-info"><div class="price-link-name">TCGPlayer</div><div class="price-link-desc">' + (isEn?"Price charts & EN market":"英語版の価格チャート・取引") + '</div></div><div class="price-link-arrow">→</div></a>';
+  html += '<a class="price-link" href="https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=' + encodeURIComponent(searchNameEn) + '" target="_blank" rel="noopener"><div class="price-link-icon">💶</div><div class="price-link-info"><div class="price-link-name">Cardmarket</div><div class="price-link-desc">' + (isEn?"European market prices":"欧州市場の相場・チャート") + '</div></div><div class="price-link-arrow">→</div></a>';
   html += '<a class="price-link" href="https://www.pricecharting.com/search-products?q=' + encodeURIComponent(searchNameEn + " pokemon") + '&type=prices" target="_blank" rel="noopener"><div class="price-link-icon">📉</div><div class="price-link-info"><div class="price-link-name">PriceCharting</div><div class="price-link-desc">長期価格チャート・トレンド</div></div><div class="price-link-arrow">→</div></a>';
   html += '</div></div>';
 
