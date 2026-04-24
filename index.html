@@ -45,7 +45,7 @@
     if (!html || html.indexOf('<!DOCTYPE html>') === -1) throw new Error('base app payload invalid');
 
     setStatus('boot: injecting enhancement patch...');
-    const injection = '\n<script src="./pokescanner-improvements.js"></' + 'script>\n<script src="./pokescanner-dex-hotfix-v5.js"></' + 'script>\n';
+    const injection = '\n<script src="./pokescanner-improvements.js"></' + 'script>\n<script src="./pokescanner-dex-hotfix-v6.js"></' + 'script>\n';
     if (html.indexOf('pokescanner-improvements.js') === -1) {
       html = html.replace('</body>', injection + '</body>');
     }
