@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-01T08:09:02.502282+00:00",
+  "updated": "2026-05-02T07:29:01.969475+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -13,8 +13,8 @@
         "tcgplayer_jpy": 86161,
         "cardmarket_eur": 2130.0,
         "cardmarket_jpy": 356562,
-        "cardmarket_trend_eur": 2571.69,
-        "cardmarket_trend_jpy": 430501
+        "cardmarket_trend_eur": 2565.25,
+        "cardmarket_trend_jpy": 429423
       },
       "psa": {}
     },
@@ -23,7 +23,14 @@
       "nameEn": "Kangaskhan",
       "set": "ジャングル",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 75.51,
+        "tcgplayer_jpy": 11704,
+        "cardmarket_eur": 11.87,
+        "cardmarket_jpy": 1987,
+        "cardmarket_trend_eur": 7.16,
+        "cardmarket_trend_jpy": 1199
+      },
       "psa": {}
     },
     {
@@ -36,8 +43,8 @@
         "tcgplayer_jpy": 71489,
         "cardmarket_eur": 326.22,
         "cardmarket_jpy": 54609,
-        "cardmarket_trend_eur": 320.75,
-        "cardmarket_trend_jpy": 53694
+        "cardmarket_trend_eur": 318.74,
+        "cardmarket_trend_jpy": 53357
       },
       "psa": {}
     },
@@ -51,8 +58,8 @@
         "tcgplayer_jpy": 201494,
         "cardmarket_eur": 381.97,
         "cardmarket_jpy": 63942,
-        "cardmarket_trend_eur": 438.56,
-        "cardmarket_trend_jpy": 73415
+        "cardmarket_trend_eur": 407.74,
+        "cardmarket_trend_jpy": 68256
       },
       "psa": {}
     },
@@ -66,8 +73,8 @@
         "tcgplayer_jpy": 12057,
         "cardmarket_eur": 237.5,
         "cardmarket_jpy": 39758,
-        "cardmarket_trend_eur": 99.23,
-        "cardmarket_trend_jpy": 16611
+        "cardmarket_trend_eur": 87.48,
+        "cardmarket_trend_jpy": 14644
       },
       "psa": {}
     },
@@ -77,8 +84,8 @@
       "set": "化石の秘密",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 336.37,
-        "tcgplayer_jpy": 52137,
+        "tcgplayer_usd": 303.77,
+        "tcgplayer_jpy": 47084,
         "cardmarket_eur": 116.2,
         "cardmarket_jpy": 19452,
         "cardmarket_trend_eur": 92.51,
@@ -92,12 +99,12 @@
       "set": "基本セット",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 43.25,
-        "tcgplayer_jpy": 6704,
+        "tcgplayer_usd": 42.9,
+        "tcgplayer_jpy": 6650,
         "cardmarket_eur": 35.61,
         "cardmarket_jpy": 5961,
-        "cardmarket_trend_eur": 38.83,
-        "cardmarket_trend_jpy": 6500
+        "cardmarket_trend_eur": 35.78,
+        "cardmarket_trend_jpy": 5990
       },
       "psa": {}
     },
@@ -107,12 +114,12 @@
       "set": "化石の秘密",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 333.26,
-        "tcgplayer_jpy": 51655,
+        "tcgplayer_usd": 301.57,
+        "tcgplayer_jpy": 46743,
         "cardmarket_eur": 121.49,
         "cardmarket_jpy": 20337,
-        "cardmarket_trend_eur": 117.3,
-        "cardmarket_trend_jpy": 19636
+        "cardmarket_trend_eur": 175.89,
+        "cardmarket_trend_jpy": 29444
       },
       "psa": {}
     },
@@ -153,8 +160,8 @@
       "set": "黒炎の支配者",
       "era": "SV",
       "prices": {
-        "tcgplayer_usd": 107.73,
-        "tcgplayer_jpy": 16698,
+        "tcgplayer_usd": 108.23,
+        "tcgplayer_jpy": 16776,
         "cardmarket_eur": 81.78,
         "cardmarket_jpy": 13690,
         "cardmarket_trend_eur": 78.53,
@@ -168,8 +175,8 @@
       "set": "クレイバースト",
       "era": "SV",
       "prices": {
-        "tcgplayer_usd": 42.54,
-        "tcgplayer_jpy": 6594,
+        "tcgplayer_usd": 42.9,
+        "tcgplayer_jpy": 6650,
         "cardmarket_eur": 43.45,
         "cardmarket_jpy": 7274,
         "cardmarket_trend_eur": 38.26,
@@ -199,8 +206,8 @@
       "set": "VMAXクライマックス",
       "era": "SWSH",
       "prices": {
-        "tcgplayer_usd": 7.6,
-        "tcgplayer_jpy": 1178,
+        "tcgplayer_usd": 7.75,
+        "tcgplayer_jpy": 1201,
         "cardmarket_eur": 5.75,
         "cardmarket_jpy": 963,
         "cardmarket_trend_eur": 5.89,
