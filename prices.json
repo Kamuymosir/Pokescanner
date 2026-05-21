@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-20T09:26:41.129913+00:00",
+  "updated": "2026-05-21T09:35:18.019840+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -11,10 +11,10 @@
       "prices": {
         "tcgplayer_usd": 595.18,
         "tcgplayer_jpy": 92253,
-        "cardmarket_eur": 2250.0,
-        "cardmarket_jpy": 376650,
-        "cardmarket_trend_eur": 2637.47,
-        "cardmarket_trend_jpy": 441512
+        "cardmarket_eur": 2656.0,
+        "cardmarket_jpy": 444614,
+        "cardmarket_trend_eur": 2799.98,
+        "cardmarket_trend_jpy": 468717
       },
       "psa": {}
     },
@@ -28,8 +28,8 @@
         "tcgplayer_jpy": 11989,
         "cardmarket_eur": 10.92,
         "cardmarket_jpy": 1828,
-        "cardmarket_trend_eur": 11.07,
-        "cardmarket_trend_jpy": 1853
+        "cardmarket_trend_eur": 10.39,
+        "cardmarket_trend_jpy": 1739
       },
       "psa": {}
     },
@@ -43,8 +43,8 @@
         "tcgplayer_jpy": 71489,
         "cardmarket_eur": 584.32,
         "cardmarket_jpy": 97815,
-        "cardmarket_trend_eur": 515.9,
-        "cardmarket_trend_jpy": 86362
+        "cardmarket_trend_eur": 487.03,
+        "cardmarket_trend_jpy": 81529
       },
       "psa": {}
     },
@@ -58,8 +58,8 @@
         "tcgplayer_jpy": 201494,
         "cardmarket_eur": 369.77,
         "cardmarket_jpy": 61899,
-        "cardmarket_trend_eur": 334.81,
-        "cardmarket_trend_jpy": 56047
+        "cardmarket_trend_eur": 309.39,
+        "cardmarket_trend_jpy": 51792
       },
       "psa": {}
     },
@@ -88,8 +88,8 @@
         "tcgplayer_jpy": 47272,
         "cardmarket_eur": 122.31,
         "cardmarket_jpy": 20475,
-        "cardmarket_trend_eur": 130.22,
-        "cardmarket_trend_jpy": 21799
+        "cardmarket_trend_eur": 136.72,
+        "cardmarket_trend_jpy": 22887
       },
       "psa": {}
     },
@@ -99,12 +99,12 @@
       "set": "基本セット",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 43.3,
-        "tcgplayer_jpy": 6712,
+        "tcgplayer_usd": 43.05,
+        "tcgplayer_jpy": 6673,
         "cardmarket_eur": 30.31,
         "cardmarket_jpy": 5074,
-        "cardmarket_trend_eur": 17.74,
-        "cardmarket_trend_jpy": 2970
+        "cardmarket_trend_eur": 17.07,
+        "cardmarket_trend_jpy": 2858
       },
       "psa": {}
     },
@@ -118,8 +118,8 @@
         "tcgplayer_jpy": 53481,
         "cardmarket_eur": 153.32,
         "cardmarket_jpy": 25666,
-        "cardmarket_trend_eur": 131.65,
-        "cardmarket_trend_jpy": 22038
+        "cardmarket_trend_eur": 127.49,
+        "cardmarket_trend_jpy": 21342
       },
       "psa": {}
     },
@@ -133,8 +133,8 @@
         "tcgplayer_jpy": 59827,
         "cardmarket_eur": 229.05,
         "cardmarket_jpy": 38343,
-        "cardmarket_trend_eur": 196.24,
-        "cardmarket_trend_jpy": 32851
+        "cardmarket_trend_eur": 220.96,
+        "cardmarket_trend_jpy": 36989
       },
       "psa": {}
     },
@@ -160,8 +160,8 @@
       "set": "黒炎の支配者",
       "era": "SV",
       "prices": {
-        "tcgplayer_usd": 134.79,
-        "tcgplayer_jpy": 20892,
+        "tcgplayer_usd": 137.03,
+        "tcgplayer_jpy": 21240,
         "cardmarket_eur": 81.78,
         "cardmarket_jpy": 13690,
         "cardmarket_trend_eur": 78.53,
@@ -175,8 +175,8 @@
       "set": "クレイバースト",
       "era": "SV",
       "prices": {
-        "tcgplayer_usd": 43.42,
-        "tcgplayer_jpy": 6730,
+        "tcgplayer_usd": 43.77,
+        "tcgplayer_jpy": 6784,
         "cardmarket_eur": 43.45,
         "cardmarket_jpy": 7274,
         "cardmarket_trend_eur": 38.26,
@@ -206,8 +206,8 @@
       "set": "VMAXクライマックス",
       "era": "SWSH",
       "prices": {
-        "tcgplayer_usd": 8.23,
-        "tcgplayer_jpy": 1276,
+        "tcgplayer_usd": 8.27,
+        "tcgplayer_jpy": 1282,
         "cardmarket_eur": 5.85,
         "cardmarket_jpy": 979,
         "cardmarket_trend_eur": 6.08,
@@ -236,8 +236,8 @@
       "set": "コロコロコミック付録",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 240.44,
-        "tcgplayer_jpy": 37268,
+        "tcgplayer_usd": 254.1,
+        "tcgplayer_jpy": 39386,
         "cardmarket_eur": 894.83,
         "cardmarket_jpy": 149795,
         "cardmarket_trend_eur": 832.62,
