@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T09:35:55.192895+00:00",
+  "updated": "2026-07-08T08:22:51.784516+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -9,8 +9,8 @@
       "set": "基本セット",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 720.34,
-        "tcgplayer_jpy": 111653,
+        "tcgplayer_usd": 728.31,
+        "tcgplayer_jpy": 112888,
         "cardmarket_eur": 1531.0,
         "cardmarket_jpy": 256289,
         "cardmarket_trend_eur": 4184.6,
@@ -23,7 +23,14 @@
       "nameEn": "Kangaskhan",
       "set": "ジャングル",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 82.61,
+        "tcgplayer_jpy": 12805,
+        "cardmarket_eur": 11.07,
+        "cardmarket_jpy": 1853,
+        "cardmarket_trend_eur": 7.75,
+        "cardmarket_trend_jpy": 1297
+      },
       "psa": {}
     },
     {
@@ -153,8 +160,8 @@
       "set": "黒炎の支配者",
       "era": "SV",
       "prices": {
-        "tcgplayer_usd": 116.9,
-        "tcgplayer_jpy": 18120,
+        "tcgplayer_usd": 116.94,
+        "tcgplayer_jpy": 18126,
         "cardmarket_eur": 81.78,
         "cardmarket_jpy": 13690,
         "cardmarket_trend_eur": 78.53,
@@ -199,8 +206,8 @@
       "set": "VMAXクライマックス",
       "era": "SWSH",
       "prices": {
-        "tcgplayer_usd": 8.43,
-        "tcgplayer_jpy": 1307,
+        "tcgplayer_usd": 8.38,
+        "tcgplayer_jpy": 1299,
         "cardmarket_eur": 6.13,
         "cardmarket_jpy": 1026,
         "cardmarket_trend_eur": 5.32,
@@ -229,8 +236,8 @@
       "set": "コロコロコミック付録",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 323.03,
-        "tcgplayer_jpy": 50070,
+        "tcgplayer_usd": 334.67,
+        "tcgplayer_jpy": 51874,
         "cardmarket_eur": 262.15,
         "cardmarket_jpy": 43884,
         "cardmarket_trend_eur": 337.95,
