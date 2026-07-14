@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-13T09:20:27.283264+00:00",
+  "updated": "2026-07-14T07:58:34.188574+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -8,14 +8,7 @@
       "nameEn": "Charizard",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 728.31,
-        "tcgplayer_jpy": 112888,
-        "cardmarket_eur": 1531.0,
-        "cardmarket_jpy": 256289,
-        "cardmarket_trend_eur": 4184.6,
-        "cardmarket_trend_jpy": 700502
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -24,8 +17,8 @@
       "set": "ジャングル",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 84.57,
-        "tcgplayer_jpy": 13108,
+        "tcgplayer_usd": 80.71,
+        "tcgplayer_jpy": 12510,
         "cardmarket_eur": 11.07,
         "cardmarket_jpy": 1853,
         "cardmarket_trend_eur": 7.75,
@@ -68,7 +61,14 @@
       "nameEn": "Mewtwo",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 75.96,
+        "tcgplayer_jpy": 11774,
+        "cardmarket_eur": 122.49,
+        "cardmarket_jpy": 20505,
+        "cardmarket_trend_eur": 218.64,
+        "cardmarket_trend_jpy": 36600
+      },
       "psa": {}
     },
     {
@@ -77,8 +77,8 @@
       "set": "化石の秘密",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 429.17,
-        "tcgplayer_jpy": 66521,
+        "tcgplayer_usd": 461.75,
+        "tcgplayer_jpy": 71571,
         "cardmarket_eur": 115.58,
         "cardmarket_jpy": 19348,
         "cardmarket_trend_eur": 110.31,
@@ -152,14 +152,7 @@
       "nameEn": "Charizard ex",
       "set": "黒炎の支配者",
       "era": "SV",
-      "prices": {
-        "tcgplayer_usd": 119.49,
-        "tcgplayer_jpy": 18521,
-        "cardmarket_eur": 81.78,
-        "cardmarket_jpy": 13690,
-        "cardmarket_trend_eur": 78.53,
-        "cardmarket_trend_jpy": 13146
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -199,8 +192,8 @@
       "set": "VMAXクライマックス",
       "era": "SWSH",
       "prices": {
-        "tcgplayer_usd": 8.26,
-        "tcgplayer_jpy": 1280,
+        "tcgplayer_usd": 8.1,
+        "tcgplayer_jpy": 1256,
         "cardmarket_eur": 6.13,
         "cardmarket_jpy": 1026,
         "cardmarket_trend_eur": 5.32,
