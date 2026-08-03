@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-02T08:18:34.114115+00:00",
+  "updated": "2026-08-03T09:37:15.369339+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -8,7 +8,14 @@
       "nameEn": "Charizard",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 800.43,
+        "tcgplayer_jpy": 124067,
+        "cardmarket_eur": 1531.0,
+        "cardmarket_jpy": 256289,
+        "cardmarket_trend_eur": 4184.6,
+        "cardmarket_trend_jpy": 700502
+      },
       "psa": {}
     },
     {
@@ -31,14 +38,7 @@
       "nameEn": "Umbreon",
       "set": "neo discovery",
       "era": "Neo",
-      "prices": {
-        "tcgplayer_usd": 404.69,
-        "tcgplayer_jpy": 62727,
-        "cardmarket_eur": 611.53,
-        "cardmarket_jpy": 102370,
-        "cardmarket_trend_eur": 560.22,
-        "cardmarket_trend_jpy": 93781
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -46,7 +46,14 @@
       "nameEn": "Lugia",
       "set": "neo genesis",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 1299.96,
+        "tcgplayer_jpy": 201494,
+        "cardmarket_eur": 295.54,
+        "cardmarket_jpy": 49473,
+        "cardmarket_trend_eur": 311.38,
+        "cardmarket_trend_jpy": 52125
+      },
       "psa": {}
     },
     {
@@ -92,7 +99,14 @@
       "nameEn": "Gengar",
       "set": "化石の秘密",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 601.49,
+        "tcgplayer_jpy": 93231,
+        "cardmarket_eur": 141.0,
+        "cardmarket_jpy": 23603,
+        "cardmarket_trend_eur": 199.45,
+        "cardmarket_trend_jpy": 33388
+      },
       "psa": {}
     },
     {
@@ -139,14 +153,7 @@
       "nameEn": "Iono",
       "set": "クレイバースト",
       "era": "SV",
-      "prices": {
-        "tcgplayer_usd": 41.06,
-        "tcgplayer_jpy": 6364,
-        "cardmarket_eur": 43.45,
-        "cardmarket_jpy": 7274,
-        "cardmarket_trend_eur": 38.26,
-        "cardmarket_trend_jpy": 6405
-      },
+      "prices": {},
       "psa": {}
     },
     {
