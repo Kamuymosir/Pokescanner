@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-20T06:39:12.308603+00:00",
+  "updated": "2026-08-21T06:39:35.487400+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -16,14 +16,7 @@
       "nameEn": "Kangaskhan",
       "set": "ジャングル",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 81.52,
-        "tcgplayer_jpy": 12636,
-        "cardmarket_eur": 11.07,
-        "cardmarket_jpy": 1853,
-        "cardmarket_trend_eur": 7.75,
-        "cardmarket_trend_jpy": 1297
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -149,14 +142,7 @@
       "nameEn": "Acerola",
       "set": "VMAXクライマックス",
       "era": "SWSH",
-      "prices": {
-        "tcgplayer_usd": 8.78,
-        "tcgplayer_jpy": 1361,
-        "cardmarket_eur": 6.13,
-        "cardmarket_jpy": 1026,
-        "cardmarket_trend_eur": 5.32,
-        "cardmarket_trend_jpy": 891
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -164,14 +150,7 @@
       "nameEn": "Shining Gyarados",
       "set": "めざめる伝説",
       "era": "Neo",
-      "prices": {
-        "tcgplayer_usd": 718.66,
-        "tcgplayer_jpy": 111392,
-        "cardmarket_eur": 690.35,
-        "cardmarket_jpy": 115565,
-        "cardmarket_trend_eur": 557.37,
-        "cardmarket_trend_jpy": 93304
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -179,7 +158,14 @@
       "nameEn": "Pikachu",
       "set": "コロコロコミック付録",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 427.71,
+        "tcgplayer_jpy": 66295,
+        "cardmarket_eur": 262.15,
+        "cardmarket_jpy": 43884,
+        "cardmarket_trend_eur": 337.95,
+        "cardmarket_trend_jpy": 56573
+      },
       "psa": {}
     }
   ]
