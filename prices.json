@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-30T11:11:41.445427+00:00",
+  "updated": "2026-08-31T12:37:51.998884+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -8,14 +8,7 @@
       "nameEn": "Charizard",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 868.56,
-        "tcgplayer_jpy": 134627,
-        "cardmarket_eur": 1531.0,
-        "cardmarket_jpy": 256289,
-        "cardmarket_trend_eur": 4184.6,
-        "cardmarket_trend_jpy": 700502
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -23,14 +16,7 @@
       "nameEn": "Kangaskhan",
       "set": "ジャングル",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 81.52,
-        "tcgplayer_jpy": 12636,
-        "cardmarket_eur": 11.07,
-        "cardmarket_jpy": 1853,
-        "cardmarket_trend_eur": 7.75,
-        "cardmarket_trend_jpy": 1297
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -62,14 +48,7 @@
       "nameEn": "Dragonite",
       "set": "化石の秘密",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 461.75,
-        "tcgplayer_jpy": 71571,
-        "cardmarket_eur": 115.58,
-        "cardmarket_jpy": 19348,
-        "cardmarket_trend_eur": 110.31,
-        "cardmarket_trend_jpy": 18466
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -77,14 +56,7 @@
       "nameEn": "Gyarados",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 49.04,
-        "tcgplayer_jpy": 7601,
-        "cardmarket_eur": 22.95,
-        "cardmarket_jpy": 3842,
-        "cardmarket_trend_eur": 22.82,
-        "cardmarket_trend_jpy": 3820
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -131,14 +103,7 @@
       "nameEn": "Charizard ex",
       "set": "黒炎の支配者",
       "era": "SV",
-      "prices": {
-        "tcgplayer_usd": 108.59,
-        "tcgplayer_jpy": 16831,
-        "cardmarket_eur": 81.78,
-        "cardmarket_jpy": 13690,
-        "cardmarket_trend_eur": 78.53,
-        "cardmarket_trend_jpy": 13146
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -146,14 +111,7 @@
       "nameEn": "Iono",
       "set": "クレイバースト",
       "era": "SV",
-      "prices": {
-        "tcgplayer_usd": 38.43,
-        "tcgplayer_jpy": 5957,
-        "cardmarket_eur": 43.45,
-        "cardmarket_jpy": 7274,
-        "cardmarket_trend_eur": 38.26,
-        "cardmarket_trend_jpy": 6405
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -193,7 +151,14 @@
       "nameEn": "Pikachu",
       "set": "コロコロコミック付録",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 447.66,
+        "tcgplayer_jpy": 69387,
+        "cardmarket_eur": 262.15,
+        "cardmarket_jpy": 43884,
+        "cardmarket_trend_eur": 337.95,
+        "cardmarket_trend_jpy": 56573
+      },
       "psa": {}
     }
   ]
