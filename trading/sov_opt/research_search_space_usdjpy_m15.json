@@ -1,0 +1,35 @@
+{
+  "expert_name": "SOVEREIGN_Ascendant_v1",
+  "symbol": "USDJPY",
+  "period": "M15",
+  "from_date": "2024.01.01",
+  "to_date": "2025.03.31",
+  "report_prefix": "ascendant-usdjpy-research",
+  "min_trades": 60,
+  "timeout_seconds": 420,
+  "base_parameters": {
+    "InpEnableAuditCSV": true,
+    "InpUseRiskPercent": true,
+    "InpEnableNewsEventFilter": false,
+    "InpSessionGuard": false,
+    "InpSpreadMaxPoints": 28,
+    "InpBaseRiskPercent": 0.30,
+    "InpEnablePriceActionContext": true,
+    "InpEnableBandwagon": true,
+    "InpEnableStealth": true
+  },
+  "search_space": {
+    "InpADXThreshold": [18, 19, 21],
+    "InpBandwagonMinBreakATR": [0.12, 0.14, 0.16],
+    "InpBandwagonMinCloseLocation": [0.68, 0.72, 0.76],
+    "InpBandwagonMaxExhaustionWickRatio": [0.14, 0.18, 0.22],
+    "InpBandwagonMinEfficiencyRatio": [0.22, 0.28, 0.34],
+    "InpBandwagonTP_RR": [1.40, 1.50, 1.65],
+    "InpStealthMinCloseLocation": [0.66, 0.70, 0.74],
+    "InpStealthMaxExhaustionWickRatio": [0.18, 0.22, 0.26],
+    "InpStealthMaxPreBreakEfficiencyRatio": [0.42, 0.52, 0.62],
+    "InpStealthReleaseFactor": [1.15, 1.18, 1.22],
+    "InpStealthTP_RR": [1.90, 2.10, 2.30],
+    "InpBaseRiskPercent": [0.25, 0.30, 0.35]
+  }
+}
