@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-09T10:43:10.840628+00:00",
+  "updated": "2026-09-10T10:32:51.464117+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -39,7 +39,14 @@
       "nameEn": "Lugia",
       "set": "neo genesis",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 1085.03,
+        "tcgplayer_jpy": 168180,
+        "cardmarket_eur": 295.54,
+        "cardmarket_jpy": 49473,
+        "cardmarket_trend_eur": 311.38,
+        "cardmarket_trend_jpy": 52125
+      },
       "psa": {}
     },
     {
@@ -47,14 +54,7 @@
       "nameEn": "Mewtwo",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 78.03,
-        "tcgplayer_jpy": 12095,
-        "cardmarket_eur": 122.49,
-        "cardmarket_jpy": 20505,
-        "cardmarket_trend_eur": 218.64,
-        "cardmarket_trend_jpy": 36600
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -77,7 +77,14 @@
       "nameEn": "Gyarados",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 46.45,
+        "tcgplayer_jpy": 7200,
+        "cardmarket_eur": 22.95,
+        "cardmarket_jpy": 3842,
+        "cardmarket_trend_eur": 22.82,
+        "cardmarket_trend_jpy": 3820
+      },
       "psa": {}
     },
     {
@@ -93,14 +100,7 @@
       "nameEn": "Espeon",
       "set": "neo discovery",
       "era": "Neo",
-      "prices": {
-        "tcgplayer_usd": 237.5,
-        "tcgplayer_jpy": 36812,
-        "cardmarket_eur": 164.16,
-        "cardmarket_jpy": 27480,
-        "cardmarket_trend_eur": 241.92,
-        "cardmarket_trend_jpy": 40497
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -125,8 +125,8 @@
       "set": "黒炎の支配者",
       "era": "SV",
       "prices": {
-        "tcgplayer_usd": 102.35,
-        "tcgplayer_jpy": 15864,
+        "tcgplayer_usd": 101.62,
+        "tcgplayer_jpy": 15751,
         "cardmarket_eur": 81.78,
         "cardmarket_jpy": 13690,
         "cardmarket_trend_eur": 78.53,
@@ -163,14 +163,7 @@
       "nameEn": "Acerola",
       "set": "VMAXクライマックス",
       "era": "SWSH",
-      "prices": {
-        "tcgplayer_usd": 8.22,
-        "tcgplayer_jpy": 1274,
-        "cardmarket_eur": 6.13,
-        "cardmarket_jpy": 1026,
-        "cardmarket_trend_eur": 5.32,
-        "cardmarket_trend_jpy": 891
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -178,14 +171,7 @@
       "nameEn": "Shining Gyarados",
       "set": "めざめる伝説",
       "era": "Neo",
-      "prices": {
-        "tcgplayer_usd": 718.66,
-        "tcgplayer_jpy": 111392,
-        "cardmarket_eur": 690.35,
-        "cardmarket_jpy": 115565,
-        "cardmarket_trend_eur": 557.37,
-        "cardmarket_trend_jpy": 93304
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -193,7 +179,14 @@
       "nameEn": "Pikachu",
       "set": "コロコロコミック付録",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 493.99,
+        "tcgplayer_jpy": 76568,
+        "cardmarket_eur": 262.15,
+        "cardmarket_jpy": 43884,
+        "cardmarket_trend_eur": 337.95,
+        "cardmarket_trend_jpy": 56573
+      },
       "psa": {}
     }
   ]
