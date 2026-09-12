@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T10:33:52.847440+00:00",
+  "updated": "2026-09-12T10:02:01.420193+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -48,8 +48,8 @@
       "set": "基本セット",
       "era": "旧裏面",
       "prices": {
-        "tcgplayer_usd": 86.02,
-        "tcgplayer_jpy": 13333,
+        "tcgplayer_usd": 92.4,
+        "tcgplayer_jpy": 14322,
         "cardmarket_eur": 122.49,
         "cardmarket_jpy": 20505,
         "cardmarket_trend_eur": 218.64,
@@ -70,7 +70,14 @@
       "nameEn": "Gyarados",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 45.84,
+        "tcgplayer_jpy": 7105,
+        "cardmarket_eur": 22.95,
+        "cardmarket_jpy": 3842,
+        "cardmarket_trend_eur": 22.82,
+        "cardmarket_trend_jpy": 3820
+      },
       "psa": {}
     },
     {
@@ -86,7 +93,14 @@
       "nameEn": "Espeon",
       "set": "neo discovery",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 237.5,
+        "tcgplayer_jpy": 36812,
+        "cardmarket_eur": 164.16,
+        "cardmarket_jpy": 27480,
+        "cardmarket_trend_eur": 241.92,
+        "cardmarket_trend_jpy": 40497
+      },
       "psa": {}
     },
     {
