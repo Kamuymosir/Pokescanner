@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-11T12:03:08.249209+00:00",
+  "updated": "2026-10-12T14:20:45.315905+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -63,7 +63,14 @@
       "nameEn": "Gyarados",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 49.16,
+        "tcgplayer_jpy": 7620,
+        "cardmarket_eur": 22.95,
+        "cardmarket_jpy": 3842,
+        "cardmarket_trend_eur": 22.82,
+        "cardmarket_trend_jpy": 3820
+      },
       "psa": {}
     },
     {
@@ -71,7 +78,14 @@
       "nameEn": "Gengar",
       "set": "化石の秘密",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 663.25,
+        "tcgplayer_jpy": 102804,
+        "cardmarket_eur": 141.0,
+        "cardmarket_jpy": 23603,
+        "cardmarket_trend_eur": 199.45,
+        "cardmarket_trend_jpy": 33388
+      },
       "psa": {}
     },
     {
@@ -79,7 +93,14 @@
       "nameEn": "Espeon",
       "set": "neo discovery",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 237.5,
+        "tcgplayer_jpy": 36812,
+        "cardmarket_eur": 164.16,
+        "cardmarket_jpy": 27480,
+        "cardmarket_trend_eur": 241.92,
+        "cardmarket_trend_jpy": 40497
+      },
       "psa": {}
     },
     {
@@ -103,7 +124,14 @@
       "nameEn": "Charizard ex",
       "set": "黒炎の支配者",
       "era": "SV",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 94.33,
+        "tcgplayer_jpy": 14621,
+        "cardmarket_eur": 81.78,
+        "cardmarket_jpy": 13690,
+        "cardmarket_trend_eur": 78.53,
+        "cardmarket_trend_jpy": 13146
+      },
       "psa": {}
     },
     {
@@ -143,7 +171,14 @@
       "nameEn": "Shining Gyarados",
       "set": "めざめる伝説",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 782.55,
+        "tcgplayer_jpy": 121295,
+        "cardmarket_eur": 690.35,
+        "cardmarket_jpy": 115565,
+        "cardmarket_trend_eur": 557.37,
+        "cardmarket_trend_jpy": 93304
+      },
       "psa": {}
     },
     {
@@ -151,14 +186,7 @@
       "nameEn": "Pikachu",
       "set": "コロコロコミック付録",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 494.36,
-        "tcgplayer_jpy": 76626,
-        "cardmarket_eur": 262.15,
-        "cardmarket_jpy": 43884,
-        "cardmarket_trend_eur": 337.95,
-        "cardmarket_trend_jpy": 56573
-      },
+      "prices": {},
       "psa": {}
     }
   ]
