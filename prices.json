@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10T14:16:03.100111+00:00",
+  "updated": "2026-11-11T13:30:02.999832+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -8,7 +8,14 @@
       "nameEn": "Charizard",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 954.65,
+        "tcgplayer_jpy": 147971,
+        "cardmarket_eur": 1531.0,
+        "cardmarket_jpy": 256289,
+        "cardmarket_trend_eur": 4184.6,
+        "cardmarket_trend_jpy": 700502
+      },
       "psa": {}
     },
     {
@@ -16,7 +23,14 @@
       "nameEn": "Kangaskhan",
       "set": "ジャングル",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 85.12,
+        "tcgplayer_jpy": 13194,
+        "cardmarket_eur": 11.07,
+        "cardmarket_jpy": 1853,
+        "cardmarket_trend_eur": 7.75,
+        "cardmarket_trend_jpy": 1297
+      },
       "psa": {}
     },
     {
@@ -24,7 +38,14 @@
       "nameEn": "Umbreon",
       "set": "neo discovery",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 817.16,
+        "tcgplayer_jpy": 126660,
+        "cardmarket_eur": 611.53,
+        "cardmarket_jpy": 102370,
+        "cardmarket_trend_eur": 560.22,
+        "cardmarket_trend_jpy": 93781
+      },
       "psa": {}
     },
     {
@@ -48,7 +69,14 @@
       "nameEn": "Dragonite",
       "set": "化石の秘密",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 514.87,
+        "tcgplayer_jpy": 79805,
+        "cardmarket_eur": 115.58,
+        "cardmarket_jpy": 19348,
+        "cardmarket_trend_eur": 110.31,
+        "cardmarket_trend_jpy": 18466
+      },
       "psa": {}
     },
     {
@@ -64,14 +92,7 @@
       "nameEn": "Gengar",
       "set": "化石の秘密",
       "era": "旧裏面",
-      "prices": {
-        "tcgplayer_usd": 725.0,
-        "tcgplayer_jpy": 112375,
-        "cardmarket_eur": 141.0,
-        "cardmarket_jpy": 23603,
-        "cardmarket_trend_eur": 199.45,
-        "cardmarket_trend_jpy": 33388
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -111,7 +132,14 @@
       "nameEn": "Iono",
       "set": "クレイバースト",
       "era": "SV",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 30.32,
+        "tcgplayer_jpy": 4700,
+        "cardmarket_eur": 43.45,
+        "cardmarket_jpy": 7274,
+        "cardmarket_trend_eur": 38.26,
+        "cardmarket_trend_jpy": 6405
+      },
       "psa": {}
     },
     {
@@ -135,14 +163,7 @@
       "nameEn": "Acerola",
       "set": "VMAXクライマックス",
       "era": "SWSH",
-      "prices": {
-        "tcgplayer_usd": 8.74,
-        "tcgplayer_jpy": 1355,
-        "cardmarket_eur": 6.13,
-        "cardmarket_jpy": 1026,
-        "cardmarket_trend_eur": 5.32,
-        "cardmarket_trend_jpy": 891
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -158,7 +179,14 @@
       "nameEn": "Pikachu",
       "set": "コロコロコミック付録",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 494.36,
+        "tcgplayer_jpy": 76626,
+        "cardmarket_eur": 262.15,
+        "cardmarket_jpy": 43884,
+        "cardmarket_trend_eur": 337.95,
+        "cardmarket_trend_jpy": 56573
+      },
       "psa": {}
     }
   ]
