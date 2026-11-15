@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-14T12:55:38.851114+00:00",
+  "updated": "2026-11-15T13:24:09.620308+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -47,7 +47,14 @@
       "nameEn": "Mewtwo",
       "set": "基本セット",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 86.16,
+        "tcgplayer_jpy": 13355,
+        "cardmarket_eur": 122.49,
+        "cardmarket_jpy": 20505,
+        "cardmarket_trend_eur": 218.64,
+        "cardmarket_trend_jpy": 36600
+      },
       "psa": {}
     },
     {
@@ -118,14 +125,7 @@
       "nameEn": "Iono",
       "set": "クレイバースト",
       "era": "SV",
-      "prices": {
-        "tcgplayer_usd": 30.32,
-        "tcgplayer_jpy": 4700,
-        "cardmarket_eur": 43.45,
-        "cardmarket_jpy": 7274,
-        "cardmarket_trend_eur": 38.26,
-        "cardmarket_trend_jpy": 6405
-      },
+      "prices": {},
       "psa": {}
     },
     {
