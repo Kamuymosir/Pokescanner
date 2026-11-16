@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-15T13:24:09.620308+00:00",
+  "updated": "2026-11-16T14:40:16.292456+00:00",
   "source": "PokemonTCG API + PokeTrace (if key set)",
   "usd_jpy_rate": 155,
   "cards": [
@@ -24,7 +24,14 @@
       "nameEn": "Umbreon",
       "set": "neo discovery",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 817.16,
+        "tcgplayer_jpy": 126660,
+        "cardmarket_eur": 611.53,
+        "cardmarket_jpy": 102370,
+        "cardmarket_trend_eur": 560.22,
+        "cardmarket_trend_jpy": 93781
+      },
       "psa": {}
     },
     {
@@ -32,14 +39,7 @@
       "nameEn": "Lugia",
       "set": "neo genesis",
       "era": "Neo",
-      "prices": {
-        "tcgplayer_usd": 1300.0,
-        "tcgplayer_jpy": 201500,
-        "cardmarket_eur": 295.54,
-        "cardmarket_jpy": 49473,
-        "cardmarket_trend_eur": 311.38,
-        "cardmarket_trend_jpy": 52125
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -62,7 +62,14 @@
       "nameEn": "Dragonite",
       "set": "化石の秘密",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 514.87,
+        "tcgplayer_jpy": 79805,
+        "cardmarket_eur": 115.58,
+        "cardmarket_jpy": 19348,
+        "cardmarket_trend_eur": 110.31,
+        "cardmarket_trend_jpy": 18466
+      },
       "psa": {}
     },
     {
@@ -78,7 +85,14 @@
       "nameEn": "Gengar",
       "set": "化石の秘密",
       "era": "旧裏面",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 725.0,
+        "tcgplayer_jpy": 112375,
+        "cardmarket_eur": 141.0,
+        "cardmarket_jpy": 23603,
+        "cardmarket_trend_eur": 199.45,
+        "cardmarket_trend_jpy": 33388
+      },
       "psa": {}
     },
     {
@@ -110,14 +124,7 @@
       "nameEn": "Charizard ex",
       "set": "黒炎の支配者",
       "era": "SV",
-      "prices": {
-        "tcgplayer_usd": 94.59,
-        "tcgplayer_jpy": 14661,
-        "cardmarket_eur": 81.78,
-        "cardmarket_jpy": 13690,
-        "cardmarket_trend_eur": 78.53,
-        "cardmarket_trend_jpy": 13146
-      },
+      "prices": {},
       "psa": {}
     },
     {
@@ -157,7 +164,14 @@
       "nameEn": "Shining Gyarados",
       "set": "めざめる伝説",
       "era": "Neo",
-      "prices": {},
+      "prices": {
+        "tcgplayer_usd": 793.16,
+        "tcgplayer_jpy": 122940,
+        "cardmarket_eur": 690.35,
+        "cardmarket_jpy": 115565,
+        "cardmarket_trend_eur": 557.37,
+        "cardmarket_trend_jpy": 93304
+      },
       "psa": {}
     },
     {
